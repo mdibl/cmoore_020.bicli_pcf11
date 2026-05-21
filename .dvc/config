@@ -1,0 +1,4 @@
+[core]
+    remote = remote
+['remote "remote"']
+    url = s3://mdibl-analysis/ClaireMoore/cmoore_020.bicli_pcf11/dvc
