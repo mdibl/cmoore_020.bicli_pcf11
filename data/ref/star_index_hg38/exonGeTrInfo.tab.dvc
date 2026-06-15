@@ -1,0 +1,5 @@
+outs:
+- md5: 68a578a3fb11b9d330ce54ac3fca6841
+  size: 28131429
+  hash: md5
+  path: exonGeTrInfo.tab
