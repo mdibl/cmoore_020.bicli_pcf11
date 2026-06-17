@@ -106,6 +106,14 @@ dev.off()
 #refPAS_file <- "/wistar/tian_publicdata/PolyA_DBv3.2/human/human.PAS.hg38.txt"
 ## polyAdb
 anno <- read.delim(file = refPAS_file, header = TRUE)
+# Support PolyA_DB v4.1: PAS_ID encodes "chr:strand:pos" with no separate columns.
+# v3.2 had explicit Chromosome/Strand/Position columns; parse from PAS_ID if absent.
+if (!all(c("Chromosome", "Position", "Strand") %in% colnames(anno))) {
+  pas_parts <- do.call(rbind, strsplit(as.character(anno$PAS_ID), ":"))
+  anno$Chromosome <- pas_parts[, 1]
+  anno$Strand     <- pas_parts[, 2]
+  anno$Position   <- as.numeric(pas_parts[, 3])
+}
 anno$Position_end <- anno$Position+1
 ## GenomicRanges object is 1-based!
 GR.polyA.db = GenomicRanges::makeGRangesFromDataFrame(anno, keep.extra.columns = TRUE,starts.in.df.are.0based = TRUE,
@@ -146,7 +154,7 @@ colnames(anno) <- paste0("hit_",colnames(anno))
 anno$index <- seq_len(nrow(anno))
 meta.new <- merge(meta.new, anno, by.x = "subjectHits", by.y="index", all.x = TRUE,sort=F)
 meta.new <- meta.new[, !names(meta.new) %in% c("subjectHits", "index")]
-saveRDS(meta.new,paste0(out_dir,"_LAP_polyAdb3.rds"))
+saveRDS(meta.new,paste0(out_dir,"_LAP_polyAdb.rds"))
 
 LAPs <- subset(meta.new, LAP_anno=="LAP")
 stats[length(stats)+1] <- nrow(LAPs)
@@ -175,7 +183,7 @@ p1=ggplot(LAPs,aes(x=distance_signed))+geom_density(adjust = 0.1)+geom_vline(xin
 labs(title=paste0(sample,": Distance of LAP to PAS"))
 p2=ggplot(LAPs,aes(x=distance_signed))+geom_density(adjust = 0.1)+geom_vline(xintercept=c(mode,-dist,dist),linetype=5,col="grey")+theme_bw()+xlim(-100,100)+
 labs(title=paste0(sample,": Distance of LAP to PAS"))
-pdf(paste0(out_dir,"_LAP_polyAdb3_distance.pdf"))
+pdf(paste0(out_dir,"_LAP_polyAdb_distance.pdf"))
 tryCatch({
   print(p1)
 }, error = function(e) {
