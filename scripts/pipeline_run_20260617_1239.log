@@ -1,0 +1,1315 @@
+=== 3-REAP pipeline ===
+    Project : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11
+    Output  : /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed/
+    Samples : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/sample.txt
+    PolyADB : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/PolyA_DB_v4.1/hg38.PAS.main.tsv
+
+[Step 2] Adapter / polyA trimming...
+  [R1] Control_S2
+  [R1] Control_S1
+  [R1] Experimental_S4
+  [R1] Control_S3
+  [R2] Experimental_S4
+[Errno 2] No such file or directory: '\r'
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.fastq.gz...
+Processed 0 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz
+  [R1] Experimental_S5
+  [R2] Control_S2
+[Errno 2] No such file or directory: '\r'
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.fastq.gz...
+Processed 0 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz
+  [R2] Control_S3
+[Errno 2] No such file or directory: '\r'
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.fastq.gz...
+Processed 0 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz
+  [R2] Control_S1
+[Errno 2] No such file or directory: '\r'
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.fastq.gz...
+Processed 0 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz
+  [R2] Experimental_S5
+[Errno 2] No such file or directory: '\r'
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.fastq.gz...
+Processed 0 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz
+[Step 3] Repair pairs + STAR alignment...
+  [align] Control_S1
+  [align] Control_S3
+  [align] Experimental_S4
+  [align] Control_S2
+java -ea -Xmx221543m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_unpaired.fastq.gz repair
+java -ea -Xmx221543m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_unpaired.fastq.gz repair
+java -ea -Xmx221543m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_unpaired.fastq.gz repair
+java -ea -Xmx221543m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_unpaired.fastq.gz repair
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_unpaired.fastq.gz, repair]
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_unpaired.fastq.gz, repair]
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_unpaired.fastq.gz, repair]
+
+
+
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_unpaired.fastq.gz, repair]
+
+Set INTERLEAVED to false
+Set INTERLEAVED to false
+Set INTERLEAVED to false
+Set INTERLEAVED to false
+Unspecified format for input /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz; defaulting to fastq.
+Unspecified format for input /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz; defaulting to fastq.
+Unspecified format for input /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz; defaulting to fastq.
+Unspecified format for input /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz; defaulting to fastq.
+Started output stream.
+Started output stream.
+Started output stream.
+Started output stream.
+
+Input:                  	24641512 reads 		2949897255 bases.
+Result:                 	24641512 reads (100.00%) 	2949897255 bases (100.00%)
+Pairs:                  	0 reads (0.00%) 	0 bases (0.00%)
+Singletons:             	24641512 reads (100.00%) 	2949897255 bases (100.00%)
+
+Time:                         	95.495 seconds.
+Reads Processed:      24641k 	258.04k reads/sec
+Bases Processed:       2949m 	30.89m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 17 12:49:19 ..... started STAR run
+Jun 17 12:49:20 ..... loading genome
+
+Input:                  	25568515 reads 		3065965304 bases.
+Result:                 	25568515 reads (100.00%) 	3065965304 bases (100.00%)
+Pairs:                  	0 reads (0.00%) 	0 bases (0.00%)
+Singletons:             	25568515 reads (100.00%) 	3065965304 bases (100.00%)
+
+Time:                         	108.884 seconds.
+Reads Processed:      25568k 	234.82k reads/sec
+Bases Processed:       3065m 	28.16m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 17 12:49:33 ..... started STAR run
+Jun 17 12:49:33 ..... loading genome
+
+Input:                  	30062985 reads 		3677961294 bases.
+Result:                 	30062985 reads (100.00%) 	3677961294 bases (100.00%)
+Pairs:                  	0 reads (0.00%) 	0 bases (0.00%)
+Singletons:             	30062985 reads (100.00%) 	3677961294 bases (100.00%)
+
+Time:                         	133.118 seconds.
+Reads Processed:      30062k 	225.84k reads/sec
+Bases Processed:       3677m 	27.63m bases/sec
+
+Input:                  	30464950 reads 		3474974693 bases.
+Result:                 	30464950 reads (100.00%) 	3474974693 bases (100.00%)
+Pairs:                  	0 reads (0.00%) 	0 bases (0.00%)
+Singletons:             	30464950 reads (100.00%) 	3474974693 bases (100.00%)
+
+Time:                         	136.565 seconds.
+Reads Processed:      30464k 	223.08k reads/sec
+Bases Processed:       3474m 	25.45m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 17 12:49:58 ..... started STAR run
+Jun 17 12:49:58 ..... loading genome
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 17 12:50:01 ..... started STAR run
+Jun 17 12:50:01 ..... loading genome
+Jun 17 12:52:56 ..... started mapping
+Jun 17 12:52:56 ..... started mapping
+Jun 17 12:52:56 ..... started mapping
+Jun 17 12:52:56 ..... started mapping
+Jun 17 12:52:57 ..... finished mapping
+Jun 17 12:52:57 ..... finished mapping
+Jun 17 12:52:57 ..... finished mapping
+Jun 17 12:52:57 ..... finished mapping
+Jun 17 12:53:00 ..... started sorting BAM
+Jun 17 12:53:00 ..... finished successfully
+Jun 17 12:53:00 ..... started sorting BAM
+Jun 17 12:53:00 ..... finished successfully
+Jun 17 12:53:01 ..... started sorting BAM
+Jun 17 12:53:01 ..... finished successfully
+Jun 17 12:53:01 ..... started sorting BAM
+Jun 17 12:53:01 ..... finished successfully
+  [align] Experimental_S5
+java -ea -Xmx217935m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_unpaired.fastq.gz repair
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_unpaired.fastq.gz, repair]
+
+Set INTERLEAVED to false
+Unspecified format for input /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz; defaulting to fastq.
+Started output stream.
+
+Input:                  	35453114 reads 		4266956800 bases.
+Result:                 	35453114 reads (100.00%) 	4266956800 bases (100.00%)
+Pairs:                  	0 reads (0.00%) 	0 bases (0.00%)
+Singletons:             	35453114 reads (100.00%) 	4266956800 bases (100.00%)
+
+Time:                         	121.780 seconds.
+Reads Processed:      35453k 	291.13k reads/sec
+Bases Processed:       4266m 	35.04m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 17 12:55:08 ..... started STAR run
+Jun 17 12:55:08 ..... loading genome
+Jun 17 12:58:00 ..... started mapping
+Jun 17 12:58:02 ..... finished mapping
+Jun 17 12:58:04 ..... started sorting BAM
+Jun 17 12:58:04 ..... finished successfully
+[Step 3] Compiling alignment statistics...
+[Step 4] Deduplication...
+[Step 5] BAM → BED (R2 reads)...
+  [bed] Control_S1
+  [bed] Control_S2
+  [bed] Control_S3
+  [bed] Experimental_S4
+  [bed] Experimental_S5
+  Read counts per sample:
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S1.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S2.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S3.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Experimental_S4.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Experimental_S5.dedup_R2.sorted.bed
+0 total
+[Step 6] LAP/PAS analysis (dist=24 nt)...
+  [LAP] Control_S1
+  [LAP] Control_S2
+  [LAP] Experimental_S4
+  [LAP] Control_S3
+  [LAP] Experimental_S5
+Loading required package: tidyverse
+Loading required package: tidyverse
+Loading required package: tidyverse
+Loading required package: tidyverse
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Loading required package: plyranges
+Loading required package: BiocGenerics
+Loading required package: BiocGenerics
+Loading required package: BiocGenerics
+Loading required package: BiocGenerics
+Loading required package: BiocGenerics
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+
+Attaching package: ‘BiocGenerics’
+
+Loading required package: IRanges
+Loading required package: IRanges
+Loading required package: IRanges
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+
+Attaching package: ‘BiocGenerics’
+
+Loading required package: IRanges
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+Loading required package: IRanges
+Loading required package: S4Vectors
+Loading required package: S4Vectors
+Loading required package: S4Vectors
+Loading required package: S4Vectors
+Loading required package: S4Vectors
+Loading required package: stats4
+Loading required package: stats4
+Loading required package: stats4
+Loading required package: stats4
+Loading required package: stats4
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomeInfoDb
+Loading required package: GenomeInfoDb
+Loading required package: GenomicRanges
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+
+Attaching package: ‘IRanges’
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+Loading required package: GenomeInfoDb
+Loading required package: GenomeInfoDb
+
+Attaching package: ‘plyranges’
+
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+Loading required package: GenomicAlignments
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: SummarizedExperiment
+Loading required package: SummarizedExperiment
+Loading required package: GenomicAlignments
+Loading required package: MatrixGenerics
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+Loading required package: matrixStats
+Loading required package: SummarizedExperiment
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+
+Attaching package: ‘matrixStats’
+
+Loading required package: MatrixGenerics
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+Loading required package: matrixStats
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: SummarizedExperiment
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Loading required package: MatrixGenerics
+Loading required package: Biobase
+Loading required package: matrixStats
+
+Attaching package: ‘MatrixGenerics’
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘plyranges’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+Loading required package: Biobase
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: SummarizedExperiment
+Loading required package: Biostrings
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: XVector
+Loading required package: Biostrings
+Loading required package: MatrixGenerics
+Loading required package: Biobase
+Loading required package: matrixStats
+Loading required package: XVector
+Loading required package: XVector
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+Loading required package: Rsamtools
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+Loading required package: Biostrings
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: XVector
+Loading required package: Rsamtools
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Biobase
+Loading required package: Rsamtools
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: patchwork
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+
+Attaching package: ‘Biobase’
+
+Loading required package: Rsamtools
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Rsamtools
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+[1] "sample name, Control_S1"
+Error in read.table(bed_dir, header = F, sep = "\t", quote = "", stringsAsFactors = FALSE) : 
+  no lines available in input
+Execution halted
+[1] "sample name, Control_S3"
+Error in read.table(bed_dir, header = F, sep = "\t", quote = "", stringsAsFactors = FALSE) : 
+  no lines available in input
+Execution halted
+[1] "sample name, Experimental_S5"
+[1] "sample name, Experimental_S4"
+Error in read.table(bed_dir, header = F, sep = "\t", quote = "", stringsAsFactors = FALSE) : 
+  no lines available in input
+Execution halted
+Error in read.table(bed_dir, header = F, sep = "\t", quote = "", stringsAsFactors = FALSE) : 
+  no lines available in input
+Execution halted
+[1] "sample name, Control_S2"
+Error in read.table(bed_dir, header = F, sep = "\t", quote = "", stringsAsFactors = FALSE) : 
+  no lines available in input
+Execution halted
+mv: cannot stat '/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/*_cluster.all.reads.csv': No such file or directory
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+                                                                                                     csv 
+                      "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant" 
+                                                                                                     out 
+"/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/cluster.all.reads.csv" 
+                                                                                                 pattern 
+                                                                         "_cluster\\.all\\.reads\\.csv$" 
+character(0)
+Error in ldf[[1]] : subscript out of bounds
+Calls: colnames -> is.data.frame
+Execution halted
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+                                                                                             csv 
+                        "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS" 
+                                                                                             out 
+"/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/stats_PAS.csv" 
+                                                                                         pattern 
+                                                                               ".*_stats\\.csv$" 
+character(0)
+Error in ldf[[1]] : subscript out of bounds
+Calls: colnames -> is.data.frame
+Execution halted
+[Step 7] Generating bigWig tracks...
+  [bw] PASS_bw_LAP24 / Control_S1
+  [bw] PASS_bw_LAP24 / Control_S2
+  [bw] PASS_bw_LAP24 / Control_S3
+  [bw] PASS_bw_LAP24 / Experimental_S4
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24.bed: No such file or directory
+  [bw] PASS_bw_LAP24 / Experimental_S5
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24.bedsort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24.bedsort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24.bed: No such file or directory: No such file or directory
+
+: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S3.minus.bedgraph.normalized' for reading: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S2.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S3.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S2.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S3.minus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S2.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] PASS_bw_LAP24_positon / Control_S1
+  [bw] PASS_bw_LAP24_positon / Control_S2
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24_positon.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24_positon.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S1.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S1.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S1.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] PASS_bw_LAP24_positon / Control_S3
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24_positon.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S5.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S5.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S5.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] PASS_bw_LAP24_positon / Experimental_S4
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24_positon.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S4.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S4.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S4.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] PASS_bw_LAP24_positon / Experimental_S5
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24_positon.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S1.minus.bedgraph.normalized' for reading: No such file or directory
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S2.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S2.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S1.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S2.minus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S1.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] PASS_bw_LAP24_PAS / Control_S1
+  [bw] PASS_bw_LAP24_PAS / Control_S2
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24_PAS.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24_PAS.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24_PAS.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24_PAS.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S4.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S4.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S4.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] PASS_bw_LAP24_PAS / Control_S3
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24_PAS.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24_PAS.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S3.minus.bedgraph.normalized' for reading: No such file or directory
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S5.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S3.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S5.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S3.minumustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S5s.bedgraph.normalized to read: No such file or directory.minus.bedgraph.normalized to read: No such file or directory
+
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] PASS_bw_LAP24_PAS / Experimental_S4
+  [bw] PASS_bw_LAP24_PAS / Experimental_S5
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24_PAS.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24_PAS.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24_PAS.bedsort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24_PAS.bed: No such file or directory
+: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S2.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S2.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S2.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] mapped_read / Control_S1
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_mapped_read.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_mapped_read.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S1.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S1.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S1.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] mapped_read / Control_S2
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_mapped_read.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_mapped_read.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S3.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S3.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S3.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] mapped_read / Control_S3
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_mapped_read.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_mapped_read.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S4.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S4.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S4.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] mapped_read / Experimental_S4
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_mapped_read.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_mapped_read.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S5.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S5.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S5.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+  [bw] mapped_read / Experimental_S5
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_mapped_read.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_mapped_read.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S1.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S1.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S1.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S2.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S2.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S2.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S3.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S3.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S3.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S4.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S4.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S4.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S5.minus.bedgraph.normalized' for reading: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S5.plus.bedgraph.normalized to read: No such file or directory
+mustOpen: Can't open /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S5.minus.bedgraph.normalized to read: No such file or directory
+needLargeMem: trying to allocate 0 bytes (limit: 100000000000)
+
+=== 3-REAP pipeline complete! ===

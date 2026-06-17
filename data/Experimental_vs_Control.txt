@@ -1,0 +1,7 @@
+sample	file	condition
+25425XR-01-04v1	25425XR-01-04v1_count.txt	Experimental
+25425XR-01-05v1	25425XR-01-05v1_count.txt	Experimental
+25425XR-01-06v1	25425XR-01-06v1_count.txt	Experimental
+25425XR-01-01v1	25425XR-01-01v1_count.txt	Control
+25425XR-01-02v1	25425XR-01-02v1_count.txt	Control
+25425XR-01-03v1	25425XR-01-03v1_count.txt	Control

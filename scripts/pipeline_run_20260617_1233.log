@@ -1,0 +1,637 @@
+=== 3-REAP pipeline ===
+    Project : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11
+    Output  : /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed/
+    Samples : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/sample.txt
+    PolyADB : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/PolyA_DB_v4.1/hg38.PAS.main.tsv
+
+[Step 2] Adapter / polyA trimming...
+  [R1] sample
+  [R1] Control_S1
+  [R1] Control_S3
+  [R1] Control_S2
+./3-REAP_workflow.sh: line 71: cutadapt: command not found
+./3-REAP_workflow.sh: line 77: cutadapt: command not found
+./3-REAP_workflow.sh: line 75: cutadapt: command not found
+./3-REAP_workflow.sh: line 71: cutadapt: command not found
+./3-REAP_workflow.sh: line 75: cutadapt: command not found
+./3-REAP_workflow.sh: line 77: cutadapt: command not found
+./3-REAP_workflow.sh: line 73: cutadapt: command not found
+./3-REAP_workflow.sh: line 71: cutadapt: command not found
+./3-REAP_workflow.sh: line 75: cutadapt: command not found
+./3-REAP_workflow.sh: line 71: cutadapt: command not found
+./3-REAP_workflow.sh: line 73: cutadapt: command not found
+./3-REAP_workflow.sh: line 73: cutadapt: command not found
+./3-REAP_workflow.sh: line 77: cutadapt: command not found
+./3-REAP_workflow.sh: line 73: cutadapt: command not found
+./3-REAP_workflow.sh: line 75: cutadapt: command not found
+  [R2] Control_S1
+  [R2] sample
+  [R2] Control_S3
+./3-REAP_workflow.sh: line 77: cutadapt: command not found
+  [R2] Control_S2
+./3-REAP_workflow.sh: line 89: cutadapt: command not found
+./3-REAP_workflow.sh: line 89: cutadapt: command not found
+./3-REAP_workflow.sh: line 91: cutadapt: command not found
+./3-REAP_workflow.sh: line 89: cutadapt: command not found
+./3-REAP_workflow.sh: line 91: cutadapt: command not found
+./3-REAP_workflow.sh: line 91: cutadapt: command not found
+./3-REAP_workflow.sh: line 89: cutadapt: command not found
+./3-REAP_workflow.sh: line 91: cutadapt: command not found
+./3-REAP_workflow.sh: line 94: python: command not found
+./3-REAP_workflow.sh: line 94: python: command not found
+./3-REAP_workflow.sh: line 94: python: command not found
+./3-REAP_workflow.sh: line 94: python: command not found
+  [R1] Experimental_S4
+  [R1] Experimental_S5
+./3-REAP_workflow.sh: line 71: cutadapt: command not found
+./3-REAP_workflow.sh: line 75: cutadapt: command not found
+./3-REAP_workflow.sh: line 73: cutadapt: command not found
+./3-REAP_workflow.sh: line 71: cutadapt: command not found
+./3-REAP_workflow.sh: line 77: cutadapt: command not found
+./3-REAP_workflow.sh: line 73: cutadapt: command not found
+./3-REAP_workflow.sh: line 75: cutadapt: command not found
+./3-REAP_workflow.sh: line 77: cutadapt: command not found
+  [R2] Experimental_S4
+  [R2] Experimental_S5
+./3-REAP_workflow.sh: line 89: cutadapt: command not found
+./3-REAP_workflow.sh: line 91: cutadapt: command not found
+./3-REAP_workflow.sh: line 89: cutadapt: command not found
+./3-REAP_workflow.sh: line 91: cutadapt: command not found
+./3-REAP_workflow.sh: line 94: python: command not found
+./3-REAP_workflow.sh: line 94: python: command not found
+[Step 3] Repair pairs + STAR alignment...
+  [align] sample
+  [align] Control_S1
+  [align] Control_S2
+  [align] Control_S3
+./3-REAP_workflow.sh: line 126: repair.sh: command not found
+./3-REAP_workflow.sh: line 126: repair.sh: command not found
+./3-REAP_workflow.sh: line 126: repair.sh: command not found
+./3-REAP_workflow.sh: line 126: repair.sh: command not found
+./3-REAP_workflow.sh: line 134: STAR: command not found
+./3-REAP_workflow.sh: line 134: STAR: command not found
+./3-REAP_workflow.sh: line 134: STAR: command not found
+./3-REAP_workflow.sh: line 134: STAR: command not found
+  [align] Experimental_S4
+  [align] Experimental_S5
+./3-REAP_workflow.sh: line 126: repair.sh: command not found
+./3-REAP_workflow.sh: line 126: repair.sh: command not found
+./3-REAP_workflow.sh: line 134: STAR: command not found
+./3-REAP_workflow.sh: line 134: STAR: command not found
+[Step 3] Compiling alignment statistics...
+grep: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/*/star/*Log.final.out: No such file or directory
+grep: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/*/star/*Log.final.out: No such file or directory
+grep: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/*/star/*Log.final.out: No such file or directory
+grep: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/*/star/*Log.final.out: No such file or directory
+grep: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/*/star/*Log.final.out: No such file or directory
+grep: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/*/star/*Log.final.out: No such file or directory
+[Step 4] Deduplication...
+./3-REAP_workflow.sh: line 188: samtools: command not found
+./3-REAP_workflow.sh: line 188: samtools: command not found
+./3-REAP_workflow.sh: line 188: samtools: command not found
+./3-REAP_workflow.sh: line 188: samtools: command not found
+./3-REAP_workflow.sh: line 188: samtools: command not found
+./3-REAP_workflow.sh: line 188: samtools: command not found
+[Step 5] BAM → BED (R2 reads)...
+  [bed] Experimental_S4
+  [bed] sample
+  [bed] Control_S2
+  [bed] Control_S3
+  [bed] Control_S1
+./3-REAP_workflow.sh: line 227: samtools: command not found
+./3-REAP_workflow.sh: line 227: samtools: command not found
+./3-REAP_workflow.sh: line 227: samtools: command not found
+./3-REAP_workflow.sh: line 227: samtools: command not found
+./3-REAP_workflow.sh: line 227: samtools: command not found
+./3-REAP_workflow.sh: line 229: bedtools: command not found
+./3-REAP_workflow.sh: line 229: bedtools: command not found
+./3-REAP_workflow.sh: line 229: bedtools: command not found
+./3-REAP_workflow.sh: line 229: bedtools: command not found
+./3-REAP_workflow.sh: line 229: bedtools: command not found
+  [bed] Experimental_S5
+./3-REAP_workflow.sh: line 227: samtools: command not found
+./3-REAP_workflow.sh: line 229: bedtools: command not found
+  Read counts per sample:
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S1.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S2.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S3.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Experimental_S4.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Experimental_S5.dedup_R2.sorted.bed
+0 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/sample.dedup_R2.sorted.bed
+0 total
+[Step 6] LAP/PAS analysis (dist=24 nt)...
+  [LAP] sample
+  [LAP] Control_S1
+  [LAP] Control_S2
+  [LAP] Control_S3
+Loading required package: tidyverse
+Loading required package: tidyverse
+Loading required package: tidyverse
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Loading required package: plyranges
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Installing package into ‘/home/cnobrega/R/x86_64-pc-linux-gnu-library/4.5’
+(as ‘lib’ is unspecified)
+Installing package into ‘/home/cnobrega/R/x86_64-pc-linux-gnu-library/4.5’
+(as ‘lib’ is unspecified)
+Loading required package: plyranges
+Installing package into ‘/home/cnobrega/R/x86_64-pc-linux-gnu-library/4.5’
+(as ‘lib’ is unspecified)
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Installing package into ‘/home/cnobrega/R/x86_64-pc-linux-gnu-library/4.5’
+(as ‘lib’ is unspecified)
+Warning messages:
+1: In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called ‘plyranges’
+2: package ‘plyranges’ is not available for this version of R
+
+A version of this package for your version of R might be available elsewhere,
+see the ideas at
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages 
+Error in library("plyranges") : there is no package called ‘plyranges’
+Calls: suppressMessages -> withCallingHandlers -> library
+Execution halted
+  [LAP] Experimental_S4
+Warning messages:
+1: In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called ‘plyranges’
+2: package ‘plyranges’ is not available for this version of R
+
+A version of this package for your version of R might be available elsewhere,
+see the ideas at
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages 
+Error in library("plyranges") : there is no package called ‘plyranges’
+Calls: suppressMessages -> withCallingHandlers -> library
+Execution halted
+Warning messages:
+1: In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called ‘plyranges’
+2: package ‘plyranges’ is not available for this version of R
+
+A version of this package for your version of R might be available elsewhere,
+see the ideas at
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages 
+Error in library("plyranges") : there is no package called ‘plyranges’
+Calls: suppressMessages -> withCallingHandlers -> library
+Execution halted
+Warning messages:
+1: In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called ‘plyranges’
+2: package ‘plyranges’ is not available for this version of R
+
+A version of this package for your version of R might be available elsewhere,
+see the ideas at
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages 
+Error in library("plyranges") : there is no package called ‘plyranges’
+Calls: suppressMessages -> withCallingHandlers -> library
+Execution halted
+  [LAP] Experimental_S5
+Loading required package: tidyverse
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Installing package into ‘/home/cnobrega/R/x86_64-pc-linux-gnu-library/4.5’
+(as ‘lib’ is unspecified)
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Installing package into ‘/home/cnobrega/R/x86_64-pc-linux-gnu-library/4.5’
+(as ‘lib’ is unspecified)
+Warning messages:
+1: In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called ‘plyranges’
+2: package ‘plyranges’ is not available for this version of R
+
+A version of this package for your version of R might be available elsewhere,
+see the ideas at
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages 
+Error in library("plyranges") : there is no package called ‘plyranges’
+Calls: suppressMessages -> withCallingHandlers -> library
+Execution halted
+Warning messages:
+1: In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE,  :
+  there is no package called ‘plyranges’
+2: package ‘plyranges’ is not available for this version of R
+
+A version of this package for your version of R might be available elsewhere,
+see the ideas at
+https://cran.r-project.org/doc/manuals/r-patched/R-admin.html#Installing-packages 
+Error in library("plyranges") : there is no package called ‘plyranges’
+Calls: suppressMessages -> withCallingHandlers -> library
+Execution halted
+mv: cannot stat '/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/*_cluster.all.reads.csv': No such file or directory
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+                                                                                                     csv 
+                      "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant" 
+                                                                                                     out 
+"/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/cluster.all.reads.csv" 
+                                                                                                 pattern 
+                                                                         "_cluster\\.all\\.reads\\.csv$" 
+character(0)
+Error in ldf[[1]] : subscript out of bounds
+Calls: colnames -> is.data.frame
+Execution halted
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+                                                                                             csv 
+                        "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS" 
+                                                                                             out 
+"/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/stats_PAS.csv" 
+                                                                                         pattern 
+                                                                               ".*_stats\\.csv$" 
+character(0)
+Error in ldf[[1]] : subscript out of bounds
+Calls: colnames -> is.data.frame
+Execution halted
+[Step 7] Generating bigWig tracks...
+  [bw] PASS_bw_LAP24 / sample
+  [bw] PASS_bw_LAP24 / Control_S1
+  [bw] PASS_bw_LAP24 / Control_S2
+  [bw] PASS_bw_LAP24 / Control_S3
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/sample_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24.bedsort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/sample_PASS_bw_LAP24.bed: No such file or directory
+: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/sample.minus.bedgraph.normalized' for reading: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S2.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S1.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S3.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+  [bw] PASS_bw_LAP24 / Experimental_S4
+  [bw] PASS_bw_LAP24 / Experimental_S5
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24.bed: No such file or directory
+  [bw] PASS_bw_LAP24_positon / sample
+  [bw] PASS_bw_LAP24_positon / Control_S1
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/sample_PASS_bw_LAP24_positon.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24.bed: No such file or directory
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/sample_PASS_bw_LAP24_positon.bed: No such file or directory
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24_positon.bed: No such file or directory
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S4.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S5.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S1.minus.bedgraph.normalized' for reading: No such file or directory
+  [bw] PASS_bw_LAP24_positon / Control_S2
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/sample.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24_positon.bed: No such file or directory
+  [bw] PASS_bw_LAP24_positon / Control_S3
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24_positon.bed: No such file or directory
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24_positon.bed: No such file or directory
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+  [bw] PASS_bw_LAP24_positon / Experimental_S4
+  [bw] PASS_bw_LAP24_positon / Experimental_S5
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24_positon.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24_positon.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24_positon.bederror, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S3.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S2.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S4.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+  [bw] PASS_bw_LAP24_PAS / sample
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/sample_PASS_bw_LAP24_PAS.bed: No such file or directory
+  [bw] PASS_bw_LAP24_PAS / Control_S1
+  [bw] PASS_bw_LAP24_PAS / Control_S2
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S5.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24_PAS.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24_PAS.bed: No such file or directory
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/sample_PASS_bw_LAP24_PAS.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_PASS_bw_LAP24_PAS.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_PASS_bw_LAP24_PAS.bed  [bw] PASS_bw_LAP24_PAS / Control_S3
+: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24_PAS.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_PASS_bw_LAP24_PAS.bed: No such file or directory
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/sample.minus.bedgraph.normalized' for reading: No such file or directory
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S1.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S2.minus.bedgraph.normalized' for reading: No such file or directory
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S3.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+  [bw] PASS_bw_LAP24_PAS / Experimental_S4
+  [bw] PASS_bw_LAP24_PAS / Experimental_S5
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24_PAS.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24_PAS.bed: No such file or directory
+  [bw] mapped_read / sample
+  [bw] mapped_read / Control_S1
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/sample_mapped_read.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_mapped_read.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_PASS_bw_LAP24_PAS.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_PASS_bw_LAP24_PAS.bed: No such file or directory
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/sample_mapped_read.bed./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_mapped_read.bed: No such file or directory
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S5.minus.bedgraph.normalized' for reading: No such file or directory
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S4.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+  [bw] mapped_read / Control_S2
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_mapped_read.bed: No such file or directory
+  [bw] mapped_read / Control_S3
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_mapped_read.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_mapped_read.bed: No such file or directory
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_mapped_read.bed: No such file or directory
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/sample.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S1.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S2.minus.bedgraph.normalized' for reading: No such file or directory
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S3.minus.bedgraph.normalized' for reading: No such file or directory
+  [bw] mapped_read / Experimental_S4
+  [bw] mapped_read / Experimental_S5
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_mapped_read.bed: No such file or directory
+./3-REAP_workflow.sh: line 303: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_mapped_read.bed: No such file or directory
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_mapped_read.bed: No such file or directory
+sort: cannot read: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_mapped_read.bed: No such file or directory
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 309: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+./3-REAP_workflow.sh: line 311: genomeCoverageBed: command not found
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+error, read length (-l) or total read number (-t) not defined
+eg. norm_bedgraph.pl -t 9898819 -i "sham_a.m.bedgraph sham_a.p.bedgraph" -m "sham_a.m.bedgraph"
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S4.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+awk: fatal: cannot open file `/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S5.minus.bedgraph.normalized' for reading: No such file or directory
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 323: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 325: bedGraphToBigWig: command not found
+./3-REAP_workflow.sh: line 327: bedGraphToBigWig: command not found
+chmod: cannot access '/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/*/*.bw': No such file or directory
+
+=== 3-REAP pipeline complete! ===

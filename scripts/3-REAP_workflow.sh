@@ -9,12 +9,12 @@
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Paths to raw FASTQ files and pipeline outputs
-fastq_path=/path/to/raw/fastqs       # directory containing raw FASTQ files
-work_path=${PROJECT_DIR}/output       # all pipeline outputs go here
+fastq_path=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/       # directory containing raw FASTQ files
+work_path=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed/     # all pipeline outputs go here
 
 # Sample manifest: tab-separated, one sample per line
 #   <sample_name>  <R1_absolute_path>  <R2_absolute_path>
-sample_file=${PROJECT_DIR}/sample.txt
+sample_file=${PROJECT_DIR}/data/sample.txt
 
 # Parallelism
 threads_per_job=8    # STAR alignment threads per sample

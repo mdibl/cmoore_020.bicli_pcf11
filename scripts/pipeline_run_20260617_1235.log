@@ -1,0 +1,18 @@
+=== 3-REAP pipeline ===
+    Project : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11
+    Output  : /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed/
+    Samples : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/sample.txt
+    PolyADB : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/PolyA_DB_v4.1/hg38.PAS.main.tsv
+
+[Step 2] Adapter / polyA trimming...
+  [R1] Control_S1
+  [R1] Control_S3
+  [R1] Control_S2
+  [R1] sample
+[Errno 2] No such file or directory: 'r1'
+  [R2] sample
+[Errno 2] No such file or directory: 'r2\r'
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/sample/sample_R2_trimAdapt.fastq.gz...
+Processed 0 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/sample/sample_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/sample/sample_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/sample/sample_R2_trimAdapt.5Ttrimmed.fastq.gz
+  [R1] Experimental_S4
