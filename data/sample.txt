@@ -1,6 +1,6 @@
-Control_S1	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-01v1_S1_L007_R1_001.fastq.gz	
-Control_S2	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-02v1_S2_L007_R1_001.fastq.gz	
-Control_S3	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-03v1_S3_L007_R1_001.fastq.gz	
-Experimental_S4	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-04v1_S4_L007_R1_001.fastq.gz	
-Experimental_S5	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-05v1_S5_L007_R1_001.fastq.gz	
-Experimental_S6	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-06v1_S6_L007_R1_001.fastq.gz	
+Control_S1	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-01v1_S1_L007_R1_001.fastq.gz	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/R2/25425XR-01-01v1_S1_L007_R2_001.fastq.gz
+Control_S2	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-02v1_S2_L007_R1_001.fastq.gz	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/R2/25425XR-01-02v1_S2_L007_R2_001.fastq.gz
+Control_S3	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-03v1_S3_L007_R1_001.fastq.gz	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/R2/25425XR-01-03v1_S3_L007_R2_001.fastq.gz
+Experimental_S4	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-04v1_S4_L007_R1_001.fastq.gz	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/R2/25425XR-01-04v1_S4_L007_R2_001.fastq.gz
+Experimental_S5	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-05v1_S5_L007_R1_001.fastq.gz	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/R2/25425XR-01-05v1_S5_L007_R2_001.fastq.gz
+Experimental_S6	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/25425XR-01-06v1_S6_L007_R1_001.fastq.gz	/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/R2/25425XR-01-06v1_S6_L007_R2_001.fastq.gz

@@ -58,6 +58,9 @@ echo "[Step 2] Adapter / polyA trimming..."
 
 job_count=0
 while IFS=$'\t' read -r sample fastq_1 fastq_2; do
+    # Strip Windows carriage returns; derive R2 from R1 if the column was left empty
+    fastq_2="${fastq_2%$'\r'}"
+    [[ -z "${fastq_2}" ]] && fastq_2="${fastq_1/_R1_/_R2_}"
     {
         outpath=${work_path}/01_trim/${sample}
         mkdir -p "${outpath}"
@@ -240,6 +243,12 @@ wait
 
 echo "  Read counts per sample:"
 wc -l "${bed_outdir}"/*.sorted.bed | tee "${bed_outdir}/stats_deduped_reads.txt"
+
+total_bed_reads=$(awk '/total/{print $1}' "${bed_outdir}/stats_deduped_reads.txt")
+if [[ "${total_bed_reads:-0}" -eq 0 ]]; then
+    echo "ERROR: All R2 BED files are empty. R2 trimming likely failed — check that sample.txt has valid R2 paths and that the raw R2 FASTQs exist." >&2
+    exit 1
+fi
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Step 6. Define LAPs and assign to PAS  (PolyA_DB v4.1; parallel per sample)

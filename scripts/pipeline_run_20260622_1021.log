@@ -1,0 +1,1527 @@
+=== 3-REAP pipeline ===
+    Project : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11
+    Output  : /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed/
+    Samples : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/sample.txt
+    PolyADB : /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/PolyA_DB_v4.1/hg38.PAS.main.tsv
+
+[Step 2] Adapter / polyA trimming...
+  [R1 skip] Experimental_S4
+  [R2] Experimental_S4
+  [R1 skip] Control_S3
+  [R2] Control_S3
+  [R1 skip] Control_S2
+  [R1 skip] Control_S1
+  [R2] Control_S2
+  [R2] Control_S1
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.fastq.gz...
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.fastq.gz...
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.fastq.gz...
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.fastq.gz...
+Processed 25882706 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz
+  [R1 skip] Experimental_S5
+  [R2] Experimental_S5
+Processed 24894536 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz
+  [R1] Experimental_S6
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.fastq.gz...
+  [R2] Experimental_S6
+Processing /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S6/Experimental_S6_R2_trimAdapt.fastq.gz...
+Processed 31145213 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz
+Processed 30308907 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz
+Processed 26910512 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S6/Experimental_S6_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S6/Experimental_S6_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S6/Experimental_S6_R2_trimAdapt.5Ttrimmed.fastq.gz
+Processed 35864203 reads from /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.fastq.gz. Output saved to /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz.
+Processed file saved as: /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz
+[Step 3] Repair pairs + STAR alignment...
+  [align] Control_S1
+  [align] Control_S2
+  [align] Control_S3
+  [align] Experimental_S4
+  [align] Experimental_S5
+java -ea -Xmx221537m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_unpaired.fastq.gz repair
+java -ea -Xmx221538m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_unpaired.fastq.gz repair
+java -ea -Xmx221533m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_unpaired.fastq.gz repair
+java -ea -Xmx221534m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_unpaired.fastq.gz repair
+java -ea -Xmx221531m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_unpaired.fastq.gz repair
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S2/Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_unpaired.fastq.gz, repair]
+
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S1/Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_unpaired.fastq.gz, repair]
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S4/Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_unpaired.fastq.gz, repair]
+
+
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Control_S3/Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_unpaired.fastq.gz, repair]
+
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S5/Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_unpaired.fastq.gz, repair]
+
+Set INTERLEAVED to false
+Set INTERLEAVED to false
+Set INTERLEAVED to false
+Set INTERLEAVED to false
+Set INTERLEAVED to false
+Started output stream.
+Started output stream.
+Started output stream.
+Started output stream.
+Started output stream.
+
+Input:                  	49536048 reads 		5826231153 bases.
+Result:                 	49536048 reads (100.00%) 	5826231153 bases (100.00%)
+Pairs:                  	48397812 reads (97.70%) 	5714580120 bases (98.08%)
+Singletons:             	1138236 reads (2.30%) 	111651033 bases (1.92%)
+
+Time:                         	120.170 seconds.
+Reads Processed:      49536k 	412.22k reads/sec
+Bases Processed:       5826m 	48.48m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/repaired/Experimental_S4_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 22 13:17:22 ..... started STAR run
+Jun 22 13:17:22 ..... loading genome
+
+Input:                  	51451221 reads 		6088737201 bases.
+Result:                 	51451221 reads (100.00%) 	6088737201 bases (100.00%)
+Pairs:                  	50360976 reads (97.88%) 	5981612228 bases (98.24%)
+Singletons:             	1090245 reads (2.12%) 	107124973 bases (1.76%)
+
+Time:                         	130.985 seconds.
+Reads Processed:      51451k 	392.80k reads/sec
+Bases Processed:       6088m 	46.48m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/repaired/Control_S2_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 22 13:17:33 ..... started STAR run
+Jun 22 13:17:33 ..... loading genome
+Jun 22 13:17:49 ..... started mapping
+
+Input:                  	60371892 reads 		7236801811 bases.
+Result:                 	60371892 reads (100.00%) 	7236801811 bases (100.00%)
+Pairs:                  	59176290 reads (98.02%) 	7116304326 bases (98.33%)
+Singletons:             	1195602 reads (1.98%) 	120497485 bases (1.67%)
+
+Time:                         	149.429 seconds.
+Reads Processed:      60371k 	404.02k reads/sec
+Bases Processed:       7236m 	48.43m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/repaired/Control_S3_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 22 13:17:51 ..... started STAR run
+Jun 22 13:17:51 ..... loading genome
+
+Input:                  	61610163 reads 		6987580663 bases.
+Result:                 	61610163 reads (100.00%) 	6987580663 bases (100.00%)
+Pairs:                  	59905864 reads (97.23%) 	6829737074 bases (97.74%)
+Singletons:             	1704299 reads (2.77%) 	157843589 bases (2.26%)
+
+Time:                         	153.069 seconds.
+Reads Processed:      61610k 	402.50k reads/sec
+Bases Processed:       6987m 	45.65m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/repaired/Control_S1_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 22 13:17:55 ..... started STAR run
+Jun 22 13:17:55 ..... loading genome
+Jun 22 13:17:58 ..... started mapping
+Jun 22 13:18:17 ..... started mapping
+
+Input:                  	71317317 reads 		8430785410 bases.
+Result:                 	71317317 reads (100.00%) 	8430785410 bases (100.00%)
+Pairs:                  	69784000 reads (97.85%) 	8278813200 bases (98.20%)
+Singletons:             	1533317 reads (2.15%) 	151972210 bases (1.80%)
+
+Time:                         	177.763 seconds.
+Reads Processed:      71317k 	401.19k reads/sec
+Bases Processed:       8430m 	47.43m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/repaired/Experimental_S5_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 22 13:18:20 ..... started STAR run
+Jun 22 13:18:20 ..... loading genome
+Jun 22 13:18:21 ..... started mapping
+Jun 22 13:18:48 ..... started mapping
+Jun 22 13:41:40 ..... finished mapping
+Jun 22 13:41:45 ..... started sorting BAM
+Jun 22 13:42:15 ..... finished successfully
+  [align] Experimental_S6
+java -ea -Xmx118882m -cp /home/cnobrega/miniforge3/envs/reap-env/opt/bbmap-39.28-0/current/ jgi.SplitPairsAndSingles rp overwrite=t in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S6/Experimental_S6_R1.fastq.gz in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S6/Experimental_S6_R2_trimAdapt.5Ttrimmed.fastq.gz out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/repaired/Experimental_S6_R1.fastq.gz out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/repaired/Experimental_S6_R2.fastq.gz outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/repaired/Experimental_S6_unpaired.fastq.gz repair
+Executing jgi.SplitPairsAndSingles [rp, overwrite=t, in1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S6/Experimental_S6_R1.fastq.gz, in2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//01_trim/Experimental_S6/Experimental_S6_R2_trimAdapt.5Ttrimmed.fastq.gz, out1=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/repaired/Experimental_S6_R1.fastq.gz, out2=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/repaired/Experimental_S6_R2.fastq.gz, outs=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/repaired/Experimental_S6_unpaired.fastq.gz, repair]
+
+Set INTERLEAVED to false
+Started output stream.
+Jun 22 13:43:12 ..... finished mapping
+Jun 22 13:43:18 ..... started sorting BAM
+Jun 22 13:43:43 ..... finished successfully
+
+Input:                  	53615519 reads 		6320965820 bases.
+Result:                 	53615519 reads (100.00%) 	6320965820 bases (100.00%)
+Pairs:                  	52535572 reads (97.99%) 	6212294690 bases (98.28%)
+Singletons:             	1079947 reads (2.01%) 	108671130 bases (1.72%)
+
+Time:                         	158.888 seconds.
+Reads Processed:      53615k 	337.44k reads/sec
+Bases Processed:       6320m 	39.78m bases/sec
+	/home/cnobrega/miniforge3/envs/reap-env/bin/STAR-avx2 --runThreadN 8 --readFilesCommand zcat --genomeDir /compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/data/ref/star_index_hg38 --readFilesIn /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/repaired/Experimental_S6_R1.fastq.gz /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/repaired/Experimental_S6_R2.fastq.gz --outReadsUnmapped None --outFilterType BySJout --limitBAMsortRAM 4000000000 --outSAMattributes NH HI NM MD --outSAMtype BAM SortedByCoordinate --outFileNamePrefix /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/star/ --outFilterMultimapNmax 1 --outFilterScoreMinOverLread 0.2 --outFilterMatchNminOverLread 0.2
+	STAR version: 2.7.11b   compiled: 2025-04-26T21:36:55+0000 :/opt/conda/conda-bld/star_1745703265435/work/source
+Jun 22 13:45:02 ..... started STAR run
+Jun 22 13:45:02 ..... loading genome
+Jun 22 13:45:27 ..... started mapping
+Jun 22 13:45:47 ..... finished mapping
+Jun 22 13:45:52 ..... started sorting BAM
+Jun 22 13:46:02 ..... finished mapping
+Jun 22 13:46:08 ..... started sorting BAM
+Jun 22 13:46:19 ..... finished successfully
+Jun 22 13:46:36 ..... finished successfully
+Jun 22 13:47:24 ..... finished mapping
+Jun 22 13:47:28 ..... started sorting BAM
+Jun 22 13:47:53 ..... finished successfully
+Jun 22 13:58:09 ..... finished mapping
+Jun 22 13:58:13 ..... started sorting BAM
+Jun 22 13:58:30 ..... finished successfully
+[Step 3] Compiling alignment statistics...
+[Step 4] Deduplication...
+[Step 5] BAM → BED (R2 reads)...
+  [bed] Control_S1
+  [bed] Control_S2
+  [bed] Control_S3
+  [bed] Experimental_S4
+  [bed] Experimental_S5
+  [bed] Experimental_S6
+  Read counts per sample:
+  16271634 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S1.dedup_R2.sorted.bed
+  14477219 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S2.dedup_R2.sorted.bed
+  16234494 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Control_S3.dedup_R2.sorted.bed
+  13713383 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Experimental_S4.dedup_R2.sorted.bed
+  20638956 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Experimental_S5.dedup_R2.sorted.bed
+  14334808 /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//04_bed/Experimental_S6.dedup_R2.sorted.bed
+  95670494 total
+[Step 6] LAP/PAS analysis (dist=24 nt)...
+  [LAP] Control_S1
+  [LAP] Control_S2
+  [LAP] Control_S3
+  [LAP] Experimental_S4
+Loading required package: tidyverse
+Loading required package: tidyverse
+Loading required package: tidyverse
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Loading required package: BiocGenerics
+Loading required package: BiocGenerics
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Loading required package: BiocGenerics
+Loading required package: BiocGenerics
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+Loading required package: IRanges
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+Loading required package: IRanges
+Loading required package: S4Vectors
+Loading required package: S4Vectors
+Loading required package: stats4
+Loading required package: stats4
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+Loading required package: IRanges
+Loading required package: S4Vectors
+Loading required package: stats4
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+Loading required package: IRanges
+Loading required package: S4Vectors
+Loading required package: stats4
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+Loading required package: GenomeInfoDb
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Rsamtools
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+[1] "sample name, Control_S3"
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Rsamtools
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+[1] "sample name, Control_S2"
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Rsamtools
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+[1] "sample name, Control_S1"
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Rsamtools
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+[1] "sample name, Experimental_S4"
+Warning message:
+Expected 2 pieces. Missing pieces filled with `NA` in 13713383 rows [1, 2, 3,
+4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...]. 
+Warning message:
+Expected 2 pieces. Missing pieces filled with `NA` in 16234494 rows [1, 2, 3,
+4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...]. 
+Warning message:
+Expected 2 pieces. Missing pieces filled with `NA` in 14477219 rows [1, 2, 3,
+4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...]. 
+Warning message:
+Expected 2 pieces. Missing pieces filled with `NA` in 16271634 rows [1, 2, 3,
+4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...]. 
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+null device 
+          1 
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+null device 
+          1 
+null device 
+          1 
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+null device 
+          1 
+[1] 1239446
+[1] "distance mode: 0 and the freq is 4212050"
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+      0       0       2    4491      11 5182142 1239446 
+Warning message:
+Removed 1239446 rows containing non-finite outside the scale range
+(`stat_density()`). 
+Warning message:
+Removed 2846641 rows containing non-finite outside the scale range
+(`stat_density()`). 
+null device 
+          1 
+[1] 1392040
+[1] "distance mode: 0 and the freq is 4469923"
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+      0       0       1    4454      10 3014002 1392040 
+[1] 1585034
+Warning message:
+Removed 1392040 rows containing non-finite outside the scale range
+(`stat_density()`). 
+[1] "distance mode: 0 and the freq is 4793901"
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+       0        0        2     4545       13 30559578  1585034 
+Warning message:
+Removed 3049583 rows containing non-finite outside the scale range
+(`stat_density()`). 
+null device 
+          1 
+Warning message:
+Removed 1585034 rows containing non-finite outside the scale range
+(`stat_density()`). 
+Warning message:
+Removed 3544524 rows containing non-finite outside the scale range
+(`stat_density()`). 
+null device 
+          1 
+[1] "done!"
+  [LAP] Experimental_S5
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Loading required package: BiocGenerics
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+Loading required package: IRanges
+Loading required package: S4Vectors
+Loading required package: stats4
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Rsamtools
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+[1] "sample name, Experimental_S5"
+[1] 1816041
+[1] "distance mode: 0 and the freq is 4877528"
+[1] "done!"
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+       0        0        1     4921       11 30417107  1816041 
+  [LAP] Experimental_S6
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Loading required package: plyranges
+Loading required package: BiocGenerics
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:lubridate’:
+
+    intersect, setdiff, union
+
+The following objects are masked from ‘package:dplyr’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, aperm, append, as.data.frame, basename, cbind,
+    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,
+    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,
+    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,
+    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,
+    table, tapply, union, unique, unsplit, which.max, which.min
+
+Loading required package: IRanges
+Loading required package: S4Vectors
+Loading required package: stats4
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:lubridate’:
+
+    second, second<-
+
+The following objects are masked from ‘package:dplyr’:
+
+    first, rename
+
+The following object is masked from ‘package:tidyr’:
+
+    expand
+
+The following object is masked from ‘package:utils’:
+
+    findMatches
+
+The following objects are masked from ‘package:base’:
+
+    expand.grid, I, unname
+
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:lubridate’:
+
+    %within%
+
+The following objects are masked from ‘package:dplyr’:
+
+    collapse, desc, slice
+
+The following object is masked from ‘package:purrr’:
+
+    reduce
+
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+Warning message:
+Removed 1816041 rows containing non-finite outside the scale range
+(`stat_density()`). 
+
+Attaching package: ‘plyranges’
+
+The following object is masked from ‘package:IRanges’:
+
+    slice
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, n, n_distinct
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+Loading required package: GenomicAlignments
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following object is masked from ‘package:dplyr’:
+
+    count
+
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘XVector’
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+Loading required package: Rsamtools
+
+Attaching package: ‘GenomicAlignments’
+
+The following object is masked from ‘package:dplyr’:
+
+    last
+
+Loading required package: patchwork
+[1] "sample name, Experimental_S6"
+[1] "done!"
+Warning message:
+Removed 3694119 rows containing non-finite outside the scale range
+(`stat_density()`). 
+null device 
+          1 
+[1] "done!"
+Warning message:
+Expected 2 pieces. Missing pieces filled with `NA` in 14334808 rows [1, 2, 3,
+4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...]. 
+Warning message:
+Expected 2 pieces. Missing pieces filled with `NA` in 20638956 rows [1, 2, 3,
+4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...]. 
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+null device 
+          1 
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+[1] "numeric"
+null device 
+          1 
+[1] 1376708
+[1] "distance mode: 0 and the freq is 4270721"
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max.     NA's 
+       0        0        2     4710       14 35515984  1376708 
+Warning message:
+Removed 1376708 rows containing non-finite outside the scale range
+(`stat_density()`). 
+Warning message:
+Removed 3155748 rows containing non-finite outside the scale range
+(`stat_density()`). 
+null device 
+          1 
+[1] "done!"
+[1] 1950472
+[1] "distance mode: 0 and the freq is 6365102"
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+      0       0       1    4209      10 5061889 1950472 
+Warning message:
+Removed 1950472 rows containing non-finite outside the scale range
+(`stat_density()`). 
+Warning message:
+Removed 4270301 rows containing non-finite outside the scale range
+(`stat_density()`). 
+null device 
+          1 
+[1] "done!"
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+                                                                                                     csv 
+                      "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant" 
+                                                                                                     out 
+"/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/cluster.all.reads.csv" 
+                                                                                                 pattern 
+                                                                         "_cluster\\.all\\.reads\\.csv$" 
+[1] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/Control_S1_cluster.all.reads.csv"     
+[2] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/Control_S2_cluster.all.reads.csv"     
+[3] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/Control_S3_cluster.all.reads.csv"     
+[4] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/Experimental_S4_cluster.all.reads.csv"
+[5] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/Experimental_S5_cluster.all.reads.csv"
+[6] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/Experimental_S6_cluster.all.reads.csv"
+Loading required package: tidyverse
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.3.0
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+                                                                                             csv 
+                        "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS" 
+                                                                                             out 
+"/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/PAS_quant/stats_PAS.csv" 
+                                                                                         pattern 
+                                                                               ".*_stats\\.csv$" 
+[1] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S1_stats.csv"     
+[2] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S2_stats.csv"     
+[3] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Control_S3_stats.csv"     
+[4] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S4_stats.csv"
+[5] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S5_stats.csv"
+[6] "/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//05_LAP_PAS/Experimental_S6_stats.csv"
+[Step 7] Generating bigWig tracks...
+  [bw] PASS_bw_LAP24 / Control_S1
+  [bw] PASS_bw_LAP24 / Control_S2
+  [bw] PASS_bw_LAP24 / Control_S3
+  [bw] PASS_bw_LAP24 / Experimental_S4
+  [bw] PASS_bw_LAP24 / Experimental_S5
+#Total mapped reads number = 7822277; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S4.plus.bedgraph.normalized
+#Total mapped reads number = 7822277; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S4.minus.bedgraph.normalized
+#Total mapped reads number = 8228848; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S2.plus.bedgraph.normalized
+#Total mapped reads number = 8228848; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S2.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24 / Experimental_S6
+  [bw] PASS_bw_LAP24_positon / Control_S1
+#Total mapped reads number = 8926267; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S1.plus.bedgraph.normalized
+#Total mapped reads number = 8926267; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S1.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_positon / Control_S2
+#Total mapped reads number = 8938296; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S3.plus.bedgraph.normalized
+#Total mapped reads number = 8938296; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Control_S3.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_positon / Control_S3
+#Total mapped reads number = 11849509; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S5.plus.bedgraph.normalized
+#Total mapped reads number = 11849509; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S5.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_positon / Experimental_S4
+#Total mapped reads number = 7953234; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S6.plus.bedgraph.normalized
+#Total mapped reads number = 7953234; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24/Experimental_S6.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_positon / Experimental_S5
+#Total mapped reads number = 8926267; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S1.plus.bedgraph.normalized
+#Total mapped reads number = 8926267; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S1.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_positon / Experimental_S6
+#Total mapped reads number = 8228848; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S2.plus.bedgraph.normalized
+#Total mapped reads number = 8228848; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S2.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_PAS / Control_S1
+#Total mapped reads number = 7822277; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S4.plus.bedgraph.normalized
+#Total mapped reads number = 7822277; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S4.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_PAS / Control_S2
+#Total mapped reads number = 8938296; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S3.plus.bedgraph.normalized
+#Total mapped reads number = 8938296; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Control_S3.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_PAS / Control_S3
+#Total mapped reads number = 8926267; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S1.plus.bedgraph.normalized
+#Total mapped reads number = 8926267; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S1.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_PAS / Experimental_S4
+#Total mapped reads number = 8228848; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S2.plus.bedgraph.normalized
+#Total mapped reads number = 8228848; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S2.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_PAS / Experimental_S5
+#Total mapped reads number = 8938296; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S3.plus.bedgraph.normalized
+#Total mapped reads number = 8938296; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Control_S3.minus.bedgraph.normalized
+  [bw] PASS_bw_LAP24_PAS / Experimental_S6
+#Total mapped reads number = 7953234; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S6.plus.bedgraph.normalized
+#Total mapped reads number = 7953234; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S6.minus.bedgraph.normalized
+  [bw] mapped_read / Control_S1
+#Total mapped reads number = 11849509; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S5.plus.bedgraph.normalized
+#Total mapped reads number = 11849509; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_positon/Experimental_S5.minus.bedgraph.normalized
+  [bw] mapped_read / Control_S2
+#Total mapped reads number = 7822277; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S4.plus.bedgraph.normalized
+#Total mapped reads number = 7822277; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S4.minus.bedgraph.normalized
+  [bw] mapped_read / Control_S3
+#Total mapped reads number = 7953234; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S6.plus.bedgraph.normalized
+#Total mapped reads number = 7953234; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S6.minus.bedgraph.normalized
+  [bw] mapped_read / Experimental_S4
+#Total mapped reads number = 11849509; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S5.plus.bedgraph.normalized
+#Total mapped reads number = 11849509; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/PASS_bw_LAP24_PAS/Experimental_S5.minus.bedgraph.normalized
+  [bw] mapped_read / Experimental_S5
+#Total mapped reads number = 14477219; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S2.plus.bedgraph.normalized
+#Total mapped reads number = 16271634; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S1.plus.bedgraph.normalized
+#Total mapped reads number = 14477219; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S2.minus.bedgraph.normalized
+#Total mapped reads number = 16271634; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S1.minus.bedgraph.normalized
+  [bw] mapped_read / Experimental_S6
+#Total mapped reads number = 16234494; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S3.plus.bedgraph.normalized
+#Total mapped reads number = 13713383; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S4.plus.bedgraph.normalized
+#Total mapped reads number = 16234494; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Control_S3.minus.bedgraph.normalized
+#Total mapped reads number = 13713383; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S4.minus.bedgraph.normalized
+#Total mapped reads number = 20638956; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S5.plus.bedgraph.normalized
+#Total mapped reads number = 20638956; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S5.minus.bedgraph.normalized
+#Total mapped reads number = 14334808; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S6.plus.bedgraph.normalized
+#Total mapped reads number = 14334808; Normalized bedgraph coverage to read counts per million total read:
+#write /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//06_bigwig/mapped_read/Experimental_S6.minus.bedgraph.normalized
+
+=== 3-REAP pipeline complete! ===
