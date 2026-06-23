@@ -1,0 +1,351 @@
+/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed/
+├── 01_trim
+│   ├── Control_S1
+│   │   ├── Control_S1_R1.fastq.gz
+│   │   ├── Control_S1_R1.fastq.gz.dvc
+│   │   └── Control_S1_R2_trimAdapt.5Ttrimmed.fastq.gz
+│   ├── Control_S2
+│   │   ├── Control_S2_R1.fastq.gz
+│   │   ├── Control_S2_R1.fastq.gz.dvc
+│   │   └── Control_S2_R2_trimAdapt.5Ttrimmed.fastq.gz
+│   ├── Control_S3
+│   │   ├── Control_S3_R1.fastq.gz
+│   │   ├── Control_S3_R1.fastq.gz.dvc
+│   │   └── Control_S3_R2_trimAdapt.5Ttrimmed.fastq.gz
+│   ├── Experimental_S4
+│   │   ├── Experimental_S4_R1.fastq.gz
+│   │   ├── Experimental_S4_R1.fastq.gz.dvc
+│   │   └── Experimental_S4_R2_trimAdapt.5Ttrimmed.fastq.gz
+│   ├── Experimental_S5
+│   │   ├── Experimental_S5_R1.fastq.gz
+│   │   ├── Experimental_S5_R1.fastq.gz.dvc
+│   │   └── Experimental_S5_R2_trimAdapt.5Ttrimmed.fastq.gz
+│   └── Experimental_S6
+│       ├── Experimental_S6_R1.fastq.gz
+│       ├── Experimental_S6_R1.fastq.gz.dvc
+│       ├── Experimental_S6_R2_trimAdapt.5Ttrimmed.fastq.gz
+│       └── Experimental_S6_R2_trimAdapt.5Ttrimmed.fastq.gz.dvc
+├── 02_align
+│   ├── Control_S1
+│   │   └── star
+│   │       ├── Aligned.sortedByCoord.out.bam
+│   │       ├── Aligned.sortedByCoord.out.bam.bai
+│   │       ├── Log.final.out
+│   │       ├── Log.out
+│   │       ├── Log.progress.out
+│   │       ├── SJ.out.tab
+│   │       └── _STARtmp
+│   │           └── BAMsort
+│   │               ├── 0
+│   │               ├── 1
+│   │               ├── 2
+│   │               ├── 3
+│   │               ├── 4
+│   │               ├── 5
+│   │               ├── 6
+│   │               └── 7
+│   ├── Control_S2
+│   │   └── star
+│   │       ├── Aligned.sortedByCoord.out.bam
+│   │       ├── Aligned.sortedByCoord.out.bam.bai
+│   │       ├── Log.final.out
+│   │       ├── Log.out
+│   │       ├── Log.progress.out
+│   │       ├── SJ.out.tab
+│   │       └── _STARtmp
+│   │           └── BAMsort
+│   │               ├── 0
+│   │               ├── 1
+│   │               ├── 2
+│   │               ├── 3
+│   │               ├── 4
+│   │               ├── 5
+│   │               ├── 6
+│   │               └── 7
+│   ├── Control_S3
+│   │   └── star
+│   │       ├── Aligned.sortedByCoord.out.bam
+│   │       ├── Aligned.sortedByCoord.out.bam.bai
+│   │       ├── Log.final.out
+│   │       ├── Log.out
+│   │       ├── Log.progress.out
+│   │       ├── SJ.out.tab
+│   │       └── _STARtmp
+│   │           └── BAMsort
+│   │               ├── 0
+│   │               ├── 1
+│   │               ├── 2
+│   │               ├── 3
+│   │               ├── 4
+│   │               ├── 5
+│   │               ├── 6
+│   │               └── 7
+│   ├── Experimental_S4
+│   │   └── star
+│   │       ├── Aligned.sortedByCoord.out.bam
+│   │       ├── Aligned.sortedByCoord.out.bam.bai
+│   │       ├── Log.final.out
+│   │       ├── Log.out
+│   │       ├── Log.progress.out
+│   │       ├── SJ.out.tab
+│   │       └── _STARtmp
+│   │           └── BAMsort
+│   │               ├── 0
+│   │               ├── 1
+│   │               ├── 2
+│   │               ├── 3
+│   │               ├── 4
+│   │               ├── 5
+│   │               ├── 6
+│   │               └── 7
+│   ├── Experimental_S5
+│   │   └── star
+│   │       ├── Aligned.sortedByCoord.out.bam
+│   │       ├── Aligned.sortedByCoord.out.bam.bai
+│   │       ├── Log.final.out
+│   │       ├── Log.out
+│   │       ├── Log.progress.out
+│   │       ├── SJ.out.tab
+│   │       └── _STARtmp
+│   │           └── BAMsort
+│   │               ├── 0
+│   │               ├── 1
+│   │               ├── 2
+│   │               ├── 3
+│   │               ├── 4
+│   │               ├── 5
+│   │               ├── 6
+│   │               └── 7
+│   ├── Experimental_S6
+│   │   └── star
+│   │       ├── Aligned.sortedByCoord.out.bam
+│   │       ├── Aligned.sortedByCoord.out.bam.bai
+│   │       ├── Aligned.sortedByCoord.out.bam.dvc
+│   │       ├── Log.final.out
+│   │       ├── Log.out
+│   │       ├── Log.progress.out
+│   │       ├── SJ.out.tab
+│   │       └── _STARtmp
+│   │           └── BAMsort
+│   │               ├── 0
+│   │               ├── 1
+│   │               ├── 2
+│   │               ├── 3
+│   │               ├── 4
+│   │               ├── 5
+│   │               ├── 6
+│   │               └── 7
+│   └── stats_STAR_summary.csv
+├── 03_dedup
+│   ├── Control_S1
+│   │   └── Control_S1.dedup.bam -> /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S1/star/Aligned.sortedByCoord.out.bam
+│   ├── Control_S2
+│   │   └── Control_S2.dedup.bam -> /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S2/star/Aligned.sortedByCoord.out.bam
+│   ├── Control_S3
+│   │   └── Control_S3.dedup.bam -> /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Control_S3/star/Aligned.sortedByCoord.out.bam
+│   ├── Experimental_S4
+│   │   └── Experimental_S4.dedup.bam -> /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S4/star/Aligned.sortedByCoord.out.bam
+│   ├── Experimental_S5
+│   │   └── Experimental_S5.dedup.bam -> /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S5/star/Aligned.sortedByCoord.out.bam
+│   └── Experimental_S6
+│       └── Experimental_S6.dedup.bam -> /compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/processed//02_align/Experimental_S6/star/Aligned.sortedByCoord.out.bam
+├── 04_bed
+│   ├── Control_S1.dedup_R2.sorted.bed
+│   ├── Control_S2.dedup_R2.sorted.bed
+│   ├── Control_S3.dedup_R2.sorted.bed
+│   ├── Experimental_S4.dedup_R2.sorted.bed
+│   ├── Experimental_S5.dedup_R2.sorted.bed
+│   ├── Experimental_S6.dedup_R2.sorted.bed
+│   ├── Experimental_S6.dedup_R2.sorted.bed.dvc
+│   └── stats_deduped_reads.txt
+├── 05_LAP_PAS
+│   ├── Control_S1_CIGAR_distrib.pdf
+│   ├── Control_S1_LAP_bed.rds
+│   ├── Control_S1_LAP_bed.rds.dvc
+│   ├── Control_S1_LAP_polyAdb_distance.pdf
+│   ├── Control_S1_LAP_polyAdb.rds
+│   ├── Control_S1_LAP_polyAdb.rds.dvc
+│   ├── Control_S1_LAPs_24.PASS.rds
+│   ├── Control_S1_LAPs_24.PASS.rds.dvc
+│   ├── Control_S1_mapped_read.bed
+│   ├── Control_S1_mapped_read.bed.dvc
+│   ├── Control_S1_PASS_bw_LAP24.bed
+│   ├── Control_S1_PASS_bw_LAP24.bed.dvc
+│   ├── Control_S1_PASS_bw_LAP24_PAS.bed
+│   ├── Control_S1_PASS_bw_LAP24_PAS.bed.dvc
+│   ├── Control_S1_PASS_bw_LAP24_positon.bed
+│   ├── Control_S1_PASS_bw_LAP24_positon.bed.dvc
+│   ├── Control_S1_stats.csv
+│   ├── Control_S2_CIGAR_distrib.pdf
+│   ├── Control_S2_LAP_bed.rds
+│   ├── Control_S2_LAP_bed.rds.dvc
+│   ├── Control_S2_LAP_polyAdb_distance.pdf
+│   ├── Control_S2_LAP_polyAdb.rds
+│   ├── Control_S2_LAP_polyAdb.rds.dvc
+│   ├── Control_S2_LAPs_24.PASS.rds
+│   ├── Control_S2_LAPs_24.PASS.rds.dvc
+│   ├── Control_S2_mapped_read.bed
+│   ├── Control_S2_mapped_read.bed.dvc
+│   ├── Control_S2_PASS_bw_LAP24.bed
+│   ├── Control_S2_PASS_bw_LAP24.bed.dvc
+│   ├── Control_S2_PASS_bw_LAP24_PAS.bed
+│   ├── Control_S2_PASS_bw_LAP24_PAS.bed.dvc
+│   ├── Control_S2_PASS_bw_LAP24_positon.bed
+│   ├── Control_S2_PASS_bw_LAP24_positon.bed.dvc
+│   ├── Control_S2_stats.csv
+│   ├── Control_S3_CIGAR_distrib.pdf
+│   ├── Control_S3_LAP_bed.rds
+│   ├── Control_S3_LAP_bed.rds.dvc
+│   ├── Control_S3_LAP_polyAdb_distance.pdf
+│   ├── Control_S3_LAP_polyAdb.rds
+│   ├── Control_S3_LAP_polyAdb.rds.dvc
+│   ├── Control_S3_LAPs_24.PASS.rds
+│   ├── Control_S3_LAPs_24.PASS.rds.dvc
+│   ├── Control_S3_mapped_read.bed
+│   ├── Control_S3_mapped_read.bed.dvc
+│   ├── Control_S3_PASS_bw_LAP24.bed
+│   ├── Control_S3_PASS_bw_LAP24.bed.dvc
+│   ├── Control_S3_PASS_bw_LAP24_PAS.bed
+│   ├── Control_S3_PASS_bw_LAP24_PAS.bed.dvc
+│   ├── Control_S3_PASS_bw_LAP24_positon.bed
+│   ├── Control_S3_PASS_bw_LAP24_positon.bed.dvc
+│   ├── Control_S3_stats.csv
+│   ├── Experimental_S4_CIGAR_distrib.pdf
+│   ├── Experimental_S4_LAP_bed.rds
+│   ├── Experimental_S4_LAP_bed.rds.dvc
+│   ├── Experimental_S4_LAP_polyAdb_distance.pdf
+│   ├── Experimental_S4_LAP_polyAdb.rds
+│   ├── Experimental_S4_LAP_polyAdb.rds.dvc
+│   ├── Experimental_S4_LAPs_24.PASS.rds
+│   ├── Experimental_S4_LAPs_24.PASS.rds.dvc
+│   ├── Experimental_S4_mapped_read.bed
+│   ├── Experimental_S4_mapped_read.bed.dvc
+│   ├── Experimental_S4_PASS_bw_LAP24.bed
+│   ├── Experimental_S4_PASS_bw_LAP24.bed.dvc
+│   ├── Experimental_S4_PASS_bw_LAP24_PAS.bed
+│   ├── Experimental_S4_PASS_bw_LAP24_PAS.bed.dvc
+│   ├── Experimental_S4_PASS_bw_LAP24_positon.bed
+│   ├── Experimental_S4_PASS_bw_LAP24_positon.bed.dvc
+│   ├── Experimental_S4_stats.csv
+│   ├── Experimental_S5_CIGAR_distrib.pdf
+│   ├── Experimental_S5_LAP_bed.rds
+│   ├── Experimental_S5_LAP_bed.rds.dvc
+│   ├── Experimental_S5_LAP_polyAdb_distance.pdf
+│   ├── Experimental_S5_LAP_polyAdb.rds
+│   ├── Experimental_S5_LAP_polyAdb.rds.dvc
+│   ├── Experimental_S5_LAPs_24.PASS.rds
+│   ├── Experimental_S5_LAPs_24.PASS.rds.dvc
+│   ├── Experimental_S5_mapped_read.bed
+│   ├── Experimental_S5_mapped_read.bed.dvc
+│   ├── Experimental_S5_PASS_bw_LAP24.bed
+│   ├── Experimental_S5_PASS_bw_LAP24.bed.dvc
+│   ├── Experimental_S5_PASS_bw_LAP24_PAS.bed
+│   ├── Experimental_S5_PASS_bw_LAP24_PAS.bed.dvc
+│   ├── Experimental_S5_PASS_bw_LAP24_positon.bed
+│   ├── Experimental_S5_PASS_bw_LAP24_positon.bed.dvc
+│   ├── Experimental_S5_stats.csv
+│   ├── Experimental_S6_CIGAR_distrib.pdf
+│   ├── Experimental_S6_LAP_bed.rds
+│   ├── Experimental_S6_LAP_bed.rds.dvc
+│   ├── Experimental_S6_LAP_polyAdb_distance.pdf
+│   ├── Experimental_S6_LAP_polyAdb.rds
+│   ├── Experimental_S6_LAP_polyAdb.rds.dvc
+│   ├── Experimental_S6_LAPs_24.PASS.rds
+│   ├── Experimental_S6_LAPs_24.PASS.rds.dvc
+│   ├── Experimental_S6_mapped_read.bed
+│   ├── Experimental_S6_mapped_read.bed.dvc
+│   ├── Experimental_S6_PASS_bw_LAP24.bed
+│   ├── Experimental_S6_PASS_bw_LAP24.bed.dvc
+│   ├── Experimental_S6_PASS_bw_LAP24_PAS.bed
+│   ├── Experimental_S6_PASS_bw_LAP24_PAS.bed.dvc
+│   ├── Experimental_S6_PASS_bw_LAP24_positon.bed
+│   ├── Experimental_S6_PASS_bw_LAP24_positon.bed.dvc
+│   ├── Experimental_S6_stats.csv
+│   └── PAS_quant
+│       ├── cluster.all.reads.csv
+│       ├── Control_S1_cluster.all.reads.csv
+│       ├── Control_S2_cluster.all.reads.csv
+│       ├── Control_S3_cluster.all.reads.csv
+│       ├── Experimental_S4_cluster.all.reads.csv
+│       ├── Experimental_S5_cluster.all.reads.csv
+│       ├── Experimental_S6_cluster.all.reads.csv
+│       └── stats_PAS.csv
+└── 06_bigwig
+    ├── mapped_read
+    │   ├── mi.Control_S1.mapped_read.bw
+    │   ├── mi.Control_S2.mapped_read.bw
+    │   ├── mi.Control_S3.mapped_read.bw
+    │   ├── mi.Experimental_S4.mapped_read.bw
+    │   ├── mi.Experimental_S5.mapped_read.bw
+    │   ├── mi.Experimental_S6.mapped_read.bw
+    │   ├── minus.Control_S1.mapped_read.bw
+    │   ├── minus.Control_S2.mapped_read.bw
+    │   ├── minus.Control_S3.mapped_read.bw
+    │   ├── minus.Experimental_S4.mapped_read.bw
+    │   ├── minus.Experimental_S5.mapped_read.bw
+    │   ├── minus.Experimental_S6.mapped_read.bw
+    │   ├── plus.Control_S1.mapped_read.bw
+    │   ├── plus.Control_S2.mapped_read.bw
+    │   ├── plus.Control_S3.mapped_read.bw
+    │   ├── plus.Experimental_S4.mapped_read.bw
+    │   ├── plus.Experimental_S5.mapped_read.bw
+    │   └── plus.Experimental_S6.mapped_read.bw
+    ├── PASS_bw_LAP24
+    │   ├── mi.Control_S1.PASS_bw_LAP24.bw
+    │   ├── mi.Control_S2.PASS_bw_LAP24.bw
+    │   ├── mi.Control_S3.PASS_bw_LAP24.bw
+    │   ├── mi.Experimental_S4.PASS_bw_LAP24.bw
+    │   ├── mi.Experimental_S5.PASS_bw_LAP24.bw
+    │   ├── mi.Experimental_S6.PASS_bw_LAP24.bw
+    │   ├── minus.Control_S1.PASS_bw_LAP24.bw
+    │   ├── minus.Control_S2.PASS_bw_LAP24.bw
+    │   ├── minus.Control_S3.PASS_bw_LAP24.bw
+    │   ├── minus.Experimental_S4.PASS_bw_LAP24.bw
+    │   ├── minus.Experimental_S5.PASS_bw_LAP24.bw
+    │   ├── minus.Experimental_S6.PASS_bw_LAP24.bw
+    │   ├── plus.Control_S1.PASS_bw_LAP24.bw
+    │   ├── plus.Control_S2.PASS_bw_LAP24.bw
+    │   ├── plus.Control_S3.PASS_bw_LAP24.bw
+    │   ├── plus.Experimental_S4.PASS_bw_LAP24.bw
+    │   ├── plus.Experimental_S5.PASS_bw_LAP24.bw
+    │   └── plus.Experimental_S6.PASS_bw_LAP24.bw
+    ├── PASS_bw_LAP24_PAS
+    │   ├── mi.Control_S1.PASS_bw_LAP24_PAS.bw
+    │   ├── mi.Control_S2.PASS_bw_LAP24_PAS.bw
+    │   ├── mi.Control_S3.PASS_bw_LAP24_PAS.bw
+    │   ├── mi.Experimental_S4.PASS_bw_LAP24_PAS.bw
+    │   ├── mi.Experimental_S5.PASS_bw_LAP24_PAS.bw
+    │   ├── mi.Experimental_S6.PASS_bw_LAP24_PAS.bw
+    │   ├── minus.Control_S1.PASS_bw_LAP24_PAS.bw
+    │   ├── minus.Control_S2.PASS_bw_LAP24_PAS.bw
+    │   ├── minus.Control_S3.PASS_bw_LAP24_PAS.bw
+    │   ├── minus.Experimental_S4.PASS_bw_LAP24_PAS.bw
+    │   ├── minus.Experimental_S5.PASS_bw_LAP24_PAS.bw
+    │   ├── minus.Experimental_S6.PASS_bw_LAP24_PAS.bw
+    │   ├── plus.Control_S1.PASS_bw_LAP24_PAS.bw
+    │   ├── plus.Control_S2.PASS_bw_LAP24_PAS.bw
+    │   ├── plus.Control_S3.PASS_bw_LAP24_PAS.bw
+    │   ├── plus.Experimental_S4.PASS_bw_LAP24_PAS.bw
+    │   ├── plus.Experimental_S5.PASS_bw_LAP24_PAS.bw
+    │   └── plus.Experimental_S6.PASS_bw_LAP24_PAS.bw
+    └── PASS_bw_LAP24_positon
+        ├── mi.Control_S1.PASS_bw_LAP24_positon.bw
+        ├── mi.Control_S2.PASS_bw_LAP24_positon.bw
+        ├── mi.Control_S3.PASS_bw_LAP24_positon.bw
+        ├── mi.Experimental_S4.PASS_bw_LAP24_positon.bw
+        ├── mi.Experimental_S5.PASS_bw_LAP24_positon.bw
+        ├── mi.Experimental_S6.PASS_bw_LAP24_positon.bw
+        ├── minus.Control_S1.PASS_bw_LAP24_positon.bw
+        ├── minus.Control_S2.PASS_bw_LAP24_positon.bw
+        ├── minus.Control_S3.PASS_bw_LAP24_positon.bw
+        ├── minus.Experimental_S4.PASS_bw_LAP24_positon.bw
+        ├── minus.Experimental_S5.PASS_bw_LAP24_positon.bw
+        ├── minus.Experimental_S6.PASS_bw_LAP24_positon.bw
+        ├── plus.Control_S1.PASS_bw_LAP24_positon.bw
+        ├── plus.Control_S2.PASS_bw_LAP24_positon.bw
+        ├── plus.Control_S3.PASS_bw_LAP24_positon.bw
+        ├── plus.Experimental_S4.PASS_bw_LAP24_positon.bw
+        ├── plus.Experimental_S5.PASS_bw_LAP24_positon.bw
+        └── plus.Experimental_S6.PASS_bw_LAP24_positon.bw
+
+96 directories, 253 files
