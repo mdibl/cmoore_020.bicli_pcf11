@@ -1,0 +1,5 @@
+hub MooreLabTuftsTrackHub
+shortLabel MooreLabAtTufts
+longLabel 3-REAP pipeline results for data from the Claire Moore Lab at Tufts
+genomesFile genomes.txt
+email cnobrega@mdibl.org

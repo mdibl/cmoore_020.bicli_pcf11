@@ -1,0 +1,915 @@
+##############################################
+# Reference: PolyA_DB v4.1 PAS annotations
+##############################################
+track polyaDB_v41
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/hg38.PAS.v4.1.bb
+shortLabel PolyA_DB v4.1
+longLabel PolyA_DB v4.1 — hg38 polyadenylation sites (PAS_ID|Gene)
+type bigBed 6
+visibility pack
+priority 0.5
+color 160,32,240
+itemRgb off
+
+##############################################
+# PAS composites  [4 tracks: condition x strand]
+##############################################
+track PAS_ctrl_plus
+compositeTrack on
+priority 1.0
+shortLabel Control PASs +
+longLabel Detected PASs — Control, plus strand
+type bigWig
+visibility full
+autoScale group
+alwaysZero on
+smoothingWindow off
+windowingFunction maximum
+maxHeightPixels 120:80:40
+
+track PAS_Control_S1_plus
+parent PAS_ctrl_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/plus.Control_S1.PASS_bw_LAP24_PAS.bw
+shortLabel PAS + Control S1
+longLabel Detected PASs — Control S1 plus
+type bigWig
+visibility full
+graphTypeDefault bar
+color 60,60,60
+
+track PAS_Control_S2_plus
+parent PAS_ctrl_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/plus.Control_S2.PASS_bw_LAP24_PAS.bw
+shortLabel PAS + Control S2
+longLabel Detected PASs — Control S2 plus
+type bigWig
+visibility full
+graphTypeDefault bar
+color 130,130,130
+
+track PAS_Control_S3_plus
+parent PAS_ctrl_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/plus.Control_S3.PASS_bw_LAP24_PAS.bw
+shortLabel PAS + Control S3
+longLabel Detected PASs — Control S3 plus
+type bigWig
+visibility full
+graphTypeDefault bar
+color 190,190,190
+
+track PAS_exp_plus
+compositeTrack on
+priority 1.1
+shortLabel Exp PASs +
+longLabel Detected PASs — Experimental, plus strand
+type bigWig
+visibility full
+autoScale group
+alwaysZero on
+smoothingWindow off
+windowingFunction maximum
+maxHeightPixels 120:80:40
+
+track PAS_Experimental_S4_plus
+parent PAS_exp_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/plus.Experimental_S4.PASS_bw_LAP24_PAS.bw
+shortLabel PAS + Exp S4
+longLabel Detected PASs — Experimental S4 plus
+type bigWig
+visibility full
+graphTypeDefault bar
+color 40,40,185
+
+track PAS_Experimental_S5_plus
+parent PAS_exp_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/plus.Experimental_S5.PASS_bw_LAP24_PAS.bw
+shortLabel PAS + Exp S5
+longLabel Detected PASs — Experimental S5 plus
+type bigWig
+visibility full
+graphTypeDefault bar
+color 65,65,220
+
+track PAS_Experimental_S6_plus
+parent PAS_exp_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/plus.Experimental_S6.PASS_bw_LAP24_PAS.bw
+shortLabel PAS + Exp S6
+longLabel Detected PASs — Experimental S6 plus
+type bigWig
+visibility full
+graphTypeDefault bar
+color 95,95,255
+
+track PAS_ctrl_mi
+compositeTrack on
+priority 1.2
+shortLabel Control PASs mi
+longLabel Detected PASs — Control, mirror strand
+type bigWig
+visibility hide
+autoScale group
+alwaysZero on
+smoothingWindow off
+windowingFunction maximum
+maxHeightPixels 120:80:40
+
+track PAS_Control_S1_mi
+parent PAS_ctrl_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/mi.Control_S1.PASS_bw_LAP24_PAS.bw
+shortLabel PAS mi Control S1
+longLabel Detected PASs — Control S1 mi
+type bigWig
+visibility full
+graphTypeDefault bar
+color 60,60,60
+
+track PAS_Control_S2_mi
+parent PAS_ctrl_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/mi.Control_S2.PASS_bw_LAP24_PAS.bw
+shortLabel PAS mi Control S2
+longLabel Detected PASs — Control S2 mi
+type bigWig
+visibility full
+graphTypeDefault bar
+color 130,130,130
+
+track PAS_Control_S3_mi
+parent PAS_ctrl_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/mi.Control_S3.PASS_bw_LAP24_PAS.bw
+shortLabel PAS mi Control S3
+longLabel Detected PASs — Control S3 mi
+type bigWig
+visibility full
+graphTypeDefault bar
+color 190,190,190
+
+track PAS_exp_mi
+compositeTrack on
+priority 1.3
+shortLabel Exp PASs mi
+longLabel Detected PASs — Experimental, mirror strand
+type bigWig
+visibility hide
+autoScale group
+alwaysZero on
+smoothingWindow off
+windowingFunction maximum
+maxHeightPixels 120:80:40
+
+track PAS_Experimental_S4_mi
+parent PAS_exp_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/mi.Experimental_S4.PASS_bw_LAP24_PAS.bw
+shortLabel PAS mi Exp S4
+longLabel Detected PASs — Experimental S4 mi
+type bigWig
+visibility full
+graphTypeDefault bar
+color 40,40,185
+
+track PAS_Experimental_S5_mi
+parent PAS_exp_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/mi.Experimental_S5.PASS_bw_LAP24_PAS.bw
+shortLabel PAS mi Exp S5
+longLabel Detected PASs — Experimental S5 mi
+type bigWig
+visibility full
+graphTypeDefault bar
+color 65,65,220
+
+track PAS_Experimental_S6_mi
+parent PAS_exp_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_PAS/mi.Experimental_S6.PASS_bw_LAP24_PAS.bw
+shortLabel PAS mi Exp S6
+longLabel Detected PASs — Experimental S6 mi
+type bigWig
+visibility full
+graphTypeDefault bar
+color 95,95,255
+
+##############################################
+# PASSreads overlays  [4 tracks: condition x strand, points, full]
+##############################################
+track PASSreads_Control_plus
+type bigWig
+container multiWig
+aggregate transparentOverlay
+showSubtrackColorOnUi on
+shortLabel Control PASSreads +
+longLabel PASS reads — Control, plus strand (reps overlay)
+visibility full
+autoScale on
+alwaysZero on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+priority 2.0
+
+track PASSreads_ov_Control_S1_plus
+parent PASSreads_Control_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Control_S1.PASS_bw_LAP24.bw
+shortLabel S1
+longLabel Control S1 plus
+type bigWig
+smoothingWindow 2
+color 60,60,60
+
+track PASSreads_ov_Control_S2_plus
+parent PASSreads_Control_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Control_S2.PASS_bw_LAP24.bw
+shortLabel S2
+longLabel Control S2 plus
+type bigWig
+smoothingWindow 2
+color 130,130,130
+
+track PASSreads_ov_Control_S3_plus
+parent PASSreads_Control_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Control_S3.PASS_bw_LAP24.bw
+shortLabel S3
+longLabel Control S3 plus
+type bigWig
+smoothingWindow 2
+color 190,190,190
+
+track PASSreads_Experimental_plus
+type bigWig
+container multiWig
+aggregate transparentOverlay
+showSubtrackColorOnUi on
+shortLabel Exp PASSreads +
+longLabel PASS reads — Experimental, plus strand (reps overlay)
+visibility full
+autoScale on
+alwaysZero on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+priority 2.1
+
+track PASSreads_ov_Experimental_S4_plus
+parent PASSreads_Experimental_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Experimental_S4.PASS_bw_LAP24.bw
+shortLabel S4
+longLabel Experimental S4 plus
+type bigWig
+smoothingWindow 2
+color 40,40,185
+
+track PASSreads_ov_Experimental_S5_plus
+parent PASSreads_Experimental_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Experimental_S5.PASS_bw_LAP24.bw
+shortLabel S5
+longLabel Experimental S5 plus
+type bigWig
+smoothingWindow 2
+color 65,65,220
+
+track PASSreads_ov_Experimental_S6_plus
+parent PASSreads_Experimental_plus
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Experimental_S6.PASS_bw_LAP24.bw
+shortLabel S6
+longLabel Experimental S6 plus
+type bigWig
+smoothingWindow 2
+color 95,95,255
+
+track PASSreads_Control_mi
+type bigWig
+container multiWig
+aggregate transparentOverlay
+showSubtrackColorOnUi on
+shortLabel Control PASSreads mi
+longLabel PASS reads — Control, mirror strand (reps overlay)
+visibility hide
+autoScale on
+alwaysZero on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+priority 2.2
+
+track PASSreads_ov_Control_S1_mi
+parent PASSreads_Control_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Control_S1.PASS_bw_LAP24.bw
+shortLabel S1
+longLabel Control S1 mi
+type bigWig
+smoothingWindow 2
+color 60,60,60
+
+track PASSreads_ov_Control_S2_mi
+parent PASSreads_Control_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Control_S2.PASS_bw_LAP24.bw
+shortLabel S2
+longLabel Control S2 mi
+type bigWig
+smoothingWindow 2
+color 130,130,130
+
+track PASSreads_ov_Control_S3_mi
+parent PASSreads_Control_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Control_S3.PASS_bw_LAP24.bw
+shortLabel S3
+longLabel Control S3 mi
+type bigWig
+smoothingWindow 2
+color 190,190,190
+
+track PASSreads_Experimental_mi
+type bigWig
+container multiWig
+aggregate transparentOverlay
+showSubtrackColorOnUi on
+shortLabel Exp PASSreads mi
+longLabel PASS reads — Experimental, mirror strand (reps overlay)
+visibility hide
+autoScale on
+alwaysZero on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+priority 2.3
+
+track PASSreads_ov_Experimental_S4_mi
+parent PASSreads_Experimental_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Experimental_S4.PASS_bw_LAP24.bw
+shortLabel S4
+longLabel Experimental S4 mi
+type bigWig
+smoothingWindow 2
+color 40,40,185
+
+track PASSreads_ov_Experimental_S5_mi
+parent PASSreads_Experimental_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Experimental_S5.PASS_bw_LAP24.bw
+shortLabel S5
+longLabel Experimental S5 mi
+type bigWig
+smoothingWindow 2
+color 65,65,220
+
+track PASSreads_ov_Experimental_S6_mi
+parent PASSreads_Experimental_mi
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Experimental_S6.PASS_bw_LAP24.bw
+shortLabel S6
+longLabel Experimental S6 mi
+type bigWig
+smoothingWindow 2
+color 95,95,255
+
+##############################################
+# Composite: PASS reads  [hide — per-rep detail view]
+##############################################
+track PASSreads
+compositeTrack on
+priority 2.5
+shortLabel PASSreads (per-rep)
+longLabel PASS reads — per-replicate detail
+type bigWig
+visibility hide
+subGroup1 condition condition Control=Control Experimental=Experimental
+subGroup2 rep rep rep1=rep1 rep2=rep2 rep3=rep3
+subGroup3 strand strand mi=Mirror plus=Plus
+sortOrder strand=+ condition=+ rep=+
+dimensions dimX=condition dimY=rep
+dragAndDrop subtracks
+filterComposite on
+autoScale group
+
+track PASSreads_Control_S1_plus
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Control_S1.PASS_bw_LAP24.bw
+shortLabel C_S1_plus
+longLabel Control S1 plus
+type bigWig
+subGroups condition=Control rep=rep1 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Control_S2_plus
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Control_S2.PASS_bw_LAP24.bw
+shortLabel C_S2_plus
+longLabel Control S2 plus
+type bigWig
+subGroups condition=Control rep=rep2 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Control_S3_plus
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Control_S3.PASS_bw_LAP24.bw
+shortLabel C_S3_plus
+longLabel Control S3 plus
+type bigWig
+subGroups condition=Control rep=rep3 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Experimental_S4_plus
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Experimental_S4.PASS_bw_LAP24.bw
+shortLabel E_S4_plus
+longLabel Experimental S4 plus
+type bigWig
+subGroups condition=Experimental rep=rep1 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Experimental_S5_plus
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Experimental_S5.PASS_bw_LAP24.bw
+shortLabel E_S5_plus
+longLabel Experimental S5 plus
+type bigWig
+subGroups condition=Experimental rep=rep2 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Experimental_S6_plus
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/plus.Experimental_S6.PASS_bw_LAP24.bw
+shortLabel E_S6_plus
+longLabel Experimental S6 plus
+type bigWig
+subGroups condition=Experimental rep=rep3 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Control_S1_mi
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Control_S1.PASS_bw_LAP24.bw
+shortLabel C_S1_mi
+longLabel Control S1 mi
+type bigWig
+subGroups condition=Control rep=rep1 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Control_S2_mi
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Control_S2.PASS_bw_LAP24.bw
+shortLabel C_S2_mi
+longLabel Control S2 mi
+type bigWig
+subGroups condition=Control rep=rep2 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Control_S3_mi
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Control_S3.PASS_bw_LAP24.bw
+shortLabel C_S3_mi
+longLabel Control S3 mi
+type bigWig
+subGroups condition=Control rep=rep3 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Experimental_S4_mi
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Experimental_S4.PASS_bw_LAP24.bw
+shortLabel E_S4_mi
+longLabel Experimental S4 mi
+type bigWig
+subGroups condition=Experimental rep=rep1 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Experimental_S5_mi
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Experimental_S5.PASS_bw_LAP24.bw
+shortLabel E_S5_mi
+longLabel Experimental S5 mi
+type bigWig
+subGroups condition=Experimental rep=rep2 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+track PASSreads_Experimental_S6_mi
+parent PASSreads
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24/mi.Experimental_S6.PASS_bw_LAP24.bw
+shortLabel E_S6_mi
+longLabel Experimental S6 mi
+type bigWig
+subGroups condition=Experimental rep=rep3 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault points
+maxHeightPixels 120:80:40
+color 60,60,255
+
+##############################################
+# Composite: All aligned reads  [dense — QC overview]
+##############################################
+track mapped
+compositeTrack on
+priority 3.0
+shortLabel mapped
+longLabel All aligned reads
+type bigWig
+visibility dense
+subGroup1 condition condition Control=Control Experimental=Experimental
+subGroup2 rep rep rep1=rep1 rep2=rep2 rep3=rep3
+subGroup3 strand strand mi=Mirror plus=Plus
+sortOrder strand=+ condition=+ rep=+
+dimensions dimX=condition dimY=rep
+dragAndDrop subtracks
+filterComposite on
+autoScale group
+
+track mapped_Control_S1_plus
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/plus.Control_S1.mapped_read.bw
+shortLabel C_S1_plus
+longLabel Control S1 plus
+type bigWig
+subGroups condition=Control rep=rep1 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Control_S2_plus
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/plus.Control_S2.mapped_read.bw
+shortLabel C_S2_plus
+longLabel Control S2 plus
+type bigWig
+subGroups condition=Control rep=rep2 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Control_S3_plus
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/plus.Control_S3.mapped_read.bw
+shortLabel C_S3_plus
+longLabel Control S3 plus
+type bigWig
+subGroups condition=Control rep=rep3 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Experimental_S4_plus
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/plus.Experimental_S4.mapped_read.bw
+shortLabel E_S4_plus
+longLabel Experimental S4 plus
+type bigWig
+subGroups condition=Experimental rep=rep1 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Experimental_S5_plus
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/plus.Experimental_S5.mapped_read.bw
+shortLabel E_S5_plus
+longLabel Experimental S5 plus
+type bigWig
+subGroups condition=Experimental rep=rep2 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Experimental_S6_plus
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/plus.Experimental_S6.mapped_read.bw
+shortLabel E_S6_plus
+longLabel Experimental S6 plus
+type bigWig
+subGroups condition=Experimental rep=rep3 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Control_S1_mi
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/mi.Control_S1.mapped_read.bw
+shortLabel C_S1_mi
+longLabel Control S1 mi
+type bigWig
+subGroups condition=Control rep=rep1 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Control_S2_mi
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/mi.Control_S2.mapped_read.bw
+shortLabel C_S2_mi
+longLabel Control S2 mi
+type bigWig
+subGroups condition=Control rep=rep2 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Control_S3_mi
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/mi.Control_S3.mapped_read.bw
+shortLabel C_S3_mi
+longLabel Control S3 mi
+type bigWig
+subGroups condition=Control rep=rep3 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Experimental_S4_mi
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/mi.Experimental_S4.mapped_read.bw
+shortLabel E_S4_mi
+longLabel Experimental S4 mi
+type bigWig
+subGroups condition=Experimental rep=rep1 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Experimental_S5_mi
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/mi.Experimental_S5.mapped_read.bw
+shortLabel E_S5_mi
+longLabel Experimental S5 mi
+type bigWig
+subGroups condition=Experimental rep=rep2 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+track mapped_Experimental_S6_mi
+parent mapped
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/mapped_read/mi.Experimental_S6.mapped_read.bw
+shortLabel E_S6_mi
+longLabel Experimental S6 mi
+type bigWig
+subGroups condition=Experimental rep=rep3 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 128,128,128
+
+##############################################
+# Composite: PASS LAPs  [hide — enable when needed]
+##############################################
+track LAPs
+compositeTrack on
+priority 4.0
+shortLabel LAPs
+longLabel PASS LAPs
+type bigWig
+visibility hide
+subGroup1 condition condition Control=Control Experimental=Experimental
+subGroup2 rep rep rep1=rep1 rep2=rep2 rep3=rep3
+subGroup3 strand strand mi=Mirror plus=Plus
+sortOrder strand=+ condition=+ rep=+
+dimensions dimX=condition dimY=rep
+dragAndDrop subtracks
+filterComposite on
+autoScale group
+
+track LAPs_Control_S1_plus
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/plus.Control_S1.PASS_bw_LAP24_positon.bw
+shortLabel C_S1_plus
+longLabel Control S1 plus
+type bigWig
+subGroups condition=Control rep=rep1 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Control_S2_plus
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/plus.Control_S2.PASS_bw_LAP24_positon.bw
+shortLabel C_S2_plus
+longLabel Control S2 plus
+type bigWig
+subGroups condition=Control rep=rep2 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Control_S3_plus
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/plus.Control_S3.PASS_bw_LAP24_positon.bw
+shortLabel C_S3_plus
+longLabel Control S3 plus
+type bigWig
+subGroups condition=Control rep=rep3 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Experimental_S4_plus
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/plus.Experimental_S4.PASS_bw_LAP24_positon.bw
+shortLabel E_S4_plus
+longLabel Experimental S4 plus
+type bigWig
+subGroups condition=Experimental rep=rep1 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Experimental_S5_plus
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/plus.Experimental_S5.PASS_bw_LAP24_positon.bw
+shortLabel E_S5_plus
+longLabel Experimental S5 plus
+type bigWig
+subGroups condition=Experimental rep=rep2 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Experimental_S6_plus
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/plus.Experimental_S6.PASS_bw_LAP24_positon.bw
+shortLabel E_S6_plus
+longLabel Experimental S6 plus
+type bigWig
+subGroups condition=Experimental rep=rep3 strand=plus
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Control_S1_mi
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/mi.Control_S1.PASS_bw_LAP24_positon.bw
+shortLabel C_S1_mi
+longLabel Control S1 mi
+type bigWig
+subGroups condition=Control rep=rep1 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Control_S2_mi
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/mi.Control_S2.PASS_bw_LAP24_positon.bw
+shortLabel C_S2_mi
+longLabel Control S2 mi
+type bigWig
+subGroups condition=Control rep=rep2 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Control_S3_mi
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/mi.Control_S3.PASS_bw_LAP24_positon.bw
+shortLabel C_S3_mi
+longLabel Control S3 mi
+type bigWig
+subGroups condition=Control rep=rep3 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Experimental_S4_mi
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/mi.Experimental_S4.PASS_bw_LAP24_positon.bw
+shortLabel E_S4_mi
+longLabel Experimental S4 mi
+type bigWig
+subGroups condition=Experimental rep=rep1 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Experimental_S5_mi
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/mi.Experimental_S5.PASS_bw_LAP24_positon.bw
+shortLabel E_S5_mi
+longLabel Experimental S5 mi
+type bigWig
+subGroups condition=Experimental rep=rep2 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
+
+track LAPs_Experimental_S6_mi
+parent LAPs
+bigDataUrl http://3.83.106.170/bicli_hub/hg38/PASS_bw_LAP24_positon/mi.Experimental_S6.PASS_bw_LAP24_positon.bw
+shortLabel E_S6_mi
+longLabel Experimental S6 mi
+type bigWig
+subGroups condition=Experimental rep=rep3 strand=mi
+visibility full
+alwaysZero on
+autoScale on
+graphTypeDefault bar
+maxHeightPixels 120:80:40
+color 60,60,180
