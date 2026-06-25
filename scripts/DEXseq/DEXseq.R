@@ -71,6 +71,15 @@ PCA_LABEL_COL <- "replicate" # colData column to use as point labels (NULL = non
 # Genes to plot PSI bar charts; set to character(0) to skip
 GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1")
 
+# RUVseq batch correction
+#   USE_RUV <- TRUE  when replicates cluster by batch in PCA rather than condition.
+#   RUVs estimates W factors from within-condition replicate variation; W_1:exon is
+#   then added to the DEXSeq design to correct for batch effects on relative PAS usage.
+#   RUV_K: number of factors to estimate (1 is almost always sufficient; raise to 2
+#   only if the first factor does not account for the outlier clustering).
+USE_RUV <- TRUE
+RUV_K   <- 1
+
 # ============================================================
 #  DERIVED PATHS — do not edit below this line
 # ============================================================
@@ -173,7 +182,12 @@ count_mat  <- count_mat[common_pas, , drop = FALSE]
 pas_anno   <- pas_anno[match(common_pas, pas_anno$PAS_ID), ]
 
 groupID   <- pas_anno$groupID
-featureID <- pas_anno$PAS_ID
+# PolyA_DB v4.1 PAS_IDs contain ':' (chr:strand:pos). DEXSeq strips ':' from
+# featureIDs, which would desync GRanges names from internal rownames and crash.
+# Sanitize here so DEXSeq sees IDs it doesn't need to modify.
+featureID           <- gsub("[: ]", "_", pas_anno$PAS_ID)
+rownames(count_mat) <- featureID          # count_mat rows are in pas_anno order here
+pas_anno$featureID_safe <- featureID      # retained for annotation merge below
 
 # ============================================================
 #  BUILD GRanges (enables APA direction labelling)
@@ -204,6 +218,46 @@ if (!is.null(GROUPING_VAR) && GROUPING_VAR %in% names(colData)) {
 stopifnot(all(colnames(count_mat) == rownames(colData)))
 
 # ============================================================
+#  RUVseq BATCH CORRECTION (optional — set USE_RUV <- TRUE)
+# ============================================================
+
+if (USE_RUV) {
+  if (!requireNamespace("RUVSeq", quietly = TRUE))
+    stop("RUVSeq is required when USE_RUV = TRUE.  Install with: BiocManager::install('RUVSeq')")
+  library(RUVSeq)
+
+  message("Estimating unwanted variation with RUVs (k = ", RUV_K, ")...")
+
+  # scIdx: each row is a set of within-condition replicates — any variation among
+  # them is treated as unwanted.  Pad uneven groups with -1.
+  ctrl_idx <- which(colData$condition == CTRL_LABEL)
+  trt_idx  <- which(colData$condition == TRTMT_LABEL)
+  nc       <- max(length(ctrl_idx), length(trt_idx))
+  scIdx    <- matrix(-1L, nrow = 2L, ncol = nc)
+  scIdx[1L, seq_along(ctrl_idx)] <- ctrl_idx
+  scIdx[2L, seq_along(trt_idx)]  <- trt_idx
+
+  ruv_set <- RUVSeq::newSeqExpressionSet(
+    counts    = count_mat,
+    phenoData = data.frame(condition = colData$condition, row.names = rownames(colData))
+  )
+  ruv_fit <- RUVSeq::RUVs(ruv_set,
+                           cIdx  = seq_len(nrow(count_mat)),
+                           k     = RUV_K,
+                           scIdx = scIdx)
+
+  # Attach W factors to colData so run_dexseq_group picks them up automatically
+  w_cols <- paste0("W_", seq_len(RUV_K))
+  for (wc in w_cols) {
+    colData[[wc]] <- pData(ruv_fit)[rownames(colData), wc]
+  }
+  message("  W factors attached to colData: ", paste(w_cols, collapse = ", "))
+  message("  W_1 per sample:")
+  for (s in rownames(colData))
+    message(sprintf("    %-25s  %+.4f  [%s]", s, colData[s, "W_1"], colData[s, "condition"]))
+}
+
+# ============================================================
 #  GROUPING SETUP
 # ============================================================
 
@@ -231,15 +285,26 @@ if (is.null(GROUPING_VAR)) {
 # ============================================================
 
 make_pca_global <- function(count_mat, col_data,
-                             color_col = "condition",
-                             shape_col = GROUPING_VAR,
-                             label_col = PCA_LABEL_COL,
-                             ntop = NTOP_PCA,
-                             outfile = NULL) {
+                             color_col    = "condition",
+                             shape_col    = GROUPING_VAR,
+                             label_col    = PCA_LABEL_COL,
+                             ntop         = NTOP_PCA,
+                             batch_covars = NULL,
+                             outfile      = NULL) {
   dds     <- DESeq2::DESeqDataSetFromMatrix(countData = count_mat,
                                              colData  = col_data,
                                              design   = ~ 1)
   vst_mat <- SummarizedExperiment::assay(DESeq2::vst(dds, blind = TRUE))
+
+  # Optionally remove batch covariates from VST matrix for visualization only.
+  # This does not affect the statistical model — it is purely for the PCA plot.
+  if (!is.null(batch_covars) && length(batch_covars) > 0) {
+    stopifnot(all(batch_covars %in% colnames(col_data)))
+    vst_mat <- limma::removeBatchEffect(
+      vst_mat,
+      covariates = as.matrix(col_data[, batch_covars, drop = FALSE])
+    )
+  }
 
   if (!is.null(ntop) && ntop > 0 && nrow(vst_mat) > ntop) {
     rv  <- matrixStats::rowVars(vst_mat)
@@ -259,11 +324,16 @@ make_pca_global <- function(count_mat, col_data,
   else
     ggplot2::aes(x = PC1, y = PC2)
 
+  pca_title <- if (!is.null(batch_covars))
+    "Global PCA — VST 3'UTR PAS counts (RUV-corrected, visual only)"
+  else
+    "Global PCA — VST 3'UTR PAS counts"
+
   g <- ggplot2::ggplot(pcs, aes_base) +
     ggplot2::geom_point(size = 3) +
     ggplot2::labs(x = paste0("PC1 (", pct[1], "%)"),
                   y = paste0("PC2 (", pct[2], "%)"),
-                  title = "Global PCA — VST 3'UTR PAS counts") +
+                  title = pca_title) +
     ggplot2::theme_minimal(base_size = 12)
 
   if (!is.null(shape_col) && shape_col %in% names(pcs)) {
@@ -403,7 +473,7 @@ make_dispersion_plot <- function(dxd, grp_label = "", outfile = NULL) {
   ttl <- paste0("Dispersion estimates",
                 if (nchar(grp_label) > 0) paste0(" (", grp_label, ")") else "")
   if (!is.null(outfile)) png(outfile, width = 800, height = 600, res = 100)
-  DEXSeq::plotDispEsts(dxd, main = ttl)
+  DESeq2::plotDispEsts(dxd, main = ttl)
   if (!is.null(outfile)) { dev.off(); invisible(NULL) }
 }
 
@@ -547,7 +617,8 @@ make_volcano_plot <- function(res_df, grp_label = "",
 run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
                               featureID, groupID,
                               gr = NULL, pas_anno = NULL,
-                              min_total = 10, min_per_condition = 0) {
+                              min_total = 10, min_per_condition = 0,
+                              use_ruv = FALSE, ruv_k = 1) {
 
   message(sprintf("[%s] Subsetting samples...", grp_label))
   sub_cd  <- droplevels(colData[sub_samples, , drop = FALSE])
@@ -563,11 +634,20 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
     stop(sprintf("Group '%s' is missing one or both conditions.", grp_label))
   }
 
-  message(sprintf("[%s] Creating DEXSeqDataSet...", grp_label))
+  # W_k:exon corrects for batch effects on *relative* PAS usage (PSI); it is not
+  # collinear with the `sample` term, which only absorbs gene-level expression totals.
+  dex_design <- if (use_ruv && ruv_k >= 1) {
+    w_terms <- paste(paste0("W_", seq_len(ruv_k)), "exon", sep = ":")
+    as.formula(paste("~ sample + exon +", paste(c(w_terms, "condition:exon"), collapse = " + ")))
+  } else {
+    ~ sample + exon + condition:exon
+  }
+  message(sprintf("[%s] Creating DEXSeqDataSet (design: %s)...",
+                  grp_label, deparse(dex_design)))
   dxd <- DEXSeqDataSet(
     countData     = sub_cnt,
     sampleData    = sub_cd,
-    design        = ~ sample + exon + condition:exon,
+    design        = dex_design,
     featureID     = featureID,
     groupID       = groupID,
     featureRanges = gr
@@ -622,10 +702,12 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
   res_tp$feature <- rowData(dxd)$featureID[match(rownames(res_tp), rownames(dxd))]
 
   if (!is.null(pas_anno)) {
-    ann_cols <- intersect(c("PAS_ID", "Intron_exon_location", "PAS_type"), names(pas_anno))
+    # Join on featureID_safe (sanitized); bring original PAS_ID through for readability
+    ann_cols <- intersect(c("featureID_safe", "PAS_ID", "Intron_exon_location", "PAS_type"),
+                          names(pas_anno))
     if (length(ann_cols) > 1) {
       ann <- pas_anno[, ann_cols, drop = FALSE]
-      names(ann)[names(ann) == "PAS_ID"] <- "featureID"
+      names(ann)[names(ann) == "featureID_safe"] <- "featureID"
       ann <- ann[!duplicated(ann$featureID), , drop = FALSE]
       ann$featureID    <- as.character(ann$featureID)
       res_tp$featureID <- as.character(res_tp$featureID)
@@ -690,7 +772,7 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
   treat_cols  <- grep(paste0("^countData\\.", TRTMT_LABEL), count_cols, value = TRUE)
 
   desired_order <- c(
-    "groupID", "featureID", "gene", "feature",
+    "groupID", "featureID", "PAS_ID", "gene", "feature",
     "Intron_exon_location", "PAS_type", "APA_direction",
     "exonBaseMean", "dispersion", "stat", "pvalue", "padj",
     fc_out_cols, ctrl_cols, treat_cols,
@@ -896,10 +978,36 @@ make_library_sizes(
   outfile = file.path(dir_plots, "library_sizes.png")
 )
 
-make_pca_global(
-  count_mat, colData,
-  outfile = file.path(dir_plots, "PCA_global.png")
-)
+if (USE_RUV) {
+  # W factor bar chart — shows how much each sample is pulled by the batch factor
+  w_cols <- paste0("W_", seq_len(RUV_K))
+  w_df   <- tibble::rownames_to_column(
+               as.data.frame(colData[, c("condition", w_cols), drop = FALSE]), "sample")
+  w_long <- tidyr::pivot_longer(w_df, cols = dplyr::all_of(w_cols),
+                                 names_to = "factor", values_to = "value")
+  gw <- ggplot2::ggplot(w_long, ggplot2::aes(x = sample, y = value, fill = condition)) +
+    ggplot2::geom_col() +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+    ggplot2::facet_wrap(~ factor, ncol = 1, scales = "free_y") +
+    ggplot2::labs(x = "Sample", y = "W (RUV factor)",
+                  title = "RUVs estimated batch factors") +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
+  ggplot2::ggsave(file.path(dir_plots, "RUV_W_factors.png"), gw,
+                  width = max(4, 0.5 * nrow(colData) + 2),
+                  height = 3 * RUV_K + 1, dpi = 300)
+
+  # Uncorrected PCA — shows the raw batch structure you are correcting for
+  make_pca_global(count_mat, colData,
+                  outfile = file.path(dir_plots, "PCA_global_uncorrected.png"))
+  # RUV-corrected PCA — W factors regressed from VST matrix for visualization only
+  make_pca_global(count_mat, colData,
+                  batch_covars = w_cols,
+                  outfile = file.path(dir_plots, "PCA_global_RUV_corrected.png"))
+} else {
+  make_pca_global(count_mat, colData,
+                  outfile = file.path(dir_plots, "PCA_global.png"))
+}
 
 # ============================================================
 #  MAIN LOOP
@@ -909,16 +1017,18 @@ message("--- Running DEXSeq analyses ---")
 
 runs <- lapply(names(group_list), function(grp) {
   run_dexseq_group(
-    grp_label      = grp,
-    sub_samples    = group_list[[grp]],
-    count_mat      = count_mat,
-    colData        = colData,
-    featureID      = featureID,
-    groupID        = groupID,
-    gr             = gr,
-    pas_anno       = pas_anno,
-    min_total      = MIN_TOTAL_READS,
-    min_per_condition = MIN_PER_CONDITION
+    grp_label         = grp,
+    sub_samples       = group_list[[grp]],
+    count_mat         = count_mat,
+    colData           = colData,
+    featureID         = featureID,
+    groupID           = groupID,
+    gr                = gr,
+    pas_anno          = pas_anno,
+    min_total         = MIN_TOTAL_READS,
+    min_per_condition = MIN_PER_CONDITION,
+    use_ruv           = USE_RUV,
+    ruv_k             = RUV_K
   )
 })
 names(runs) <- names(group_list)
