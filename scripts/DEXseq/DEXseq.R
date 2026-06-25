@@ -78,7 +78,7 @@ GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1")
 #   RUV_K: number of factors to estimate (1 is almost always sufficient; raise to 2
 #   only if the first factor does not account for the outlier clustering).
 USE_RUV <- TRUE
-RUV_K   <- 1
+RUV_K   <- 2
 
 # ============================================================
 #  DERIVED PATHS — do not edit below this line
@@ -233,17 +233,19 @@ if (USE_RUV) {
   ctrl_idx <- which(colData$condition == CTRL_LABEL)
   trt_idx  <- which(colData$condition == TRTMT_LABEL)
   nc       <- max(length(ctrl_idx), length(trt_idx))
-  scIdx    <- matrix(-1L, nrow = 2L, ncol = nc)
-  scIdx[1L, seq_along(ctrl_idx)] <- ctrl_idx
-  scIdx[2L, seq_along(trt_idx)]  <- trt_idx
+  # scIdx must be a numeric (double) matrix; -1 marks empty padding slots
+  scIdx         <- matrix(-1, nrow = 2, ncol = nc)
+  scIdx[1, seq_along(ctrl_idx)] <- ctrl_idx
+  scIdx[2, seq_along(trt_idx)]  <- trt_idx
 
-  ruv_set <- RUVSeq::newSeqExpressionSet(
+  ruv_set <- EDASeq::newSeqExpressionSet(
     counts    = count_mat,
     phenoData = data.frame(condition = colData$condition, row.names = rownames(colData))
   )
+  # SeqExpressionSet method requires cIdx = "character" (feature names, not indices)
   ruv_fit <- RUVSeq::RUVs(ruv_set,
-                           cIdx  = seq_len(nrow(count_mat)),
-                           k     = RUV_K,
+                           cIdx  = rownames(count_mat),
+                           k     = as.numeric(RUV_K),
                            scIdx = scIdx)
 
   # Attach W factors to colData so run_dexseq_group picks them up automatically
