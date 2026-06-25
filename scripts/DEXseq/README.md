@@ -56,6 +56,9 @@ GROUPING_VAR <- NULL   # NULL = run one analysis on all samples
                        # set to "timepoint" (or any colData column) to run per level
 
 GENES_OF_INTEREST <- c("GENE1", "GENE2")  # genes to plot PSI bar charts for
+
+USE_RUV <- FALSE   # set to TRUE to enable RUVseq batch correction (see below)
+RUV_K   <- 1       # number of unwanted variation factors to estimate (1 is usually enough)
 ```
 
 ### 2. Prepare input files
@@ -136,7 +139,10 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
 ├── gene_summary[.group].csv    ← per-gene summary
 └── plots/
     ├── library_sizes.png
-    ├── PCA_global.png
+    ├── PCA_global.png                  ← (USE_RUV=FALSE only)
+    ├── PCA_global_uncorrected.png      ← (USE_RUV=TRUE only)
+    ├── PCA_global_RUV_corrected.png    ← (USE_RUV=TRUE only; visual only)
+    ├── RUV_W_factors.png               ← (USE_RUV=TRUE only)
     ├── PCA_normalized[.group].png
     ├── size_factors[.group].png
     ├── dispersion[.group].png
@@ -214,8 +220,14 @@ All QC plots are saved to `plots/`.
 ### `library_sizes.png`
 Bar chart of total PAS read counts per sample (before any filtering). Bars should be roughly similar height across samples. Large differences (>3×) may indicate a failed sample or a sample that needs closer attention during normalization. This is assessed before the analysis runs.
 
-### `PCA_global_all_samples.png`
-Principal component analysis on all samples simultaneously, using variance-stabilized 3' UTR PAS counts. Points that cluster by condition (e.g., all Controls together) indicate that the experimental effect is larger than technical variation — a good sign. Points that cluster by batch or unexpected metadata suggest confounding that should be addressed before interpreting results.
+### `PCA_global.png` / `PCA_global_uncorrected.png`
+Principal component analysis on all samples simultaneously, using variance-stabilized 3' UTR PAS counts. Points that cluster by condition (e.g., all Controls together) indicate that the experimental effect is larger than technical variation — a good sign. Points that cluster by batch or unexpected metadata suggest confounding. When `USE_RUV=FALSE` this file is named `PCA_global.png`; when `USE_RUV=TRUE` it is named `PCA_global_uncorrected.png` so the pre-correction structure is preserved for comparison.
+
+### `PCA_global_RUV_corrected.png` *(USE_RUV=TRUE only)*
+The same PCA after regressing the estimated W factors out of the VST matrix using `limma::removeBatchEffect`. This is **for visualization only** — it shows what the data look like after removing the batch signal, but does not affect the statistical model. Compare this to the uncorrected PCA to see how much the W factors explained.
+
+### `RUV_W_factors.png` *(USE_RUV=TRUE only)*
+Bar chart of the estimated RUV W factor(s) per sample, colored by condition. Samples that drove the batch factor will have large positive or negative bars. Ideally this factor should not be correlated with condition — if it is, the correction may over-remove true signal.
 
 ### `PCA_normalized[.group].png`
 PCA on the post-normalization counts within each analysis group. Similar interpretation as above, but after DEXSeq's size factor normalization.
@@ -274,7 +286,7 @@ A longer 3' UTR exposes more regulatory sequences — microRNA binding sites, RN
 
 **Which genes should I pay attention to?**
 
-The gene-summary table (`gene-summary.3utr.trt-v-ctrl.csv`) ranked by `perGeneQ` is the best place to start. Genes with:
+The gene-summary table (`gene_summary.csv`) ranked by `perGeneQ` is the best place to start. Genes with:
 - Low `perGeneQ` (close to 0) — strong statistical evidence for differential APA
 - `dir_consensus = "Lengthened_only"` or `"Shortened_only"` — clean, directional changes
 - High `n_sig` — multiple PAS in the gene are changing, not just one
@@ -298,7 +310,20 @@ Leave `GROUPING_VAR <- NULL`. All samples in the design file are analyzed togeth
 Set `GROUPING_VAR <- "timepoint"` (or whatever the column is called in your design file). The script automatically detects all levels in that column and runs a separate DEXSeq analysis for each — for example, one for day 3 samples only, and one for day 5 samples only. Output files are suffixed accordingly (`.3d`, `.5d`).
 
 ### Adding a batch covariate (blocking factor)
-DEXSeq's `~ sample + exon + condition:exon` model already absorbs all per-sample variation through the `sample` term, so batch is already implicitly blocked. You do not need to modify the design formula for typical batch correction.
+DEXSeq's `~ sample + exon + condition:exon` model absorbs all per-sample gene-level variation through the `sample` term, which handles differences in overall expression between samples. However, it does **not** correct for batch effects on *relative* PAS usage (PSI). If replicates cluster by batch rather than condition in the PCA, use RUVseq.
+
+### RUVseq batch correction (`USE_RUV <- TRUE`)
+Set `USE_RUV <- TRUE` when your PCA shows replicates clustering by something other than condition — for example, if one replicate from each condition groups separately from the others, suggesting a technical batch effect.
+
+RUVseq uses the within-condition replicate structure to estimate "unwanted variation" W factors — sources of variability that are shared within replicates of the same condition and therefore cannot be biological. `RUV_K` controls how many such factors to estimate (1 is almost always sufficient; try 2 if the first factor does not resolve the outlier clustering).
+
+When `USE_RUV=TRUE` the DEXSeq design becomes:
+```
+~ sample + exon + W_1:exon + condition:exon
+```
+The `W_1:exon` term tests whether the batch factor changes relative PAS usage fractions within genes — this is the dimension that `sample` alone cannot capture. The `condition:exon` term retains the same interpretation as before.
+
+**Important:** RUVseq corrects for unwanted variation that exists consistently across replicates. It cannot rescue experiments where replicates are fundamentally incomparable. Always compare the uncorrected and corrected PCA plots before trusting the RUV-corrected results.
 
 ---
 
