@@ -5,8 +5,8 @@
 ###  USER CONFIGURATION — EDIT THESE            ###
 #####################################################
 
-# Auto-detect project root (one directory above scripts/)
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Auto-detect project root (one directory above scripts/3-REAP/)
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # Paths to raw FASTQ files and pipeline outputs
 fastq_path=/compbio/data/ClaireMoore/cmoore_020.bicli_pcf11/raw/25425-01-Fastq-10292025/       # directory containing raw FASTQ files
@@ -30,7 +30,7 @@ chromsizes=${PROJECT_DIR}/data/ref/hg38.chrom.sizes
 #####################################################
 ###  DERIVED PATHS — DO NOT EDIT               ###
 #####################################################
-modules_path=${PROJECT_DIR}/scripts/modules
+modules_path=${PROJECT_DIR}/scripts/3-REAP/modules
 
 echo "=== 3-REAP pipeline ==="
 echo "    Project : ${PROJECT_DIR}"
