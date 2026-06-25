@@ -44,10 +44,10 @@ Open `DEXseq.R`. Change only the `USER CONFIGURATION — EDIT THESE` section at 
 
 ```r
 BASE_DIR    <- "/path/to/your/project"          # project root
-COUNTS_CSV  <- "path/to/cluster.all.reads.csv"  # PAS count matrix from 3-REAP
-SAMPLES_TXT <- "path/to/sample_name.txt"        # sample list (or set to NULL)
-ANNO_FILE   <- "path/to/DEX_human.PAS.hg38.txt" # PAS annotation file
-DESIGN_FILE <- "path/to/design.txt"             # experimental design table
+COUNTS_CSV  <- "path/to/cluster.all.reads.csv"          # PAS count matrix from 3-REAP
+SAMPLES_TXT <- "path/to/sample_name.txt"                # sample list (or set to NULL)
+ANNO_FILE   <- "data/PolyA_DB_v4.1/hg38.PAS.main.tsv"  # same file used by 3-REAP
+DESIGN_FILE <- "path/to/design.txt"                     # experimental design table
 
 CTRL_LABEL  <- "Control"     # must match values in design file's 'condition' column
 TRTMT_LABEL <- "Treatment"   # must match values in design file's 'condition' column
@@ -62,9 +62,9 @@ GENES_OF_INTEREST <- c("GENE1", "GENE2")  # genes to plot PSI bar charts for
 
 **Count matrix** (`cluster.all.reads.csv`): produced by 3-REAP step 6. A CSV where the first column is `hit_PAS_ID` and the remaining columns are samples.
 
-**PAS annotation file** (`DEX_human.PAS.hg38.txt`): a tab-delimited file from PolyA_DB with one row per PAS. Must contain a `PAS_ID` column and a `PAS_type` column. Coordinate columns are auto-detected:
-- PolyA_DB v3.2: explicit `Chromosome`, `Position`, `Strand` columns
-- PolyA_DB v4.1: coordinates encoded in `PAS_ID` as `chr:strand:position` (auto-parsed)
+**PAS annotation file** (`data/PolyA_DB_v4.1/hg38.PAS.main.tsv`): use the **same file** that was provided to the 3-REAP pipeline. The `hit_PAS_ID` values in the count matrix are taken directly from this database, so the IDs will match. The script auto-detects the PolyA_DB format:
+- v3.2: explicit `Chromosome`, `Position`, `Strand` columns
+- v4.1: coordinates encoded in `PAS_ID` as `chr:strand:position` (auto-parsed; default for this project)
 
 **Design file** (`design.txt`): a tab-delimited file, first column = sample names (matching column names in the count matrix), remaining columns = metadata. Must include at minimum:
 
@@ -182,7 +182,7 @@ One row per gene. Summarizes across all tested PAS within that gene.
 | `groupID` | Gene identifier |
 | `n_PAS` | Total PAS tested for this gene |
 | `n_sig` | Number of PAS with `padj < PADJ_CUT` |
-| `n_big` | Number of significant PAS with `|log2FC| >= LFC_CUT` |
+| `n_big` | Number of significant PAS with `\|log2FC\| >= LFC_CUT` |
 | `min_padj` | Most significant adjusted p-value among this gene's PAS |
 | `max_absL2FC` | Largest absolute log2 fold change among significant PAS |
 | `dir_consensus` | `Lengthened_only`, `Shortened_only`, or `Mixed` |

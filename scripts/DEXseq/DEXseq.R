@@ -34,20 +34,20 @@ library(stringr)
 #  USER CONFIGURATION — EDIT THESE
 # ============================================================
 
-BASE_DIR <- "/Volumes/biocore01/scratch/cnobrega/3_REAP"   # project root
+BASE_DIR <- "/compbio/analysis/ClaireMoore/cmoore_020.bicli_pcf11/"   # project root
 
 # Input files (relative to BASE_DIR)
-COUNTS_CSV  <- "APA_analysis/DEXseq/cluster.all.reads.csv"
-SAMPLES_TXT <- "APA_analysis/DEXseq/sample_name.txt"       # set to NULL to use all count_mat columns
-ANNO_FILE   <- "APA_analysis/DEXseq/DEX_human.PAS.hg38.txt"
-DESIGN_FILE <- "APA_analysis/DEXseq/design.txt"
+COUNTS_CSV  <- "data/cluster.all.reads.csv"
+SAMPLES_TXT <- "data/sample_name.txt"       # set to NULL to use all count_mat columns
+ANNO_FILE   <- "data/PolyA_DB_v4.1/hg38.PAS.main.tsv"
+DESIGN_FILE <- "data/design.txt"
 
 # Output base directory
-OUT_BASE <- file.path(BASE_DIR, "APA_analysis/DEXseq/results")
+OUT_BASE <- file.path(BASE_DIR, "output/DEXseq/")
 
 # Experimental design
 CTRL_LABEL  <- "Control"      # reference condition (fold-change denominator)
-TRTMT_LABEL <- "Treatment"    # treatment/experimental condition
+TRTMT_LABEL <- "Experimental"    # treatment/experimental condition
 
 # Grouping variable:
 #   NULL  — run a single analysis on all samples (simple two-condition design)
@@ -69,7 +69,7 @@ NTOP_PCA      <- 2000        # top-N variable PAS for PCA (by row variance)
 PCA_LABEL_COL <- "replicate" # colData column to use as point labels (NULL = none)
 
 # Genes to plot PSI bar charts; set to character(0) to skip
-GENES_OF_INTEREST <- c("DVL3", "ING3", "FZD2", "BOK")
+GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1")
 
 # ============================================================
 #  DERIVED PATHS — do not edit below this line
@@ -148,7 +148,7 @@ blank_to_na <- function(x) {
   x
 }
 
-id_cols <- intersect(c("Gene Symbol", "Ensembl ID", "RefSeq Gene ID", "FANTOM ID"),
+id_cols <- intersect(c("Gene Symbol", "GeneSymbol", "Ensembl ID", "RefSeq Gene ID", "FANTOM ID"),
                      names(pas_anno))
 if (length(id_cols) == 0) stop("No recognized gene-ID columns in annotation file.")
 for (col in id_cols) pas_anno[[col]] <- blank_to_na(pas_anno[[col]])

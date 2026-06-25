@@ -1,0 +1,7 @@
+samples	condition	replicate
+Control_S1	Control	rep1
+Control_S2	Control	rep2
+Control_S3	Control	rep3
+Experimental_S4	Experimental	rep1
+Experimental_S5	Experimental	rep2
+Experimental_S6	Experimental	rep3
