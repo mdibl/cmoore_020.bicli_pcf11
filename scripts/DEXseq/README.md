@@ -25,14 +25,11 @@ The DEXSeq model tests each PAS independently with the design `~ sample + exon +
 
 A significant result (adjusted p-value < threshold) means the relative usage of that PAS is statistically different between control and treatment, after accounting for how many reads the gene received overall.
 
-### APA direction: Lengthened vs. Shortened
+### Usage direction: Increased vs. Decreased, and the gene-level APA summary
 
-For each significant PAS, the script classifies the direction of the change:
+For each PAS, `APA_direction` reports only the sign of *that PAS's own* usage change — `Increased` or `Decreased` — not an overall UTR-lengthening/shortening call. Earlier versions of this script tried to infer "Lengthened"/"Shortened" from a distal-vs-everything-else binary, but that breaks down once a gene has 3+ PAS: a usage gain at a middle site doesn't map cleanly onto "shorter" or "longer" 3' UTR, only onto "distal vs. not distal." `is_distal` (still in the output) tells you whether a given PAS is the gene's most 3' site, as positional context.
 
-- **Distal PAS**: the PAS with the most extreme genomic position in the 3' direction (highest coordinate on + strand; lowest coordinate on − strand). This corresponds to the longest possible 3' UTR.
-- **Lengthened**: the distal PAS gains relative usage in treatment → longer 3' UTRs
-- **Shortened**: a proximal PAS gains relative usage in treatment → shorter 3' UTRs
-- **Mixed**: a gene has some PAS going up and some going down
+The actual lengthening/shortening narrative is captured properly, across all of a gene's PAS at once, in `gene_summary_apa.csv` via `delta_WAD` (weighted average distance) — see that section below. `dir_consensus` in `gene_summary.csv` (per-gene rollup of `APA_direction`) is now `Increased_only` / `Decreased_only` / `Mixed`.
 
 ---
 
@@ -101,6 +98,10 @@ Install via Bioconductor/CRAN if missing:
 BiocManager::install(c("DEXSeq", "DESeq2", "GenomicRanges", "SummarizedExperiment"))
 install.packages(c("ggplot2", "ggrepel", "scales", "limma", "dplyr",
                    "tidyr", "tibble", "matrixStats", "stringr"))
+
+# Optional — only needed for the APA transcript-map figures (plots/apa_transcript/).
+# Not on CRAN/Bioconductor; the script skips those figures with a warning if absent.
+remotes::install_github("dzhang32/ggtranscript")
 ```
 
 ---
@@ -134,9 +135,12 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
 
 ```
 {OUT_BASE}/
-├── pas_results[.group].csv     ← per-PAS DEXSeq results with APA direction
-├── pas_usage[.group].csv       ← per-PAS mean PSI + SEM per condition
-├── gene_summary[.group].csv    ← per-gene summary
+├── pas_results[.group].csv       ← per-PAS DEXSeq results with usage direction
+├── pas_usage[.group].csv         ← per-PAS mean PSI + SEM per condition
+├── gene_summary[.group].csv      ← per-gene summary (min padj, dir_consensus, ...)
+├── gene_summary_apa[.group].csv  ← per-gene APA summary (WAD, dominant site, chi-squared)
+├── vst_global.csv                 ← full VST matrix, all samples (pre-DEXSeq)
+├── vst_normalized[.group].csv     ← full VST matrix, post-DEXSeq-normalization, per group
 └── plots/
     ├── library_sizes.png
     ├── PCA_global.png                  ← (USE_RUV=FALSE only)
@@ -149,8 +153,10 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
     ├── pvalue_hist[.group].png
     ├── MA[.group].png
     ├── volcano[.group].png
-    └── usage/
-        └── {GENE}[.group].png   ← PSI bar charts, one file per gene
+    ├── usage/
+    │   └── {GENE}[.group].png   ← PSI bar charts, one file per gene
+    └── apa_transcript/
+        └── {GENE}[.group].png   ← schematic PAS map (needs ggtranscript installed)
 ```
 
 `[.group]` is appended only when `GROUPING_VAR` is set (e.g., `.3d` for a "3day" timepoint level). With `GROUPING_VAR <- NULL`, files have no suffix: `pas_results.csv`, `gene_summary.csv`, etc.
@@ -198,6 +204,25 @@ One row per gene. Summarizes across all tested PAS within that gene.
 
 ---
 
+### `gene_summary_apa.csv` — weighted UTR-length shift, dominant-site tracking, chi-squared cross-check
+
+One row per gene (same gene universe as `gene_summary.csv`). Complements it with metrics that generalize cleanly to genes with 3+ PAS, computed by `build_gene_apa_summary()`.
+
+| Column | Meaning |
+|---|---|
+| `n_PAS` | Number of PAS tested for this gene |
+| `dominant_featureID` | The PAS with the highest overall mean usage (`meanUsage_All`) — i.e., the gene's "default" isoform |
+| `dominant_abundance` | That PAS's `exonBaseMean` |
+| `dominant_meanUsage_Control` / `_Treatment` | That PAS's mean PSI per condition |
+| `dominant_delta_usage` | Treatment − Control PSI for the dominant PAS only |
+| `dominant_padj` | DEXSeq `padj` for the dominant PAS only |
+| `WAD_Control` / `WAD_Treatment` | Weighted average distance (bp) of usage from the gene's most-proximal surviving PAS, per condition: `sum(usage_i * distance_i)` |
+| `delta_WAD` | `WAD_Treatment − WAD_Control`. Positive = usage shifted toward more distal sites on average (net lengthening); negative = net shortening. Generalizes to any number of PAS, unlike the old distal-vs-everything-else `APA_direction` binary — there's no stop-codon coordinate in the PolyA_DB annotation, so the gene's own most-proximal PAS is used as the reference point instead. |
+| `chisq_stat` / `chisq_pvalue` / `chisq_padj` | An independent cross-check: chi-squared test of association between PAS identity and condition, on summed raw counts (a PAS × condition contingency table). Doesn't depend on DEXSeq's negative-binomial model or size-factor normalization, so it isn't affected by anything upstream in that model — but it also doesn't correct for overdispersion, so expect it to run hotter (more significant) than `padj` on noisy/low-count genes. Use as a corroborating signal, not a replacement. |
+| `flag_minor_only` | `TRUE` when the gene's significant DEXSeq hits are confined to non-dominant (low-abundance) PAS while the dominant/most-used PAS's own usage barely moved (`\|dominant_delta_usage\| < 0.05`) — e.g. a CAPN1-like case where one site dominates and only minor sites are shuffling. This is a **flag, not a filter** — rows are never dropped from this table; whether to exclude them from a given analysis is left to you. |
+
+---
+
 ### `pas_usage.csv` — PSI values
 
 Same rows as the per-PAS results file, plus four additional columns:
@@ -219,6 +244,9 @@ All QC plots are saved to `plots/`.
 
 ### `library_sizes.png`
 Bar chart of total PAS read counts per sample (before any filtering). Bars should be roughly similar height across samples. Large differences (>3×) may indicate a failed sample or a sample that needs closer attention during normalization. This is assessed before the analysis runs.
+
+### `vst_global.csv` / `vst_normalized[.group].csv`
+The full variance-stabilized (VST) count matrix — one row per PAS, one column per sample — exported alongside the PCA plots that are already computed from it (`vst_global.csv` is pre-DEXSeq, all samples; `vst_normalized[.group].csv` is post-DEXSeq-normalization, per analysis group). Useful for spot-checking a specific gene's overall expression change against its PAS-level usage change directly, or for any downstream analysis (clustering, custom plots) that wants normalized values rather than raw counts.
 
 ### `PCA_global.png` / `PCA_global_uncorrected.png`
 Principal component analysis on all samples simultaneously, using variance-stabilized 3' UTR PAS counts. Points that cluster by condition (e.g., all Controls together) indicate that the experimental effect is larger than technical variation — a good sign. Points that cluster by batch or unexpected metadata suggest confounding. When `USE_RUV=FALSE` this file is named `PCA_global.png`; when `USE_RUV=TRUE` it is named `PCA_global_uncorrected.png` so the pre-correction structure is preserved for comparison.
@@ -273,6 +301,16 @@ One plot per gene in `GENES_OF_INTEREST`, per analysis group. Each plot shows:
 **How to read these plots for a collaborator:**
 
 Look at whether the bars shift toward the right (distal) or left (proximal) in the treatment vs. control. If the rightmost bar (distal PAS, labeled `(distal)`) gets taller in treatment, the gene's 3' UTR is getting *longer* in treatment. If a left bar (proximal PAS) gets taller while the distal bar shrinks, the 3' UTR is getting *shorter*. The ΔPSI value tells you the magnitude of that shift in percentage points.
+
+---
+
+## APA transcript-map figures (`plots/apa_transcript/`)
+
+One PNG per gene in `GENES_OF_INTEREST`, per analysis group (requires `ggtranscript`; skipped with a warning if not installed — see Software requirements). For each PAS, this draws a horizontal track per condition spanning from the gene's most-proximal surviving PAS out to that PAS, with track opacity set by that PAS's mean usage in that condition — a visual complement to the PSI bar chart, oriented 5'→3'.
+
+**Important:** this is a schematic built only from PAS genomic positions and usage fractions already in the results table. The PolyA_DB annotation used elsewhere in this pipeline has no exon/intron/CDS structure (see "Does the annotation include the stop codon?" below), so there is no real transcript geometry to draw — the figure does not represent actual exon boundaries or a GTF-derived isoform model. It's most useful for visually inspecting *where* on the proximal↔distal axis a usage shift landed for genes with 3+ PAS, which `APA_direction` alone can't tell you.
+
+**Not implemented: full IsoformSwitchAnalyzeR integration.** IsoformSwitchAnalyzeR was considered for the ORF/NMD-consequence analysis needed to properly answer "does this APA event also change the coding sequence" (see the stop-codon section below) — it's the right tool for that question, but it expects transcript-level abundance quantification (e.g. from Salmon/kallisto) and a full GTF, neither of which this PAS-count-based pipeline currently produces or consumes. Integrating it would mean adding a parallel transcript-quantification workflow, which is out of scope for this script. If ORF/NMD consequences matter for a specific gene, run IsoformSwitchAnalyzeR as a separate analysis alongside this one rather than through `DEXseq.R`.
 
 ---
 

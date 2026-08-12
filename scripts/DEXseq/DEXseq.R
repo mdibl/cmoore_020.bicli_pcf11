@@ -92,7 +92,8 @@ path_samples <- if (!is.null(SAMPLES_TXT)) file.path(BASE_DIR, SAMPLES_TXT) else
 dir_results     <- OUT_BASE
 dir_plots       <- file.path(OUT_BASE, "plots")
 dir_usage_plots <- file.path(OUT_BASE, "plots/usage")
-for (d in c(dir_results, dir_plots, dir_usage_plots)) {
+dir_apa_plots   <- file.path(OUT_BASE, "plots/apa_transcript")
+for (d in c(dir_results, dir_plots, dir_usage_plots, dir_apa_plots)) {
   dir.create(d, recursive = TRUE, showWarnings = FALSE)
 }
 
@@ -103,6 +104,10 @@ USAGE_CTRL_COL   <- paste0("meanUsage_", CTRL_LABEL)
 USAGE_TRTMT_COL  <- paste0("meanUsage_", TRTMT_LABEL)
 SE_CTRL_COL      <- paste0("seUsage_", CTRL_LABEL)
 SE_TRTMT_COL     <- paste0("seUsage_", TRTMT_LABEL)
+WAD_CTRL_COL        <- paste0("WAD_", CTRL_LABEL)
+WAD_TRTMT_COL       <- paste0("WAD_", TRTMT_LABEL)
+DOM_USAGE_CTRL_COL  <- paste0("dominant_meanUsage_", CTRL_LABEL)
+DOM_USAGE_TRTMT_COL <- paste0("dominant_meanUsage_", TRTMT_LABEL)
 
 # ============================================================
 #  BUILD COUNT MATRIX
@@ -287,16 +292,24 @@ if (is.null(GROUPING_VAR)) {
 # ============================================================
 
 make_pca_global <- function(count_mat, col_data,
-                             color_col    = "condition",
-                             shape_col    = GROUPING_VAR,
-                             label_col    = PCA_LABEL_COL,
-                             ntop         = NTOP_PCA,
-                             batch_covars = NULL,
-                             outfile      = NULL) {
+                             color_col      = "condition",
+                             shape_col      = GROUPING_VAR,
+                             label_col      = PCA_LABEL_COL,
+                             ntop           = NTOP_PCA,
+                             batch_covars   = NULL,
+                             outfile        = NULL,
+                             matrix_outfile = NULL) {
   dds     <- DESeq2::DESeqDataSetFromMatrix(countData = count_mat,
                                              colData  = col_data,
                                              design   = ~ 1)
   vst_mat <- SummarizedExperiment::assay(DESeq2::vst(dds, blind = TRUE))
+
+  # Export the full (pre-ntop-filter, pre-batch-correction) VST matrix on request --
+  # this is the "real" normalized data; batch correction below is visualization-only.
+  if (!is.null(matrix_outfile)) {
+    vst_out <- tibble::rownames_to_column(as.data.frame(vst_mat), "featureID")
+    write.csv(vst_out, matrix_outfile, row.names = FALSE, quote = FALSE)
+  }
 
   # Optionally remove batch covariates from VST matrix for visualization only.
   # This does not affect the statistical model — it is purely for the PCA plot.
@@ -382,10 +395,11 @@ make_library_sizes <- function(count_mat_raw, col_data, outfile = NULL) {
 # ============================================================
 
 make_pca_dxd <- function(dxd, grp_label = "",
-                          color_col = "condition",
-                          label_col = PCA_LABEL_COL,
-                          ntop = NTOP_PCA,
-                          outfile = NULL) {
+                          color_col      = "condition",
+                          label_col      = PCA_LABEL_COL,
+                          ntop           = NTOP_PCA,
+                          outfile        = NULL,
+                          matrix_outfile = NULL) {
   cd_full <- as.data.frame(SummarizedExperiment::colData(dxd))
   this_idx <- which(cd_full$exon == "this")
   cd  <- cd_full[this_idx, , drop = FALSE]
@@ -393,6 +407,11 @@ make_pca_dxd <- function(dxd, grp_label = "",
 
   dds     <- DESeq2::DESeqDataSetFromMatrix(countData = mat, colData = cd, design = ~ 1)
   vst_mat <- SummarizedExperiment::assay(DESeq2::vst(dds, blind = TRUE))
+
+  if (!is.null(matrix_outfile)) {
+    vst_out <- tibble::rownames_to_column(as.data.frame(vst_mat), "featureID")
+    write.csv(vst_out, matrix_outfile, row.names = FALSE, quote = FALSE)
+  }
 
   if (!is.null(ntop) && ntop > 0 && nrow(vst_mat) > ntop) {
     rv  <- matrixStats::rowVars(vst_mat)
@@ -717,10 +736,14 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
     }
   }
 
-  # APA direction: distal PAS = furthest 3' per gene
-  #   + strand: highest coordinate; - strand: lowest coordinate
-  # Lengthened = increased distal usage; Shortened = increased proximal usage
-  message(sprintf("[%s] Assigning APA direction...", grp_label))
+  # APA_direction reports only the sign of THIS PAS's own usage change
+  # (Increased/Decreased) -- it does not assert an overall UTR-lengthening/
+  # shortening call, because with 3+ PAS per gene a shift onto a middle site
+  # doesn't map cleanly onto "shorter" vs "longer" 3' UTR. `is_distal` below
+  # is retained as positional context only; the actual lengthening/
+  # shortening narrative is summarized properly across all PAS at once by
+  # delta_WAD in gene_summary_apa.csv (see build_gene_apa_summary()).
+  message(sprintf("[%s] Assigning usage direction...", grp_label))
   res_tp$APA_direction <- NA_character_
 
   if (!is.null(gr)) {
@@ -752,19 +775,16 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
       if (!is.na(fc_col_dir)) {
         res_tp <- dplyr::mutate(res_tp,
           APA_direction = dplyr::case_when(
-            is_distal  & .data[[fc_col_dir]] > 0  ~ "Lengthened",
-            is_distal  & .data[[fc_col_dir]] < 0  ~ "Shortened",
-            !is_distal & .data[[fc_col_dir]] > 0  ~ "Shortened",
-            !is_distal & .data[[fc_col_dir]] < 0  ~ "Lengthened",
+            .data[[fc_col_dir]] > 0 ~ "Increased",
+            .data[[fc_col_dir]] < 0 ~ "Decreased",
             TRUE ~ "Ambiguous"
           )
         )
-        bad <- is.na(res_tp[[fc_col_dir]]) | is.na(res_tp$is_distal)
-        res_tp$APA_direction[bad] <- "Ambiguous"
+        res_tp$APA_direction[is.na(res_tp[[fc_col_dir]])] <- "Ambiguous"
       }
       res_tp <- res_tp[, setdiff(names(res_tp), c("row", "g_max", "g_min")), drop = FALSE]
     } else {
-      warning(sprintf("[%s] GRanges names don't cover all dxd features — APA direction skipped.", grp_label))
+      warning(sprintf("[%s] GRanges names don't cover all dxd features — usage direction skipped.", grp_label))
     }
   }
 
@@ -818,10 +838,10 @@ collapse_gene <- function(res_df, gene_q = NULL,
       mean_absL2FC = safe_mean(abs(lfc_clean[sig])),
       dir_consensus = if (has_dir) {
         d <- APA_direction[sig & !is.na(APA_direction)]
-        if (!length(d))                  NA_character_
-        else if (all(d == "Lengthened")) "Lengthened_only"
-        else if (all(d == "Shortened"))  "Shortened_only"
-        else                             "Mixed"
+        if (!length(d))                 NA_character_
+        else if (all(d == "Increased")) "Increased_only"
+        else if (all(d == "Decreased")) "Decreased_only"
+        else                            "Mixed"
       } else NA_character_,
       .groups = "drop"
     ) %>%
@@ -841,7 +861,11 @@ usage_by_condition <- function(res_df, sub_cd) {
 
   gene_totals <- rowsum(counts, res_df$groupID)
   totals_row  <- gene_totals[res_df$groupID, colnames(counts), drop = FALSE]
-  usage       <- counts / pmax(totals_row, 1)
+  # A sample with zero reads across all of a gene's retained PAS has undefined
+  # usage there, not 0% usage -- mark it NA so it is excluded (not averaged in
+  # as a real observation) below, instead of silently dragging the mean down.
+  usage <- counts / totals_row
+  usage[totals_row == 0] <- NA_real_
 
   cond     <- sub_cd[colnames(counts), "condition", drop = TRUE]
   ctrl_idx <- which(cond == CTRL_LABEL)
@@ -854,10 +878,119 @@ usage_by_condition <- function(res_df, sub_cd) {
 
   out <- res_df
   out[["meanUsage_All"]] <- rowMeans(usage, na.rm = TRUE)
-  out[[USAGE_CTRL_COL]]  <- if (length(ctrl_idx)) rowMeans(usage[, ctrl_idx, drop = FALSE]) else NA_real_
-  out[[USAGE_TRTMT_COL]] <- if (length(trt_idx))  rowMeans(usage[, trt_idx,  drop = FALSE]) else NA_real_
+  out[[USAGE_CTRL_COL]]  <- if (length(ctrl_idx)) rowMeans(usage[, ctrl_idx, drop = FALSE], na.rm = TRUE) else NA_real_
+  out[[USAGE_TRTMT_COL]] <- if (length(trt_idx))  rowMeans(usage[, trt_idx,  drop = FALSE], na.rm = TRUE) else NA_real_
   out[[SE_CTRL_COL]]     <- if (length(ctrl_idx) > 1) apply(usage[, ctrl_idx, drop = FALSE], 1, se_fn) else rep(NA_real_, nrow(usage))
   out[[SE_TRTMT_COL]]    <- if (length(trt_idx)  > 1) apply(usage[, trt_idx,  drop = FALSE], 1, se_fn) else rep(NA_real_, nrow(usage))
+  out
+}
+
+# ============================================================
+#  FUNCTION: gene-level APA summary — weighted usage distance,
+#            dominant-site tracking, chi-squared cross-check
+# ============================================================
+#
+# delta_WAD ("weighted average distance") replaces the old binary
+# Lengthened/Shortened call with a continuous metric that generalizes to any
+# number of PAS per gene: for each condition, WAD = sum(usage_i * distance_i),
+# where distance_i is each PAS's genomic distance from the gene's own
+# most-proximal surviving PAS. (No stop-codon coordinate is available in the
+# PolyA_DB annotation, so the proximal-most PAS is used as an internally
+# consistent reference point instead.) A positive delta_WAD means usage
+# shifted toward more distal sites on average (longer 3' UTR); negative means
+# a shift toward proximal sites -- and unlike APA_direction, this is not
+# limited to a distal-vs-everything-else binary.
+#
+# flag_minor_only marks genes where the single most-abundant PAS's own usage
+# barely moved while a lower-abundance PAS drove the significant call (e.g.
+# CAPN1-like cases). It is a flag, not a filter -- rows are never dropped, so
+# excluding them from downstream use is a deliberate choice made on read,
+# not silent data loss.
+#
+# chisq_stat/chisq_pvalue is an independent cross-check computed directly on
+# summed raw counts (a PAS x condition contingency table per gene) -- it does
+# not depend on estimateSizeFactors/DEXSeq's NB model, so it does not inherit
+# any bias from the usage-averaging step above. Expect it to run hotter
+# (more sensitive, no overdispersion correction) than the DEXSeq padj values.
+
+build_gene_apa_summary <- function(res_u,
+                                    ctrl_col   = USAGE_CTRL_COL,
+                                    trt_col    = USAGE_TRTMT_COL,
+                                    fc_col     = FC_COL,
+                                    padj_cut   = PADJ_CUT,
+                                    lfc_cut    = LFC_CUT,
+                                    dominant_stable_cut = 0.05) {
+  cnt_cols <- grep("^countData\\.", names(res_u), value = TRUE)
+  ctrl_cnt <- grep(paste0("^countData\\.", CTRL_LABEL),  cnt_cols, value = TRUE)
+  trt_cnt  <- grep(paste0("^countData\\.", TRTMT_LABEL), cnt_cols, value = TRUE)
+
+  df <- res_u
+  df$pos        <- dplyr::coalesce(df$genomicData.start, NA_integer_)
+  df$strand     <- as.character(dplyr::coalesce(df$genomicData.strand, NA))
+  df$ctrl_total <- rowSums(as.matrix(res_u[, ctrl_cnt, drop = FALSE]), na.rm = TRUE)
+  df$trt_total  <- rowSums(as.matrix(res_u[, trt_cnt,  drop = FALSE]), na.rm = TRUE)
+
+  df <- df %>%
+    dplyr::group_by(groupID) %>%
+    dplyr::mutate(
+      g_max    = suppressWarnings(max(pos, na.rm = TRUE)),
+      g_min    = suppressWarnings(min(pos, na.rm = TRUE)),
+      proximal = if (all(na.omit(strand) == "-")) g_max else g_min,
+      distance = abs(pos - proximal)
+    ) %>%
+    dplyr::ungroup()
+
+  chisq_for_gene <- function(sub) {
+    tab <- rbind(sub$ctrl_total, sub$trt_total)
+    tab <- tab[, colSums(tab) > 0, drop = FALSE]
+    if (ncol(tab) < 2 || any(rowSums(tab) == 0)) return(c(stat = NA_real_, pvalue = NA_real_))
+    res <- tryCatch(suppressWarnings(chisq.test(tab)), error = function(e) NULL)
+    if (is.null(res)) return(c(stat = NA_real_, pvalue = NA_real_))
+    c(stat = unname(res$statistic), pvalue = unname(res$p.value))
+  }
+
+  out <- df %>%
+    dplyr::group_by(groupID) %>%
+    dplyr::group_modify(function(sub, key) {
+      n_pas <- nrow(sub)
+      dom_i <- which.max(sub$meanUsage_All)
+      if (length(dom_i) == 0) dom_i <- 1L
+
+      wad_ctrl        <- sum(sub[[ctrl_col]] * sub$distance, na.rm = TRUE)
+      wad_trt         <- sum(sub[[trt_col]]  * sub$distance, na.rm = TRUE)
+      dom_delta_usage <- sub[[trt_col]][dom_i] - sub[[ctrl_col]][dom_i]
+      dom_stable      <- is.na(dom_delta_usage) || abs(dom_delta_usage) < dominant_stable_cut
+      minor_sig       <- any((seq_len(n_pas) != dom_i) &
+                             !is.na(sub$padj) & sub$padj <= padj_cut &
+                             !is.na(sub[[fc_col]]) & abs(sub[[fc_col]]) >= lfc_cut)
+      cs <- chisq_for_gene(sub)
+
+      data.frame(
+        n_PAS                = n_pas,
+        dominant_featureID   = sub$featureID[dom_i],
+        dominant_abundance   = sub$exonBaseMean[dom_i],
+        dom_usage_ctrl_ph    = sub[[ctrl_col]][dom_i],
+        dom_usage_trt_ph     = sub[[trt_col]][dom_i],
+        dominant_delta_usage = dom_delta_usage,
+        dominant_padj        = sub$padj[dom_i],
+        WAD_Control_ph       = wad_ctrl,
+        WAD_Treatment_ph     = wad_trt,
+        delta_WAD            = wad_trt - wad_ctrl,
+        chisq_stat           = cs["stat"],
+        chisq_pvalue         = cs["pvalue"],
+        flag_minor_only      = isTRUE(minor_sig) & dom_stable,
+        stringsAsFactors     = FALSE
+      )
+    }) %>%
+    dplyr::ungroup() %>%
+    as.data.frame()
+
+  out$chisq_padj <- p.adjust(out$chisq_pvalue, method = "BH")
+
+  names(out)[names(out) == "WAD_Control_ph"]    <- WAD_CTRL_COL
+  names(out)[names(out) == "WAD_Treatment_ph"]  <- WAD_TRTMT_COL
+  names(out)[names(out) == "dom_usage_ctrl_ph"] <- DOM_USAGE_CTRL_COL
+  names(out)[names(out) == "dom_usage_trt_ph"]  <- DOM_USAGE_TRTMT_COL
   out
 }
 
@@ -970,6 +1103,91 @@ plot_gene_usage <- function(res_u, gene_symbol, title_suffix = NULL,
 }
 
 # ============================================================
+#  FUNCTION: schematic PAS map (ggtranscript) — 5'->3' comparison
+#            of pseudo-isoform tracks per PAS, per condition
+# ============================================================
+#
+# This is a schematic built only from PAS genomic positions + usage
+# fractions already present in the results table -- NOT a real GTF-derived
+# transcript model. The PolyA_DB annotation used elsewhere in this script has
+# no exon/intron/CDS structure (see README "Does the annotation include the
+# stop codon?"), so there is no real transcript geometry to draw. Each track
+# spans from the gene's most-proximal surviving PAS to a given PAS, and its
+# opacity encodes that PAS's mean fractional usage in that condition -- it
+# stands in for "how much of this gene's mRNA looks like this, this long."
+
+plot_gene_apa_transcript <- function(res_u, gene_symbol, title_suffix = NULL,
+                                      ctrl_col = USAGE_CTRL_COL,
+                                      trt_col  = USAGE_TRTMT_COL) {
+  if (!requireNamespace("ggtranscript", quietly = TRUE)) {
+    warning("ggtranscript not installed — skipping APA transcript figure. ",
+            "Install with: remotes::install_github('dzhang32/ggtranscript')")
+    return(invisible(NULL))
+  }
+
+  df <- res_u %>%
+    dplyr::filter(gene == gene_symbol) %>%
+    dplyr::mutate(
+      PAS_raw = dplyr::coalesce(.data$feature, .data$featureID),
+      pos     = dplyr::coalesce(.data$genomicData.start, NA_integer_),
+      strand  = as.character(dplyr::coalesce(.data$genomicData.strand, NA))
+    ) %>%
+    dplyr::filter(!is.na(pos), !(is.na(.data[[ctrl_col]]) & is.na(.data[[trt_col]])))
+
+  if (nrow(df) < 2) stop(sprintf("Fewer than 2 positioned PAS for gene '%s' — nothing to plot.", gene_symbol))
+
+  strand_sym   <- if (all(na.omit(df$strand) == "-")) "-" else "+"
+  proximal_pos <- if (strand_sym == "-") max(df$pos) else min(df$pos)
+  distal_pos   <- if (strand_sym == "-") min(df$pos) else max(df$pos)
+
+  df$distance  <- abs(df$pos - proximal_pos)
+  df$is_distal <- df$pos == distal_pos
+  df           <- dplyr::arrange(df, distance)
+  lab          <- ifelse(df$is_distal, paste0(df$PAS_raw, " (distal)"), df$PAS_raw)
+  df$PAS_label <- factor(lab, levels = unique(lab))
+  df$sig_mark  <- dplyr::case_when(
+    !is.na(df$padj) & df$padj < 0.001 ~ "***",
+    !is.na(df$padj) & df$padj < 0.01  ~ "**",
+    !is.na(df$padj) & df$padj < 0.05  ~ "*",
+    TRUE ~ ""
+  )
+
+  # One pseudo-isoform track per PAS per condition: spans proximal PAS -> this
+  # PAS; usage (drives opacity) = mean fractional usage of this PAS in that condition.
+  tracks <- dplyr::bind_rows(
+    dplyr::transmute(df, PAS_label, condition = CTRL_LABEL,  usage = .data[[ctrl_col]], distance),
+    dplyr::transmute(df, PAS_label, condition = TRTMT_LABEL, usage = .data[[trt_col]],  distance)
+  ) %>%
+    dplyr::mutate(
+      start = 0,
+      end   = distance,
+      usage = ifelse(is.na(usage), 0, usage)
+    )
+
+  ttl <- paste0("PAS map & usage: ", gene_symbol,
+               if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
+
+  ggplot2::ggplot(tracks) +
+    ggtranscript::geom_range(
+      ggplot2::aes(xstart = start, xend = end, y = PAS_label, fill = condition, alpha = usage)
+    ) +
+    ggplot2::geom_point(data = df, ggplot2::aes(x = distance, y = PAS_label), size = 2) +
+    ggplot2::geom_text(data = df, ggplot2::aes(x = distance, y = PAS_label, label = sig_mark),
+                       vjust = -1, size = 4) +
+    ggplot2::scale_alpha_continuous(range = c(0.15, 1), limits = c(0, 1), name = "Mean usage") +
+    ggplot2::labs(
+      x = "Distance from proximal-most PAS (bp)",
+      y = "PAS site (5' → 3')",
+      fill = "Condition",
+      title = ttl,
+      caption = paste0("Schematic from PAS positions + usage fractions only (no GTF exon/intron model available). ",
+                       "Bar opacity = mean fractional usage; * padj<0.05, ** <0.01, *** <0.001")
+    ) +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+}
+
+# ============================================================
 #  PRE-ANALYSIS QC
 # ============================================================
 
@@ -1001,14 +1219,16 @@ if (USE_RUV) {
 
   # Uncorrected PCA — shows the raw batch structure you are correcting for
   make_pca_global(count_mat, colData,
-                  outfile = file.path(dir_plots, "PCA_global_uncorrected.png"))
+                  outfile        = file.path(dir_plots, "PCA_global_uncorrected.png"),
+                  matrix_outfile = file.path(dir_results, "vst_global.csv"))
   # RUV-corrected PCA — W factors regressed from VST matrix for visualization only
   make_pca_global(count_mat, colData,
                   batch_covars = w_cols,
                   outfile = file.path(dir_plots, "PCA_global_RUV_corrected.png"))
 } else {
   make_pca_global(count_mat, colData,
-                  outfile = file.path(dir_plots, "PCA_global.png"))
+                  outfile        = file.path(dir_plots, "PCA_global.png"),
+                  matrix_outfile = file.path(dir_results, "vst_global.csv"))
 }
 
 # ============================================================
@@ -1048,7 +1268,8 @@ for (grp in names(runs)) {
 
   make_pca_dxd(
     dxd, grp_label = grp,
-    outfile = file.path(dir_plots, sprintf("PCA_normalized%s.png", sfx))
+    outfile        = file.path(dir_plots, sprintf("PCA_normalized%s.png", sfx)),
+    matrix_outfile = file.path(dir_results, sprintf("vst_normalized%s.csv", sfx))
   )
   make_size_factors(
     dxd, grp_label = grp,
@@ -1120,6 +1341,21 @@ for (grp in names(usage_results)) {
 }
 
 # ============================================================
+#  GENE-LEVEL APA SUMMARY (weighted usage distance, dominant-site
+#  tracking, chi-squared cross-check) — see build_gene_apa_summary()
+# ============================================================
+
+message("--- Building gene-level APA summary ---")
+
+for (grp in names(usage_results)) {
+  sfx     <- group_suffix[grp]
+  apa_sum <- build_gene_apa_summary(usage_results[[grp]])
+  write.csv(apa_sum,
+            file.path(dir_results, sprintf("gene_summary_apa%s.csv", sfx)),
+            row.names = FALSE, quote = FALSE)
+}
+
+# ============================================================
 #  RELATIVE USAGE BAR CHARTS
 # ============================================================
 
@@ -1138,6 +1374,14 @@ if (length(GENES_OF_INTEREST) > 0) {
       }, error = function(e) {
         try(dev.off(), silent = TRUE)
         warning(sprintf("Could not plot '%s' (%s): %s", g, grp, conditionMessage(e)))
+      })
+
+      apa_outfile <- file.path(dir_apa_plots, sprintf("%s%s.png", g, sfx))
+      tryCatch({
+        p <- plot_gene_apa_transcript(usage_results[[grp]], g, title_suffix = ttl_sfx)
+        if (!is.null(p)) ggplot2::ggsave(apa_outfile, p, width = 8, height = 5, dpi = 300)
+      }, error = function(e) {
+        warning(sprintf("Could not plot APA transcript map for '%s' (%s): %s", g, grp, conditionMessage(e)))
       })
     }
   }
