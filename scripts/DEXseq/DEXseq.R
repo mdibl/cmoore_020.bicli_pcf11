@@ -100,6 +100,11 @@ path_gtf     <- if (!is.null(ANNO_GTF)) file.path(BASE_DIR, ANNO_GTF) else NULL
 SEQ_LOW  <- "#cde2fb"
 SEQ_HIGH <- "#0d366b"
 
+# Validated categorical pair for Control/Experimental overlay lines (dataviz
+# skill references/palette.md slots 1 & 2; passes CVD + normal-vision checks)
+CAT_CTRL <- "#2a78d6"
+CAT_TRT  <- "#eb6834"
+
 dir_results     <- OUT_BASE
 dir_plots       <- file.path(OUT_BASE, "plots")
 dir_usage_plots <- file.path(OUT_BASE, "plots/usage")
@@ -1138,8 +1143,7 @@ plot_gene_usage <- function(res_u, gene_symbol, title_suffix = NULL,
       mean_usage = pmax(pmin(mean_usage, 1), 0)
     )
 
-  ttl <- paste0("Relative PAS usage (PSI): ", gene_symbol,
-                if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
+  ttl <- paste0(gene_symbol, if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
 
   ggplot2::ggplot(long, ggplot2::aes(x = PAS_label, y = mean_usage, fill = condition)) +
     ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.8), width = 0.75) +
@@ -1158,7 +1162,7 @@ plot_gene_usage <- function(res_u, gene_symbol, title_suffix = NULL,
       y     = "Mean fractional usage (PSI)",
       title = ttl,
       fill  = "Condition",
-      caption = "ΔPSI = Treatment − Control; error bars = ±1 SEM; * padj<0.05, ** <0.01, *** <0.001"
+      caption = "ΔPSI=Trt−Ctrl; ±1 SEM; *p<.05 **p<.01 ***p<.001"
     ) +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(
@@ -1168,108 +1172,159 @@ plot_gene_usage <- function(res_u, gene_symbol, title_suffix = NULL,
 }
 
 # ============================================================
-#  FUNCTION: whole-gene APA genome map (real coordinates,
-#            all annotated isoforms, stacked by condition)
+#  FUNCTION: whole-gene structure map (real coordinates, all
+#            annotated isoforms, highlighting AS/APA differences)
 # ============================================================
 #
 # Requires gtf_exons (see "LOAD TRANSCRIPT ANNOTATION" above) -- real exon/
 # intron structure from the RefSeq GTF used to build this project's STAR
-# index. X-axis is real genomic position; each annotated transcript gets its
-# own row; Control/Experimental are stacked as facets sharing that x-axis, so
-# a usage shift is directly visible as "the dot got bigger/darker here, in
-# this isoform's row, in this condition" rather than inferred from a bar chart.
+# index. Purpose: show how many isoforms are annotated and where they
+# structurally differ (alternative splicing, alternative terminal exons) --
+# usage/expression per PAS live in plot_gene_apa_zoom() instead, since
+# cramming both concerns into one figure made neither easy to read.
+#
+# Each exon is colored Constitutive (identical start/end shared by every
+# OTHER isoform that overlaps this genomic region) or Alternative (this
+# isoform splices differently here, or this is an alternative/variant
+# terminal exon). Isoforms are compared only against others whose overall
+# span actually reaches a given exon's region -- an isoform that starts at a
+# completely different locus (e.g. an alternative-promoter transcript) isn't
+# "alternative splicing" at every exon of the isoforms it doesn't overlap,
+# it's simply not present there.
+#
+# A second, faux-zoomed panel (patchwork) is stacked below the whole-gene
+# view, cropped to the terminal exon(s) near the detected PAS with tick marks
+# above the rows -- tightly clustered PAS are illegible at whole-gene scale
+# (e.g. 5 PAS within ~1kb of a ~200kb gene), so this isn't drawn to the same
+# scale as the panel above it; the shaded rect on the main panel marks where
+# it is. Reuses the same terminal-exon-window logic as plot_gene_apa_zoom().
 
 plot_gene_apa_genome <- function(res_u, gene_symbol, gtf_exons, title_suffix = NULL,
-                                  ctrl_col = USAGE_CTRL_COL, trt_col = USAGE_TRTMT_COL,
-                                  expr_ctrl_col = EXPR_CTRL_COL, expr_trt_col = EXPR_TRTMT_COL) {
+                                  near_bp = 5000, pad_frac = 0.15) {
   tx_exons <- gtf_exons[gtf_exons$gene_name == gene_symbol, ]
   if (nrow(tx_exons) == 0) stop(sprintf("Gene '%s' not found in GTF (gene_name mismatch?).", gene_symbol))
   strand_sym <- tx_exons$strand[1]
 
   pas_df <- res_u %>%
     dplyr::filter(gene == gene_symbol) %>%
-    dplyr::mutate(
-      PAS_raw = dplyr::coalesce(.data$feature, .data$featureID),
-      pos     = dplyr::coalesce(.data$genomicData.start, NA_integer_)
-    ) %>%
+    dplyr::mutate(pos = dplyr::coalesce(.data$genomicData.start, NA_integer_)) %>%
     dplyr::filter(!is.na(pos)) %>%
     dplyr::arrange(pos)
   if (nrow(pas_df) == 0) stop(sprintf("No positioned PAS for gene '%s'.", gene_symbol))
+  pas_range <- range(pas_df$pos)
 
   tx_span <- tx_exons %>%
     dplyr::group_by(transcript_id) %>%
     dplyr::summarise(tx_start = min(start), tx_end = max(end), .groups = "drop")
   tx_order <- tx_span$transcript_id[order(tx_span$tx_end - tx_span$tx_start)]
-  # Rows stack bottom-to-top in this order: isoforms, then Usage, then Expression
-  # (Expression on top mirrors plotDEXSeq's own layout convention).
-  y_levels <- c(tx_order, "Usage", "Expression")
-  y_pos    <- setNames(seq_along(y_levels), y_levels)
+  y_pos    <- setNames(seq_along(tx_order), tx_order)
 
-  sig_mark <- dplyr::case_when(
-    !is.na(pas_df$padj) & pas_df$padj < 0.001 ~ "***",
-    !is.na(pas_df$padj) & pas_df$padj < 0.01  ~ "**",
-    !is.na(pas_df$padj) & pas_df$padj < 0.05  ~ "*",
-    TRUE ~ ""
-  )
-  pas_df$sig_mark <- sig_mark
-
-  usage_long <- dplyr::bind_rows(
-    dplyr::transmute(pas_df, pos, sig_mark, condition = CTRL_LABEL,  val = .data[[ctrl_col]]),
-    dplyr::transmute(pas_df, pos, sig_mark, condition = TRTMT_LABEL, val = .data[[trt_col]])
-  ) %>%
-    dplyr::mutate(val = ifelse(is.na(val), 0, val), y = y_pos[["Usage"]])
-
-  # Expression row: log10-scaled normalized read count per PAS, drawn as a
-  # connected profile line per condition -- rescaled into a [0.05, 0.8] band
-  # above the row's baseline y-position (mirrors DEXSeq's own plotDEXSeq look).
-  expr_vals <- c(pas_df[[expr_ctrl_col]], pas_df[[expr_trt_col]])
-  expr_rng  <- range(log10(pmax(expr_vals, 1)))
-  rescale_expr <- function(x) {
-    lx <- log10(pmax(x, 1))
-    if (diff(expr_rng) < 1e-9) return(rep(0.4, length(x)))
-    0.05 + 0.75 * (lx - expr_rng[1]) / diff(expr_rng)
-  }
-  expr_long <- dplyr::bind_rows(
-    dplyr::transmute(pas_df, pos, condition = CTRL_LABEL,  val = .data[[expr_ctrl_col]]),
-    dplyr::transmute(pas_df, pos, condition = TRTMT_LABEL, val = .data[[expr_trt_col]])
-  ) %>%
-    dplyr::mutate(y = y_pos[["Expression"]] + rescale_expr(val)) %>%
-    dplyr::arrange(condition, pos)
-
+  key_summary <- tx_exons %>%
+    dplyr::distinct(start, end, transcript_id) %>%
+    dplyr::group_by(start, end) %>%
+    dplyr::summarise(having = list(unique(transcript_id)), .groups = "drop") %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      n_relevant = sum(tx_span$tx_start <= end & tx_span$tx_end >= start),
+      n_having   = length(having),
+      exon_class = ifelse(n_having == n_relevant, "Constitutive", "Alternative")
+    ) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(start, end, exon_class)
+  tx_exons <- tx_exons %>% dplyr::left_join(key_summary, by = c("start", "end"))
+  tx_exons$exon_class <- factor(tx_exons$exon_class, levels = c("Constitutive", "Alternative"))
   tx_exons$y <- y_pos[tx_exons$transcript_id]
   introns    <- ggtranscript::to_intron(tx_exons, "transcript_id")
   introns$y  <- y_pos[introns$transcript_id]
 
+  n_alt <- sum(tx_exons$exon_class == "Alternative")
+  # limits/drop=FALSE keep the main and zoom panels' legends identical (so patchwork
+  # doesn't render two near-duplicate legends) -- but only force "Alternative" into the
+  # domain when it's actually present anywhere in the gene, else it'd show an empty key.
+  fill_levels <- if (n_alt > 0) c("Constitutive", "Alternative") else "Constitutive"
+  fill_scale <- ggplot2::scale_fill_manual(values = c(Constitutive = "grey35", Alternative = CAT_TRT),
+                                            limits = fill_levels, drop = FALSE, name = NULL)
+
+  # --- main panel: whole gene, real scale ---
   xr  <- range(c(tx_exons$start, tx_exons$end, pas_df$pos))
   pad <- diff(xr) * 0.03
-  ttl <- paste0("Gene model, expression & PAS usage: ", gene_symbol,
-               if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
 
-  ggplot2::ggplot() +
-    ggtranscript::geom_range(data = tx_exons, ggplot2::aes(xstart = start, xend = end, y = y),
-                              fill = "grey35", height = 0.4) +
-    ggtranscript::geom_intron(data = introns, ggplot2::aes(xstart = start, xend = end, y = y),
-                               strand = strand_sym, arrow.min.intron.length = 200, color = "grey50") +
-    ggplot2::geom_point(data = usage_long, ggplot2::aes(x = pos, y = y, size = val, color = val)) +
-    ggrepel::geom_text_repel(data = usage_long,
-                              ggplot2::aes(x = pos, y = y, label = paste0(round(val * 100), "%", sig_mark)),
-                              size = 2.6, seed = 1, min.segment.length = 0, direction = "x", nudge_y = 0.3) +
-    ggplot2::scale_size_continuous(range = c(1, 6), limits = c(0, 1), name = "Usage") +
-    ggplot2::scale_color_gradient(low = SEQ_LOW, high = SEQ_HIGH, limits = c(0, 1), name = "Usage") +
-    ggplot2::geom_line(data = expr_long, ggplot2::aes(x = pos, y = y), color = "grey20", linewidth = 0.6) +
-    ggplot2::geom_point(data = expr_long, ggplot2::aes(x = pos, y = y), color = "grey20", size = 1.5) +
-    ggrepel::geom_text_repel(data = expr_long, ggplot2::aes(x = pos, y = y, label = round(val)),
-                              size = 2.4, seed = 2, min.segment.length = 0, direction = "x", nudge_y = 0.15) +
+  # zoom window: terminal exon(s) near the PAS cluster (same logic as plot_gene_apa_zoom)
+  term_exon <- tx_exons %>%
+    dplyr::group_by(transcript_id) %>%
+    dplyr::slice(if (strand_sym == "-") which.min(start) else which.max(end)) %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(start <= pas_range[2] + near_bp, end >= pas_range[1] - near_bp)
+  keep_tx <- term_exon$transcript_id
+  ext <- term_exon %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      ext_start = if (strand_sym == "-") min(pas_df$pos[pas_df$pos < start], start) else end,
+      ext_end   = if (strand_sym == "-") start else max(pas_df$pos[pas_df$pos > end], end)
+    ) %>% dplyr::ungroup() %>%
+    dplyr::filter(ext_end > ext_start) %>%
+    dplyr::transmute(transcript_id, start = ext_start, end = ext_end)
+  win      <- range(c(term_exon$start, term_exon$end, ext$start, ext$end, pas_df$pos))
+  zoom_pad <- diff(win) * pad_frac + 300
+  zoom_xr  <- c(win[1] - zoom_pad, win[2] + zoom_pad)
+  zoom_rect <- data.frame(xmin = zoom_xr[1], xmax = zoom_xr[2])
+
+  p_main <- ggplot2::ggplot() +
+    ggplot2::geom_rect(data = zoom_rect, ggplot2::aes(xmin = xmin, xmax = xmax, ymin = -Inf, ymax = Inf),
+                        fill = "grey85", inherit.aes = FALSE) +
     ggplot2::geom_vline(data = pas_df, ggplot2::aes(xintercept = pos),
                          linetype = "dotted", color = "grey70", linewidth = 0.3) +
+    ggtranscript::geom_range(data = tx_exons, ggplot2::aes(xstart = start, xend = end, y = y, fill = exon_class),
+                              height = 0.4) +
+    ggtranscript::geom_intron(data = introns, ggplot2::aes(xstart = start, xend = end, y = y),
+                               strand = strand_sym, arrow.min.intron.length = 200, color = "grey50") +
+    fill_scale +
     ggplot2::scale_x_continuous(limits = c(xr[1] - pad, xr[2] + pad), labels = scales::comma) +
-    ggplot2::scale_y_continuous(breaks = y_pos, labels = names(y_pos), limits = c(0.5, max(y_pos) + 1)) +
-    ggplot2::facet_wrap(~condition, ncol = 1) +
-    ggplot2::labs(x = paste0("Genomic position (", tx_exons$seqnames[1], ", ", strand_sym, " strand)"),
-                  y = NULL, title = ttl,
-                  caption = "Expression is log10-scaled normalized read count per PAS") +
+    ggplot2::scale_y_continuous(breaks = y_pos, labels = names(y_pos), limits = c(0.5, max(y_pos) + 0.5)) +
+    ggplot2::labs(x = NULL, y = NULL) +
     ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), legend.position = "top")
+
+  # --- inset panel: terminal exon(s), expanded (faux zoom); own local row order ---
+  zoom_tx_order <- term_exon$transcript_id[order(term_exon$end - term_exon$start)]
+  zoom_y_pos    <- setNames(seq_along(zoom_tx_order), zoom_tx_order)
+
+  ctx_exons <- tx_exons %>% dplyr::filter(transcript_id %in% keep_tx, start >= zoom_xr[1], end <= zoom_xr[2])
+  ctx_exons$y  <- zoom_y_pos[ctx_exons$transcript_id]
+  zoom_introns <- ggtranscript::to_intron(ctx_exons, "transcript_id")
+  if (nrow(ext) > 0) ext$y <- zoom_y_pos[ext$transcript_id]
+
+  n_keep   <- length(zoom_tx_order)
+  tick_top <- n_keep + 0.8
+  p_zoom <- ggplot2::ggplot() +
+    ggplot2::geom_vline(data = pas_df, ggplot2::aes(xintercept = pos),
+                         linetype = "dotted", color = "grey60", linewidth = 0.4) +
+    ggplot2::geom_segment(data = pas_df, ggplot2::aes(x = pos, xend = pos, y = n_keep + 0.55, yend = tick_top),
+                           color = "black", linewidth = 0.6) +
+    ggtranscript::geom_range(data = ctx_exons, ggplot2::aes(xstart = start, xend = end, y = y, fill = exon_class),
+                              height = 0.4)
+  if (nrow(zoom_introns) > 0)
+    p_zoom <- p_zoom + ggtranscript::geom_intron(data = zoom_introns, ggplot2::aes(xstart = start, xend = end, y = y),
+                                                  strand = strand_sym, arrow.min.intron.length = 200, color = "grey50")
+  if (nrow(ext) > 0)
+    p_zoom <- p_zoom + ggtranscript::geom_range(data = ext, ggplot2::aes(xstart = start, xend = end, y = y),
+                                                 fill = NA, color = "grey35", linetype = "dashed", height = 0.4)
+  p_zoom <- p_zoom +
+    fill_scale +
+    ggplot2::guides(fill = "none") +
+    ggplot2::scale_x_continuous(limits = zoom_xr, labels = scales::comma) +
+    ggplot2::scale_y_continuous(breaks = zoom_y_pos, labels = names(zoom_y_pos), limits = c(0.5, tick_top + 0.3)) +
+    ggplot2::labs(x = paste0(tx_exons$seqnames[1], " (", strand_sym, "), ", length(unique(pas_df$pos)), " PAS"), y = NULL) +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                   panel.background = ggplot2::element_rect(fill = "grey97", color = NA))
+
+  ttl <- paste0(gene_symbol, if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
+  cap <- if (n_alt == 0) "No alternative exons; APA only" else "Grey = constitutive  Orange = alternative"
+
+  (p_main / p_zoom) +
+    patchwork::plot_layout(heights = c(1, 0.8)) +
+    patchwork::plot_annotation(title = ttl, caption = cap)
 }
 
 # ============================================================
@@ -1278,15 +1333,20 @@ plot_gene_apa_genome <- function(res_u, gene_symbol, gtf_exons, title_suffix = N
 #            annotated exon boundary)
 # ============================================================
 #
-# Same stacked-by-condition design as plot_gene_apa_genome(), cropped tightly
-# to just the terminal exon(s) actually relevant to this gene's detected PAS
-# (isoforms whose terminal exon is nowhere near the PAS cluster -- e.g. a
-# retained-intron transcript at a different locus -- are excluded here, not
-# because they're wrong, but because they're not part of this APA story).
-# Where a PAS falls beyond a transcript's annotated terminal-exon boundary,
-# a dashed-outline extension is drawn out to that PAS -- exon "extended into
-# intron" by the detected site, exactly as the terminal exon really behaves
-# transcriptionally even though RefSeq's model stops short of it.
+# Three panels stacked on a shared genomic x-axis (patchwork), each with its
+# own real y-axis rather than one shared discrete row-hack: Expression
+# (log10 normalized counts) on top, PAS usage (0-100%) in the middle, gene
+# model (real exon/intron structure, cropped to the terminal exon(s) near
+# this gene's detected PAS) on the bottom. Control and Experimental are
+# overlaid as two colored connected lines in the SAME panel for each of the
+# top two rows -- direct visual comparison, no per-point labels to parse.
+#
+# Isoforms whose terminal exon is nowhere near the PAS cluster (e.g. a
+# retained-intron transcript at a different locus) are excluded from the
+# gene-model panel here, not because they're wrong, but because they're not
+# part of this APA story. Where a PAS falls beyond a transcript's annotated
+# terminal-exon boundary, a dashed-outline extension is drawn out to that
+# PAS -- exon "extended into intron" by the detected site.
 
 plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, title_suffix = NULL,
                                 ctrl_col = USAGE_CTRL_COL, trt_col = USAGE_TRTMT_COL,
@@ -1324,8 +1384,6 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, title_suffix = NUL
     dplyr::transmute(transcript_id, start = ext_start, end = ext_end)
 
   tx_order <- term_exon$transcript_id[order(term_exon$end - term_exon$start)]
-  y_levels <- c(tx_order, "Usage", "Expression")
-  y_pos    <- setNames(seq_along(y_levels), y_levels)
 
   win <- range(c(term_exon$start, term_exon$end, ext$start, ext$end, pas_df$pos))
   pad <- diff(win) * pad_frac + 300
@@ -1334,71 +1392,69 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, title_suffix = NUL
   ctx_exons <- tx_exons %>%
     dplyr::filter(transcript_id %in% keep_tx, start >= xr[1], end <= xr[2])
 
-  sig_mark <- dplyr::case_when(
-    !is.na(pas_df$padj) & pas_df$padj < 0.001 ~ "***",
-    !is.na(pas_df$padj) & pas_df$padj < 0.01  ~ "**",
-    !is.na(pas_df$padj) & pas_df$padj < 0.05  ~ "*",
-    TRUE ~ ""
-  )
-  pas_df$sig_mark <- sig_mark
-  usage_long <- dplyr::bind_rows(
-    dplyr::transmute(pas_df, pos, sig_mark, condition = CTRL_LABEL,  val = .data[[ctrl_col]]),
-    dplyr::transmute(pas_df, pos, sig_mark, condition = TRTMT_LABEL, val = .data[[trt_col]])
-  ) %>% dplyr::mutate(val = ifelse(is.na(val), 0, val), y = y_pos[["Usage"]])
+  cond_colors <- c(setNames(CAT_CTRL, CTRL_LABEL), setNames(CAT_TRT, TRTMT_LABEL))
+  vlines <- ggplot2::geom_vline(xintercept = pas_df$pos, linetype = "dotted", color = "grey70", linewidth = 0.3)
 
-  expr_vals <- c(pas_df[[expr_ctrl_col]], pas_df[[expr_trt_col]])
-  expr_rng  <- range(log10(pmax(expr_vals, 1)))
-  rescale_expr <- function(x) {
-    lx <- log10(pmax(x, 1))
-    if (diff(expr_rng) < 1e-9) return(rep(0.4, length(x)))
-    0.05 + 0.75 * (lx - expr_rng[1]) / diff(expr_rng)
-  }
   expr_long <- dplyr::bind_rows(
     dplyr::transmute(pas_df, pos, condition = CTRL_LABEL,  val = .data[[expr_ctrl_col]]),
     dplyr::transmute(pas_df, pos, condition = TRTMT_LABEL, val = .data[[expr_trt_col]])
-  ) %>%
-    dplyr::mutate(y = y_pos[["Expression"]] + rescale_expr(val)) %>%
-    dplyr::arrange(condition, pos)
+  )
+  p_expr <- ggplot2::ggplot(expr_long, ggplot2::aes(x = pos, y = pmax(val, 1), color = condition)) +
+    vlines +
+    ggplot2::geom_line(linewidth = 0.7) +
+    ggplot2::geom_point(size = 1.8) +
+    ggplot2::scale_color_manual(values = cond_colors, name = "Condition") +
+    ggplot2::scale_y_log10() +
+    ggplot2::scale_x_continuous(limits = xr, labels = scales::comma) +
+    ggplot2::labs(y = "Expression\n(norm. counts, log10)", x = NULL) +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_blank(), axis.ticks.x = ggplot2::element_blank())
 
+  usage_long <- dplyr::bind_rows(
+    dplyr::transmute(pas_df, pos, condition = CTRL_LABEL,  val = .data[[ctrl_col]]),
+    dplyr::transmute(pas_df, pos, condition = TRTMT_LABEL, val = .data[[trt_col]])
+  ) %>% dplyr::mutate(val = ifelse(is.na(val), 0, val))
+  p_usage <- ggplot2::ggplot(usage_long, ggplot2::aes(x = pos, y = val, color = condition)) +
+    vlines +
+    ggplot2::geom_line(linewidth = 0.7) +
+    ggplot2::geom_point(size = 1.8) +
+    ggplot2::scale_color_manual(values = cond_colors, name = "Condition") +
+    ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+    ggplot2::scale_x_continuous(limits = xr, labels = scales::comma) +
+    ggplot2::labs(y = "PAS usage", x = NULL) +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_blank(), axis.ticks.x = ggplot2::element_blank())
+
+  y_pos <- setNames(seq_along(tx_order), tx_order)
   ctx_exons$y <- y_pos[ctx_exons$transcript_id]
   introns     <- ggtranscript::to_intron(ctx_exons, "transcript_id")
   if (nrow(introns) > 0) introns$y <- y_pos[introns$transcript_id]
   if (nrow(ext) > 0) ext$y <- y_pos[ext$transcript_id]
 
-  ttl <- paste0("Terminal exon(s), expression & PAS usage: ", gene_symbol,
-               if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
-
-  g <- ggplot2::ggplot() +
+  p_gene <- ggplot2::ggplot() +
+    vlines +
     ggtranscript::geom_range(data = ctx_exons, ggplot2::aes(xstart = start, xend = end, y = y),
                               fill = "grey35", height = 0.4)
   if (nrow(introns) > 0)
-    g <- g + ggtranscript::geom_intron(data = introns, ggplot2::aes(xstart = start, xend = end, y = y),
-                                        strand = strand_sym, arrow.min.intron.length = 200, color = "grey50")
+    p_gene <- p_gene + ggtranscript::geom_intron(data = introns, ggplot2::aes(xstart = start, xend = end, y = y),
+                                                  strand = strand_sym, arrow.min.intron.length = 200, color = "grey50")
   if (nrow(ext) > 0)
-    g <- g + ggtranscript::geom_range(data = ext, ggplot2::aes(xstart = start, xend = end, y = y),
-                                       fill = NA, color = "grey35", linetype = "dashed", height = 0.4)
-
-  g +
-    ggplot2::geom_point(data = usage_long, ggplot2::aes(x = pos, y = y, size = val, color = val)) +
-    ggrepel::geom_text_repel(data = usage_long,
-                              ggplot2::aes(x = pos, y = y, label = paste0(round(val * 100), "%", sig_mark)),
-                              size = 3, seed = 1, min.segment.length = 0, direction = "x", nudge_y = 0.3) +
-    ggplot2::scale_size_continuous(range = c(1.5, 7), limits = c(0, 1), name = "Usage") +
-    ggplot2::scale_color_gradient(low = SEQ_LOW, high = SEQ_HIGH, limits = c(0, 1), name = "Usage") +
-    ggplot2::geom_line(data = expr_long, ggplot2::aes(x = pos, y = y), color = "grey20", linewidth = 0.6) +
-    ggplot2::geom_point(data = expr_long, ggplot2::aes(x = pos, y = y), color = "grey20", size = 1.8) +
-    ggrepel::geom_text_repel(data = expr_long, ggplot2::aes(x = pos, y = y, label = round(val)),
-                              size = 2.8, seed = 2, min.segment.length = 0, direction = "x", nudge_y = 0.15) +
-    ggplot2::geom_vline(data = pas_df, ggplot2::aes(xintercept = pos),
-                         linetype = "dotted", color = "grey70", linewidth = 0.3) +
+    p_gene <- p_gene + ggtranscript::geom_range(data = ext, ggplot2::aes(xstart = start, xend = end, y = y),
+                                                 fill = NA, color = "grey35", linetype = "dashed", height = 0.4)
+  p_gene <- p_gene +
+    ggplot2::scale_y_continuous(breaks = y_pos, labels = names(y_pos), limits = c(0.5, max(y_pos) + 0.5)) +
     ggplot2::scale_x_continuous(limits = xr, labels = scales::comma) +
-    ggplot2::scale_y_continuous(breaks = y_pos, labels = names(y_pos), limits = c(0.5, max(y_pos) + 1)) +
-    ggplot2::facet_wrap(~condition, ncol = 1) +
-    ggplot2::labs(x = paste0("Genomic position (", tx_exons$seqnames[1], ", ", strand_sym, " strand)"),
-                  y = NULL, title = ttl,
-                  caption = "Expression is log10-scaled normalized read count.") +
+    ggplot2::labs(x = paste0("Genomic position (", tx_exons$seqnames[1], ", ", strand_sym, " strand)"), y = NULL) +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+
+  ttl <- paste0(gene_symbol, if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
+
+  (p_expr / p_usage / p_gene) +
+    patchwork::plot_layout(heights = c(1, 1, 0.35 + 0.25 * length(tx_order)), guides = "collect") +
+    patchwork::plot_annotation(title = ttl, caption = "Dashed = extended past annotation")
 }
 
 # ============================================================
@@ -1600,21 +1656,27 @@ if (length(GENES_OF_INTEREST) > 0) {
       })
 
       if (!is.null(gtf_exons) && requireNamespace("ggtranscript", quietly = TRUE)) {
-        genome_outfile <- file.path(dir_apa_genome, sprintf("%s%s.png", g, sfx))
-        tryCatch({
-          p <- plot_gene_apa_genome(usage_results[[grp]], g, gtf_exons, title_suffix = ttl_sfx)
-          ggplot2::ggsave(genome_outfile, p, width = 10, height = 2.5 + 0.6 * length(unique(gtf_exons$transcript_id[gtf_exons$gene_name == g])), dpi = 300)
-        }, error = function(e) {
-          warning(sprintf("Could not plot APA genome map for '%s' (%s): %s", g, grp, conditionMessage(e)))
-        })
+        n_tx <- length(unique(gtf_exons$transcript_id[gtf_exons$gene_name == g]))
 
-        zoom_outfile <- file.path(dir_apa_zoom, sprintf("%s%s.png", g, sfx))
-        tryCatch({
-          p <- plot_gene_apa_zoom(usage_results[[grp]], g, gtf_exons, title_suffix = ttl_sfx)
-          ggplot2::ggsave(zoom_outfile, p, width = 9, height = 5, dpi = 300)
-        }, error = function(e) {
-          warning(sprintf("Could not plot APA terminal-exon zoom for '%s' (%s): %s", g, grp, conditionMessage(e)))
-        })
+        if (requireNamespace("patchwork", quietly = TRUE)) {
+          genome_outfile <- file.path(dir_apa_genome, sprintf("%s%s.png", g, sfx))
+          tryCatch({
+            p <- plot_gene_apa_genome(usage_results[[grp]], g, gtf_exons, title_suffix = ttl_sfx)
+            ggplot2::ggsave(genome_outfile, p, width = 10, height = 3 + 1.1 * n_tx, dpi = 300)
+          }, error = function(e) {
+            warning(sprintf("Could not plot APA genome map for '%s' (%s): %s", g, grp, conditionMessage(e)))
+          })
+
+          zoom_outfile <- file.path(dir_apa_zoom, sprintf("%s%s.png", g, sfx))
+          tryCatch({
+            p <- plot_gene_apa_zoom(usage_results[[grp]], g, gtf_exons, title_suffix = ttl_sfx)
+            ggplot2::ggsave(zoom_outfile, p, width = 9, height = 4 + 0.5 * n_tx, dpi = 300)
+          }, error = function(e) {
+            warning(sprintf("Could not plot APA terminal-exon zoom for '%s' (%s): %s", g, grp, conditionMessage(e)))
+          })
+        } else {
+          warning("patchwork not installed — APA genome map and terminal-exon zoom figures skipped for '", g, "'.")
+        }
       }
     }
   }
