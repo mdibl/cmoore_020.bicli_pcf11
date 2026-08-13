@@ -1,0 +1,5 @@
+outs:
+- md5: 9a477533e8e6c47a854a01ccd04b1580
+  size: 286394748
+  hash: md5
+  path: hg38.refGene.gtf

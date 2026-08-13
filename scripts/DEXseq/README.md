@@ -46,6 +46,9 @@ SAMPLES_TXT <- "path/to/sample_name.txt"                # sample list (or set to
 ANNO_FILE   <- "data/PolyA_DB_v4.1/hg38.PAS.main.tsv"  # same file used by 3-REAP
 DESIGN_FILE <- "path/to/design.txt"                     # experimental design table
 
+ANNO_GTF <- "data/ref/hg38.refGene.gtf"   # RefSeq GTF for the APA genome-map figures;
+                                          # set to NULL to skip those figures entirely
+
 CTRL_LABEL  <- "Control"     # must match values in design file's 'condition' column
 TRTMT_LABEL <- "Treatment"   # must match values in design file's 'condition' column
 
@@ -80,6 +83,8 @@ If you have a timepoint or batch column, include it here. Set `GROUPING_VAR <- "
 
 **Sample name file** (`sample_name.txt`, optional): a plain text file listing sample names, one per line. If set to NULL, all non-`hit_PAS_ID` columns in the count matrix are used.
 
+**GTF file** (`data/ref/hg38.refGene.gtf`, optional — controlled by `ANNO_GTF`): a RefSeq-format GTF, ideally the **same one used to build your STAR index** (check `data/ref/star_index_hg38/genomeParameters.txt` for the `--sjdbGTFfile` path it was built with, if you're not sure which one that is). This is what gives the APA genome-map figures (below) real exon/intron structure — PolyA_DB alone only has flat PAS positions, no gene structure. Set `ANNO_GTF <- NULL` to skip those two figures entirely; nothing else in the pipeline depends on this file.
+
 ### 3. Run
 
 ```r
@@ -99,8 +104,12 @@ BiocManager::install(c("DEXSeq", "DESeq2", "GenomicRanges", "SummarizedExperimen
 install.packages(c("ggplot2", "ggrepel", "scales", "limma", "dplyr",
                    "tidyr", "tibble", "matrixStats", "stringr"))
 
-# Optional — only needed for the APA transcript-map figures (plots/apa_transcript/).
-# Not on CRAN/Bioconductor; the script skips those figures with a warning if absent.
+# Optional — only needed for the APA genome-map figures (plots/apa_genome/, plots/apa_zoom/).
+# Both are skipped with a warning if ANNO_GTF is unset/missing or either package below
+# isn't installed; nothing else in the pipeline depends on them.
+BiocManager::install("rtracklayer")          # parses the GTF into exon coordinates
+
+# Not on CRAN/Bioconductor:
 remotes::install_github("dzhang32/ggtranscript")
 ```
 
@@ -155,8 +164,10 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
     ├── volcano[.group].png
     ├── usage/
     │   └── {GENE}[.group].png   ← PSI bar charts, one file per gene
-    └── apa_transcript/
-        └── {GENE}[.group].png   ← schematic PAS map (needs ggtranscript installed)
+    ├── apa_genome/
+    │   └── {GENE}[.group].png   ← whole-gene genome map, all isoforms (needs ANNO_GTF + ggtranscript)
+    └── apa_zoom/
+        └── {GENE}[.group].png   ← terminal-exon zoom, same requirements
 ```
 
 `[.group]` is appended only when `GROUPING_VAR` is set (e.g., `.3d` for a "3day" timepoint level). With `GROUPING_VAR <- NULL`, files have no suffix: `pas_results.csv`, `gene_summary.csv`, etc.
@@ -304,13 +315,16 @@ Look at whether the bars shift toward the right (distal) or left (proximal) in t
 
 ---
 
-## APA transcript-map figures (`plots/apa_transcript/`)
+## APA genome-map figures (`plots/apa_genome/`, `plots/apa_zoom/`)
 
-One PNG per gene in `GENES_OF_INTEREST`, per analysis group (requires `ggtranscript`; skipped with a warning if not installed — see Software requirements). For each PAS, this draws a horizontal track per condition spanning from the gene's most-proximal surviving PAS out to that PAS, with track opacity set by that PAS's mean usage in that condition — a visual complement to the PSI bar chart, oriented 5'→3'.
+Two PNGs per gene in `GENES_OF_INTEREST`, per analysis group — both require `ANNO_GTF` to be set to a real GTF and `rtracklayer`/`ggtranscript` to be installed (skipped with a warning otherwise; see Software requirements). Unlike the PSI bar chart, these use **real genomic coordinates and real exon/intron structure** parsed from that GTF (`gtf_exons`, built once near the top of the script) — PolyA_DB alone has no gene structure, only flat PAS positions, so nothing before this could show actual isoform geometry.
 
-**Important:** this is a schematic built only from PAS genomic positions and usage fractions already in the results table. The PolyA_DB annotation used elsewhere in this pipeline has no exon/intron/CDS structure (see "Does the annotation include the stop codon?" below), so there is no real transcript geometry to draw — the figure does not represent actual exon boundaries or a GTF-derived isoform model. It's most useful for visually inspecting *where* on the proximal↔distal axis a usage shift landed for genes with 3+ PAS, which `APA_direction` alone can't tell you.
+Both figures share the same layout: Control and Experimental are stacked as facets sharing one genomic x-axis, so a usage difference between conditions is a direct visual comparison (same dot, same position, different size/color/row) rather than something you have to infer. Each PAS is drawn as a dot sized and colored by mean fractional usage (labeled with the exact percentage and significance stars), with a dotted guide line down to the gene model.
 
-**Not implemented: full IsoformSwitchAnalyzeR integration.** IsoformSwitchAnalyzeR was considered for the ORF/NMD-consequence analysis needed to properly answer "does this APA event also change the coding sequence" (see the stop-codon section below) — it's the right tool for that question, but it expects transcript-level abundance quantification (e.g. from Salmon/kallisto) and a full GTF, neither of which this PAS-count-based pipeline currently produces or consumes. Integrating it would mean adding a parallel transcript-quantification workflow, which is out of scope for this script. If ORF/NMD consequences matter for a specific gene, run IsoformSwitchAnalyzeR as a separate analysis alongside this one rather than through `DEXseq.R`.
+- **`apa_genome/{GENE}[.group].png`** — the whole gene, every annotated RefSeq transcript as its own row, so alternative splicing and APA are visible together: you can see that a usage shift landed on a PAS that isoform A's terminal exon reaches but isoform B's doesn't, for example. Isoforms at a completely different, unrelated locus (e.g. a retained-intron transcript far upstream) are still shown here for full gene context.
+- **`apa_zoom/{GENE}[.group].png`** — cropped tightly to just the terminal exon(s) actually near the detected PAS sites (unrelated distant isoforms are excluded here, not because they're wrong, but because they're not part of this specific APA story and would blow up the crop window). This is the one to use when PAS sites are packed too closely together to read on the whole-gene figure. **Where a PAS falls beyond a transcript's annotated terminal-exon boundary, the exon is drawn extended into the intron with a dashed outline** — this is the "exon extended into intron" case: RefSeq's model stops at the annotated end, but a real detected cleavage site downstream means the transcript actually extends further than annotated; the dashed region marks exactly that gap.
+
+**Not implemented: full IsoformSwitchAnalyzeR integration.** IsoformSwitchAnalyzeR was considered for the ORF/NMD-consequence analysis needed to properly answer "does this APA event also change the coding sequence" (see the stop-codon section below) — it's the right tool for that question, but it expects transcript-level abundance quantification (e.g. from Salmon/kallisto), not just a GTF, which this PAS-count-based pipeline doesn't produce or consume. Integrating it would mean adding a parallel transcript-quantification workflow, which is out of scope for this script. If ORF/NMD consequences matter for a specific gene, run IsoformSwitchAnalyzeR as a separate analysis alongside this one rather than through `DEXseq.R`.
 
 ---
 
