@@ -74,7 +74,7 @@ NTOP_PCA      <- 2000        # top-N variable PAS for PCA (by row variance)
 PCA_LABEL_COL <- "replicate" # colData column to use as point labels (NULL = none)
 
 # Genes to plot PSI bar charts; set to character(0) to skip
-GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1", "IGFBP7")
+GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1", "MCAM", "RCOR3", "OTUD7B", "PCNX4", "LIFR", "ERLIN1")
 
 # RUVseq batch correction
 #   USE_RUV <- TRUE  when replicates cluster by batch in PCA rather than condition.
