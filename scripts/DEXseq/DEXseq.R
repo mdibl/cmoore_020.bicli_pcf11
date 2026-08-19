@@ -64,10 +64,21 @@ GROUPING_LEVELS <- NULL       # NULL = auto-detect from colData (alphabetical or
 PAS_TYPE_REGEX <- "^3'UTR"
 
 # Analysis thresholds
-MIN_TOTAL_READS   <- 10    # min "this"-read row-sum per group to keep a PAS
+MIN_TOTAL_READS   <- 10    # min "this"-read row-sum per group to keep a PAS (hard filter)
 MIN_PER_CONDITION <- 1     # min samples with count > 0 per condition; 0 = disable
 PADJ_CUT          <- 0.05  # FDR threshold for significance calls
 LFC_CUT           <- 0.5   # |log2FC| threshold for "big" hits in gene summary
+
+# thin_counts is a warning flag, not a filter -- PAS below MIN_TOTAL_READS are
+# already excluded above; this just flags surviving PAS that are still thin
+# (e.g. cleared 10 total reads but sit well under a stricter 40-read bar).
+THIN_COUNTS_CUT <- 40
+
+# single_dominant_site (see build_gene_apa_summary()): a gene's most-abundant
+# PAS must carry at least DOMINANT_USAGE_CUT of usage in BOTH conditions, and
+# move by less than DOMINANT_STABLE_CUT between them, to count as "the" site.
+DOMINANT_USAGE_CUT  <- 0.90
+DOMINANT_STABLE_CUT <- 0.05
 
 # PCA settings
 NTOP_PCA      <- 2000        # top-N variable PAS for PCA (by row variance)
@@ -112,12 +123,13 @@ DIV_UP   <- "#e34948"
 DIV_DOWN <- "#0d366b"
 DIV_NS   <- "grey60"
 
-dir_results     <- OUT_BASE
-dir_plots       <- file.path(OUT_BASE, "plots")
-dir_usage_plots <- file.path(OUT_BASE, "plots/usage")
-dir_apa_genome  <- file.path(OUT_BASE, "plots/apa_genome")
-dir_apa_zoom    <- file.path(OUT_BASE, "plots/apa_zoom")
-for (d in c(dir_results, dir_plots, dir_usage_plots, dir_apa_genome, dir_apa_zoom)) {
+dir_results         <- OUT_BASE
+dir_plots           <- file.path(OUT_BASE, "plots")
+dir_qc              <- file.path(OUT_BASE, "plots/qc")
+dir_gene_usage_bars <- file.path(OUT_BASE, "plots/gene_usage_bars")
+dir_apa_genome      <- file.path(OUT_BASE, "plots/apa_genome")
+dir_apa_zoom        <- file.path(OUT_BASE, "plots/apa_zoom")
+for (d in c(dir_results, dir_plots, dir_qc, dir_gene_usage_bars, dir_apa_genome, dir_apa_zoom)) {
   dir.create(d, recursive = TRUE, showWarnings = FALSE)
 }
 
@@ -128,10 +140,12 @@ USAGE_CTRL_COL   <- paste0("meanUsage_", CTRL_LABEL)
 USAGE_TRTMT_COL  <- paste0("meanUsage_", TRTMT_LABEL)
 SE_CTRL_COL      <- paste0("seUsage_", CTRL_LABEL)
 SE_TRTMT_COL     <- paste0("seUsage_", TRTMT_LABEL)
-WAD_CTRL_COL        <- paste0("WAD_", CTRL_LABEL)
-WAD_TRTMT_COL       <- paste0("WAD_", TRTMT_LABEL)
+WUTR_CTRL_COL       <- paste0("wUTR_", CTRL_LABEL)
+WUTR_TRTMT_COL      <- paste0("wUTR_", TRTMT_LABEL)
 DOM_USAGE_CTRL_COL  <- paste0("dominant_meanUsage_", CTRL_LABEL)
 DOM_USAGE_TRTMT_COL <- paste0("dominant_meanUsage_", TRTMT_LABEL)
+NORMCOUNT_CTRL_COL  <- paste0("normCount_", CTRL_LABEL)
+NORMCOUNT_TRTMT_COL <- paste0("normCount_", TRTMT_LABEL)
 
 # ============================================================
 #  BUILD COUNT MATRIX
@@ -792,7 +806,7 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
   # doesn't map cleanly onto "shorter" vs "longer" 3' UTR. `is_distal` below
   # is retained as positional context only; the actual lengthening/
   # shortening narrative is summarized properly across all PAS at once by
-  # delta_WAD in gene_summary_apa.csv (see build_gene_apa_summary()).
+  # delta_wUTR in gene_summary_wutr.csv (see build_gene_apa_summary()).
   message(sprintf("[%s] Assigning usage direction...", grp_label))
   res_tp$APA_direction <- NA_character_
 
@@ -838,16 +852,37 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
     }
   }
 
+  # Normalized counts alongside the raw countData.* columns already in res_tp --
+  # DEXSeq's own size-factor-corrected values (dxd has had estimateSizeFactors()
+  # applied above), so a PAS's normalized and raw depth sit side by side per sample.
+  message(sprintf("[%s] Adding normalized counts...", grp_label))
+  norm_this_idx <- which(SummarizedExperiment::colData(dxd)$exon == "this")
+  norm_mat      <- DESeq2::counts(dxd, normalized = TRUE)[, norm_this_idx, drop = FALSE]
+  colnames(norm_mat) <- paste0("normCountData.",
+                                as.character(SummarizedExperiment::colData(dxd)$sample[norm_this_idx]))
+  norm_df     <- as.data.frame(norm_mat)
+  norm_df$key <- rownames(norm_mat)
+  res_tp$key  <- rownames(res_tp)
+  res_tp      <- merge(res_tp, norm_df, by = "key", all.x = TRUE, sort = FALSE)
+  rownames(res_tp) <- res_tp$key
+  res_tp$key       <- NULL
+
   fc_out_cols <- grep("^log2fold_", colnames(res_tp), value = TRUE)
   count_cols  <- grep("^countData\\.", colnames(res_tp), value = TRUE)
   ctrl_cols   <- grep(paste0("^countData\\.", CTRL_LABEL),  count_cols, value = TRUE)
   treat_cols  <- grep(paste0("^countData\\.", TRTMT_LABEL), count_cols, value = TRUE)
 
+  # Interleave each raw count column with its normalized counterpart so the two
+  # sit next to each other per sample, rather than in two separate blocks.
+  interleave_counts <- function(raw_cols) {
+    as.vector(rbind(raw_cols, paste0("normCountData.", sub("^countData\\.", "", raw_cols))))
+  }
+
   desired_order <- c(
     "groupID", "featureID", "PAS_ID", "gene", "feature",
     "Intron_exon_location", "PAS_type", "APA_direction",
     "exonBaseMean", "dispersion", "stat", "pvalue", "padj",
-    fc_out_cols, ctrl_cols, treat_cols,
+    fc_out_cols, interleave_counts(ctrl_cols), interleave_counts(treat_cols),
     "genomicData.seqnames", "genomicData.start", "genomicData.end",
     "genomicData.width", "genomicData.strand"
   )
@@ -903,7 +938,7 @@ collapse_gene <- function(res_df, gene_q = NULL,
 #  FUNCTION: per-condition mean PSI + SEM
 # ============================================================
 
-usage_by_condition <- function(res_df, sub_cd) {
+usage_by_condition <- function(res_df, sub_cd, thin_cut = THIN_COUNTS_CUT) {
   cnt_cols <- grep("^countData\\.", names(res_df), value = TRUE)
   counts   <- as.matrix(res_df[, cnt_cols, drop = FALSE])
   colnames(counts) <- sub("^countData\\.", "", colnames(counts))
@@ -932,6 +967,14 @@ usage_by_condition <- function(res_df, sub_cd) {
   out[[USAGE_TRTMT_COL]] <- if (length(trt_idx))  rowMeans(usage[, trt_idx,  drop = FALSE], na.rm = TRUE) else NA_real_
   out[[SE_CTRL_COL]]     <- if (length(ctrl_idx) > 1) apply(usage[, ctrl_idx, drop = FALSE], 1, se_fn) else rep(NA_real_, nrow(usage))
   out[[SE_TRTMT_COL]]    <- if (length(trt_idx)  > 1) apply(usage[, trt_idx,  drop = FALSE], 1, se_fn) else rep(NA_real_, nrow(usage))
+
+  # thin_counts is a soft warning, not a filter: MIN_TOTAL_READS already excludes
+  # PAS below its (gene-total) bar before DEXSeq ever sees them, so this flags
+  # PAS that cleared that hard cutoff but still have < thin_cut raw reads
+  # summed across replicates in either condition on their own.
+  ctrl_total <- if (length(ctrl_idx)) rowSums(counts[, ctrl_idx, drop = FALSE], na.rm = TRUE) else rep(0, nrow(counts))
+  trt_total  <- if (length(trt_idx))  rowSums(counts[, trt_idx,  drop = FALSE], na.rm = TRUE) else rep(0, nrow(counts))
+  out[["thin_counts"]] <- ctrl_total < thin_cut | trt_total < thin_cut
   out
 }
 
@@ -971,31 +1014,47 @@ build_gene_dge <- function(dxd, ctrl_label = CTRL_LABEL, trt_label = TRTMT_LABEL
   dds <- DESeq2::DESeqDataSetFromMatrix(countData = gene_counts, colData = cd, design = design)
   dds <- DESeq2::DESeq(dds, quiet = TRUE)
   res <- DESeq2::results(dds, contrast = c("condition", trt_label, ctrl_label))
+
+  # Mean size-factor-normalized gene-level count per condition, reusing this same
+  # DESeqDataSet (no extra model fit) -- feeds the gene-count bar panel in
+  # plot_gene_apa_zoom(), placed next to the log2FC bar it's derived from.
+  norm_counts    <- DESeq2::counts(dds, normalized = TRUE)
+  cond           <- as.character(cd$condition)
+  ctrl_idx       <- which(cond == ctrl_label)
+  trt_idx        <- which(cond == trt_label)
+  norm_ctrl_mean <- if (length(ctrl_idx)) rowMeans(norm_counts[, ctrl_idx, drop = FALSE]) else rep(NA_real_, nrow(norm_counts))
+  norm_trt_mean  <- if (length(trt_idx))  rowMeans(norm_counts[, trt_idx,  drop = FALSE]) else rep(NA_real_, nrow(norm_counts))
+
   out <- as.data.frame(res)
   out$groupID <- rownames(out)
+  out[[NORMCOUNT_CTRL_COL]]  <- norm_ctrl_mean[out$groupID]
+  out[[NORMCOUNT_TRTMT_COL]] <- norm_trt_mean[out$groupID]
   rownames(out) <- NULL
   out
 }
 
 # ============================================================
-#  FUNCTION: gene-level APA summary — weighted usage distance,
+#  FUNCTION: gene-level APA summary — weighted UTR-length shift,
 #            dominant-site tracking, chi-squared cross-check
 # ============================================================
 #
-# delta_WAD ("weighted average distance") replaces the old binary
+# delta_wUTR ("weighted UTR length") replaces the old binary
 # Lengthened/Shortened call with a continuous metric that generalizes to any
-# number of PAS per gene: for each condition, WAD = sum(usage_i * distance_i),
+# number of PAS per gene: for each condition, wUTR = sum(usage_i * distance_i),
 # where distance_i is each PAS's genomic distance from the gene's own
 # most-proximal surviving PAS. (No stop-codon coordinate is available in the
 # PolyA_DB annotation, so the proximal-most PAS is used as an internally
-# consistent reference point instead.) A positive delta_WAD means usage
+# consistent reference point instead.) A positive delta_wUTR means usage
 # shifted toward more distal sites on average (longer 3' UTR); negative means
 # a shift toward proximal sites -- and unlike APA_direction, this is not
 # limited to a distal-vs-everything-else binary.
 #
-# flag_minor_only marks genes where the single most-abundant PAS's own usage
-# barely moved while a lower-abundance PAS drove the significant call (e.g.
-# CAPN1-like cases). It is a flag, not a filter -- rows are never dropped, so
+# single_dominant_site marks genes that functionally have one PAS: the most-
+# abundant PAS carries >= dominant_usage_cut (default 90%) of the gene's
+# usage in BOTH conditions, and that share doesn't shift between them. For
+# these genes, whatever the remaining (minor) PAS are doing individually is
+# unlikely to be biologically meaningful -- one site is running the show
+# either way. It is a flag, not a filter -- rows are never dropped, so
 # excluding them from downstream use is a deliberate choice made on read,
 # not silent data loss.
 #
@@ -1008,10 +1067,8 @@ build_gene_dge <- function(dxd, ctrl_label = CTRL_LABEL, trt_label = TRTMT_LABEL
 build_gene_apa_summary <- function(res_u,
                                     ctrl_col   = USAGE_CTRL_COL,
                                     trt_col    = USAGE_TRTMT_COL,
-                                    fc_col     = FC_COL,
-                                    padj_cut   = PADJ_CUT,
-                                    lfc_cut    = LFC_CUT,
-                                    dominant_stable_cut = 0.05) {
+                                    dominant_stable_cut = DOMINANT_STABLE_CUT,
+                                    dominant_usage_cut  = DOMINANT_USAGE_CUT) {
   cnt_cols <- grep("^countData\\.", names(res_u), value = TRUE)
   ctrl_cnt <- grep(paste0("^countData\\.", CTRL_LABEL),  cnt_cols, value = TRUE)
   trt_cnt  <- grep(paste0("^countData\\.", TRTMT_LABEL), cnt_cols, value = TRUE)
@@ -1048,30 +1105,31 @@ build_gene_apa_summary <- function(res_u,
       dom_i <- which.max(sub$meanUsage_All)
       if (length(dom_i) == 0) dom_i <- 1L
 
-      wad_ctrl        <- sum(sub[[ctrl_col]] * sub$distance, na.rm = TRUE)
-      wad_trt         <- sum(sub[[trt_col]]  * sub$distance, na.rm = TRUE)
-      dom_delta_usage <- sub[[trt_col]][dom_i] - sub[[ctrl_col]][dom_i]
+      wutr_ctrl       <- sum(sub[[ctrl_col]] * sub$distance, na.rm = TRUE)
+      wutr_trt        <- sum(sub[[trt_col]]  * sub$distance, na.rm = TRUE)
+      dom_usage_ctrl  <- sub[[ctrl_col]][dom_i]
+      dom_usage_trt   <- sub[[trt_col]][dom_i]
+      dom_delta_usage <- dom_usage_trt - dom_usage_ctrl
       dom_stable      <- is.na(dom_delta_usage) || abs(dom_delta_usage) < dominant_stable_cut
-      minor_sig       <- any((seq_len(n_pas) != dom_i) &
-                             !is.na(sub$padj) & sub$padj <= padj_cut &
-                             !is.na(sub[[fc_col]]) & abs(sub[[fc_col]]) >= lfc_cut)
+      dom_dominant    <- !is.na(dom_usage_ctrl) & !is.na(dom_usage_trt) &
+                          dom_usage_ctrl >= dominant_usage_cut & dom_usage_trt >= dominant_usage_cut
       cs <- chisq_for_gene(sub)
 
       data.frame(
-        n_PAS                = n_pas,
-        dominant_featureID   = sub$featureID[dom_i],
-        dominant_abundance   = sub$exonBaseMean[dom_i],
-        dom_usage_ctrl_ph    = sub[[ctrl_col]][dom_i],
-        dom_usage_trt_ph     = sub[[trt_col]][dom_i],
-        dominant_delta_usage = dom_delta_usage,
-        dominant_padj        = sub$padj[dom_i],
-        WAD_Control_ph       = wad_ctrl,
-        WAD_Treatment_ph     = wad_trt,
-        delta_WAD            = wad_trt - wad_ctrl,
-        chisq_stat           = cs["stat"],
-        chisq_pvalue         = cs["pvalue"],
-        flag_minor_only      = isTRUE(minor_sig) & dom_stable,
-        stringsAsFactors     = FALSE
+        n_PAS                 = n_pas,
+        dominant_featureID    = sub$featureID[dom_i],
+        dominant_abundance    = sub$exonBaseMean[dom_i],
+        dom_usage_ctrl_ph     = dom_usage_ctrl,
+        dom_usage_trt_ph      = dom_usage_trt,
+        dominant_delta_usage  = dom_delta_usage,
+        dominant_padj         = sub$padj[dom_i],
+        wUTR_Control_ph       = wutr_ctrl,
+        wUTR_Treatment_ph     = wutr_trt,
+        delta_wUTR            = wutr_trt - wutr_ctrl,
+        chisq_stat            = cs["stat"],
+        chisq_pvalue          = cs["pvalue"],
+        single_dominant_site  = isTRUE(dom_dominant) & dom_stable,
+        stringsAsFactors      = FALSE
       )
     }) %>%
     dplyr::ungroup() %>%
@@ -1079,8 +1137,8 @@ build_gene_apa_summary <- function(res_u,
 
   out$chisq_padj <- p.adjust(out$chisq_pvalue, method = "BH")
 
-  names(out)[names(out) == "WAD_Control_ph"]    <- WAD_CTRL_COL
-  names(out)[names(out) == "WAD_Treatment_ph"]  <- WAD_TRTMT_COL
+  names(out)[names(out) == "wUTR_Control_ph"]   <- WUTR_CTRL_COL
+  names(out)[names(out) == "wUTR_Treatment_ph"] <- WUTR_TRTMT_COL
   names(out)[names(out) == "dom_usage_ctrl_ph"] <- DOM_USAGE_CTRL_COL
   names(out)[names(out) == "dom_usage_trt_ph"]  <- DOM_USAGE_TRTMT_COL
   out
@@ -1302,7 +1360,7 @@ plot_gene_apa_genome <- function(res_u, gene_symbol, gtf_exons, title_suffix = N
 
   g <- ggplot2::ggplot() +
     ggplot2::geom_vline(data = pas_df, ggplot2::aes(xintercept = pos),
-                         linetype = "dotted", color = "grey60", linewidth = 0.3) +
+                         linetype = "dotted", color = "grey30", linewidth = 0.5) +
     ggtranscript::geom_range(data = tx_exons, ggplot2::aes(xstart = start, xend = end, y = y, fill = exon_class),
                               height = 0.4) +
     ggtranscript::geom_intron(data = introns, ggplot2::aes(xstart = start, xend = end, y = y),
@@ -1399,36 +1457,52 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
     dplyr::filter(transcript_id %in% keep_tx)
 
   cond_colors <- c(setNames(CAT_CTRL, CTRL_LABEL), setNames(CAT_TRT, TRTMT_LABEL))
-  vlines <- ggplot2::geom_vline(xintercept = pas_df$pos, linetype = "dotted", color = "grey70", linewidth = 0.3)
+  vlines <- ggplot2::geom_vline(xintercept = pas_df$pos, linetype = "dotted", color = "grey30", linewidth = 0.5)
 
   # --- panel 1: gene-level DGE summary ---
   # No error bar here (the lfcSE addition was more confusing than informative for a
-  # single-number summary) and no coord_flip -- built directly as a horizontal bar
-  # (x = lfc, y = single "Gene" category) so the log2FC/padj label can be anchored
-  # to a fixed position (always the right side, never inside the plotted bar) using
-  # simple x-axis-limit arithmetic, regardless of the bar's sign or magnitude.
+  # single-number summary). Bar is vertical -- up for a positive log2FC, down for a
+  # negative one -- with the log2FC/padj label anchored beside the bar at a fixed
+  # y (0, the zero line) so its position never depends on the bar's sign or length.
   dge_row <- gene_dge[gene_dge$groupID == gene_symbol, ]
   lfc    <- if (nrow(dge_row)) dge_row$log2FoldChange[1] else NA_real_
   padj_g <- if (nrow(dge_row)) dge_row$padj[1] else NA_real_
   direction <- if (is.na(lfc) || is.na(padj_g) || padj_g >= PADJ_CUT) "NS" else if (lfc > 0) "Up" else "Down"
   lfc0 <- ifelse(is.na(lfc), 0, lfc)
-  dge_buf  <- max(abs(lfc0) * 0.7, 0.25)  # always reserve a minimum label gap, even near zero
-  dge_xlim <- c(min(0, lfc0) - 0.05, max(0, lfc0) + dge_buf)
-  dge_df   <- data.frame(x = "Gene", lfc = lfc0, direction = direction)
+  dge_buf  <- max(abs(lfc0) * 0.3, 0.5)  # always reserve a minimum gap above/below the bar
+  dge_ylim <- c(min(0, lfc0) - dge_buf, max(0, lfc0) + dge_buf)
+  dge_df   <- data.frame(x = 1, lfc = lfc0, direction = direction)
   dge_label <- sprintf("log2FC=%s\npadj=%s",
                         ifelse(is.na(lfc), "NA", sprintf("%.2f", lfc)),
                         ifelse(is.na(padj_g), "NA", formatC(padj_g, digits = 2, format = "g")))
 
-  p_dge <- ggplot2::ggplot(dge_df, ggplot2::aes(x = lfc, y = x, fill = direction)) +
+  p_dge <- ggplot2::ggplot(dge_df, ggplot2::aes(x = x, y = lfc, fill = direction)) +
     ggplot2::geom_col(width = 0.5) +
-    ggplot2::geom_vline(xintercept = 0, linewidth = 0.4) +
-    ggplot2::annotate("text", x = dge_xlim[2], y = "Gene", label = dge_label,
-                       hjust = 1, vjust = 0.5, size = 3, lineheight = 0.95) +
+    ggplot2::geom_hline(yintercept = 0, linewidth = 0.4) +
+    ggplot2::annotate("text", x = 1.55, y = 0, label = dge_label,
+                       hjust = 0, vjust = 0.5, size = 3, lineheight = 0.95) +
     ggplot2::scale_fill_manual(values = c(Up = DIV_UP, Down = DIV_DOWN, NS = DIV_NS), guide = "none") +
-    ggplot2::scale_x_continuous(limits = dge_xlim) +
-    ggplot2::labs(x = "Gene log2FC", y = NULL) +
+    ggplot2::scale_x_continuous(breaks = 1, labels = "Gene", limits = c(0.5, 2.3)) +
+    ggplot2::scale_y_continuous(limits = dge_ylim) +
+    ggplot2::labs(x = NULL, y = "Gene log2FC") +
     ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(axis.text.y = ggplot2::element_blank(), panel.grid = ggplot2::element_blank())
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank())
+
+  # --- panel 1b: gene-level normalized counts, next to the log2FC bar it's
+  # derived from -- same DESeq2 fit as build_gene_dge(), no extra model run.
+  count_df <- data.frame(
+    condition = factor(c(CTRL_LABEL, TRTMT_LABEL), levels = c(CTRL_LABEL, TRTMT_LABEL)),
+    count     = c(
+      if (nrow(dge_row)) dge_row[[NORMCOUNT_CTRL_COL]][1]  else NA_real_,
+      if (nrow(dge_row)) dge_row[[NORMCOUNT_TRTMT_COL]][1] else NA_real_
+    )
+  )
+  p_counts <- ggplot2::ggplot(count_df, ggplot2::aes(x = condition, y = count, fill = condition)) +
+    ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
+    ggplot2::scale_fill_manual(values = cond_colors) +
+    ggplot2::labs(x = NULL, y = "Mean normalized\ngene counts") +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank())
 
   # --- panel 2: PAS usage -- replicate jitter + mean line + SEM error bars ---
   usage_long <- dplyr::bind_rows(
@@ -1495,7 +1569,7 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
 
   ttl <- paste0(gene_symbol, if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
 
-  (p_dge / p_usage / p_gene) +
+  ((p_dge | p_counts) / p_usage / p_gene) +
     patchwork::plot_layout(heights = c(0.5, 1, 0.3 + 0.25 * length(tx_order)), guides = "collect") +
     patchwork::plot_annotation(title = ttl)
 }
@@ -1508,7 +1582,7 @@ message("--- Pre-analysis QC ---")
 
 make_library_sizes(
   count_mat_raw, colData,
-  outfile = file.path(dir_plots, "library_sizes.png")
+  outfile = file.path(dir_qc, "library_sizes.png")
 )
 
 if (USE_RUV) {
@@ -1526,22 +1600,22 @@ if (USE_RUV) {
                   title = "RUVs estimated batch factors") +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
-  ggplot2::ggsave(file.path(dir_plots, "RUV_W_factors.png"), gw,
+  ggplot2::ggsave(file.path(dir_qc, "RUV_W_factors.png"), gw,
                   width = max(4, 0.5 * nrow(colData) + 2),
                   height = 3 * RUV_K + 1, dpi = 300)
 
   # Uncorrected PCA — shows the raw batch structure you are correcting for
   make_pca_global(count_mat, colData,
-                  outfile        = file.path(dir_plots, "PCA_global_uncorrected.png"),
-                  matrix_outfile = file.path(dir_results, "vst_global.csv"))
+                  outfile        = file.path(dir_qc, "PCA_global_uncorrected.png"),
+                  matrix_outfile = file.path(dir_qc, "vst_global.csv"))
   # RUV-corrected PCA — W factors regressed from VST matrix for visualization only
   make_pca_global(count_mat, colData,
                   batch_covars = w_cols,
-                  outfile = file.path(dir_plots, "PCA_global_RUV_corrected.png"))
+                  outfile = file.path(dir_qc, "PCA_global_RUV_corrected.png"))
 } else {
   make_pca_global(count_mat, colData,
-                  outfile        = file.path(dir_plots, "PCA_global.png"),
-                  matrix_outfile = file.path(dir_results, "vst_global.csv"))
+                  outfile        = file.path(dir_qc, "PCA_global.png"),
+                  matrix_outfile = file.path(dir_qc, "vst_global.csv"))
 }
 
 # ============================================================
@@ -1598,49 +1672,36 @@ for (grp in names(runs)) {
 
   make_pca_dxd(
     dxd, grp_label = grp,
-    outfile        = file.path(dir_plots, sprintf("PCA_normalized%s.png", sfx)),
-    matrix_outfile = file.path(dir_results, sprintf("vst_normalized%s.csv", sfx))
+    outfile        = file.path(dir_qc, sprintf("PCA_normalized%s.png", sfx)),
+    matrix_outfile = file.path(dir_qc, sprintf("vst_normalized%s.csv", sfx))
   )
   make_size_factors(
     dxd, grp_label = grp,
-    outfile = file.path(dir_plots, sprintf("size_factors%s.png", sfx))
+    outfile = file.path(dir_qc, sprintf("size_factors%s.png", sfx))
   )
   make_dispersion_plot(
     dxd, grp_label = grp,
-    outfile = file.path(dir_plots, sprintf("dispersion%s.png", sfx))
+    outfile = file.path(dir_qc, sprintf("dispersion%s.png", sfx))
   )
   make_pvalue_hist(
     res, grp_label = grp,
-    outfile = file.path(dir_plots, sprintf("pvalue_hist%s.png", sfx))
+    outfile = file.path(dir_qc, sprintf("pvalue_hist%s.png", sfx))
   )
   make_ma_plot(
     res, grp_label = grp,
-    outfile = file.path(dir_plots, sprintf("MA%s.png", sfx))
+    outfile = file.path(dir_qc, sprintf("MA%s.png", sfx))
   )
   make_volcano_plot(
     res, grp_label = grp,
-    outfile = file.path(dir_plots, sprintf("volcano%s.png", sfx))
+    outfile = file.path(dir_qc, sprintf("volcano%s.png", sfx))
   )
-}
-
-# ============================================================
-#  EXPORT PER-PAS RESULTS
-# ============================================================
-
-message("--- Exporting results ---")
-
-for (grp in names(runs)) {
-  sfx <- group_suffix[grp]
-  out <- runs[[grp]]$results
-  names(out) <- sub(FC_COL, FC_EXPORT, names(out), fixed = TRUE)
-  write.csv(out,
-            file.path(dir_results, sprintf("pas_results%s.csv", sfx)),
-            row.names = FALSE, quote = FALSE)
 }
 
 # ============================================================
 #  GENE-LEVEL SUMMARIES
 # ============================================================
+
+message("--- Exporting results ---")
 
 for (grp in names(runs)) {
   sfx    <- group_suffix[grp]
@@ -1652,7 +1713,8 @@ for (grp in names(runs)) {
 }
 
 # ============================================================
-#  USAGE TABLES (mean PSI + SEM per condition)
+#  PER-PAS RESULTS + USAGE (one table: DEXSeq results, annotation,
+#  raw/normalized counts, and mean PSI + SEM per condition)
 # ============================================================
 
 usage_results <- lapply(names(group_list), function(grp) {
@@ -1671,17 +1733,17 @@ for (grp in names(usage_results)) {
 }
 
 # ============================================================
-#  GENE-LEVEL APA SUMMARY (weighted usage distance, dominant-site
+#  GENE-LEVEL wUTR SUMMARY (weighted UTR-length shift, dominant-site
 #  tracking, chi-squared cross-check) — see build_gene_apa_summary()
 # ============================================================
 
-message("--- Building gene-level APA summary ---")
+message("--- Building gene-level wUTR summary ---")
 
 for (grp in names(usage_results)) {
   sfx     <- group_suffix[grp]
   apa_sum <- build_gene_apa_summary(usage_results[[grp]])
   write.csv(apa_sum,
-            file.path(dir_results, sprintf("gene_summary_apa%s.csv", sfx)),
+            file.path(dir_results, sprintf("gene_summary_wutr%s.csv", sfx)),
             row.names = FALSE, quote = FALSE)
 }
 
@@ -1696,7 +1758,7 @@ if (length(GENES_OF_INTEREST) > 0) {
     for (grp in names(usage_results)) {
       sfx     <- group_suffix[grp]
       ttl_sfx <- if (nchar(sfx) > 0) sub("^\\.", "", sfx) else NULL
-      outfile <- file.path(dir_usage_plots, sprintf("%s%s.png", g, sfx))
+      outfile <- file.path(dir_gene_usage_bars, sprintf("%s%s.png", g, sfx))
       tryCatch({
         png(outfile, width = 1000, height = 800, res = 100)
         print(plot_gene_usage(usage_results[[grp]], g, title_suffix = ttl_sfx))

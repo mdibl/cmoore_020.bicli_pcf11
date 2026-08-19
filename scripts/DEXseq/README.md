@@ -1,7 +1,7 @@
 # DEXseq.R — Differential Alternative Polyadenylation Analysis
 
 **Script:** `scripts/DEXseq.R`
-**Last updated:** 2026-06-25
+**Last updated:** 2026-08-19
 
 ---
 
@@ -29,7 +29,7 @@ A significant result (adjusted p-value < threshold) means the relative usage of 
 
 For each PAS, `APA_direction` reports only the sign of *that PAS's own* usage change — `Increased` or `Decreased` — not an overall UTR-lengthening/shortening call. Earlier versions of this script tried to infer "Lengthened"/"Shortened" from a distal-vs-everything-else binary, but that breaks down once a gene has 3+ PAS: a usage gain at a middle site doesn't map cleanly onto "shorter" or "longer" 3' UTR, only onto "distal vs. not distal." `is_distal` (still in the output) tells you whether a given PAS is the gene's most 3' site, as positional context.
 
-The actual lengthening/shortening narrative is captured properly, across all of a gene's PAS at once, in `gene_summary_apa.csv` via `delta_WAD` (weighted average distance) — see that section below. `dir_consensus` in `gene_summary.csv` (per-gene rollup of `APA_direction`) is now `Increased_only` / `Decreased_only` / `Mixed`.
+The actual lengthening/shortening narrative is captured properly, across all of a gene's PAS at once, in `gene_summary_wutr.csv` via `delta_wUTR` (weighted UTR length) — see that section below. `dir_consensus` in `gene_summary.csv` (per-gene rollup of `APA_direction`) is now `Increased_only` / `Decreased_only` / `Mixed`.
 
 ---
 
@@ -146,26 +146,26 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
 
 ```
 {OUT_BASE}/
-├── pas_results[.group].csv       ← per-PAS DEXSeq results with usage direction
-├── pas_usage[.group].csv         ← per-PAS mean PSI + SEM per condition
+├── pas_usage[.group].csv         ← per-PAS DEXSeq results + raw/normalized counts + usage (PSI) + SEM
 ├── gene_summary[.group].csv      ← per-gene summary (min padj, dir_consensus, ...)
-├── gene_summary_apa[.group].csv  ← per-gene APA summary (WAD, dominant site, chi-squared)
-├── gene_dge[.group].csv           ← per-gene differential expression (DESeq2, independent of DEXSeq)
-├── vst_global.csv                 ← full VST matrix, all samples (pre-DEXSeq)
-├── vst_normalized[.group].csv     ← full VST matrix, post-DEXSeq-normalization, per group
+├── gene_summary_wutr[.group].csv ← per-gene wUTR summary (wUTR, dominant site, chi-squared)
+├── gene_dge[.group].csv          ← per-gene differential expression (DESeq2, independent of DEXSeq)
 └── plots/
-    ├── library_sizes.png
-    ├── PCA_global.png                  ← (USE_RUV=FALSE only)
-    ├── PCA_global_uncorrected.png      ← (USE_RUV=TRUE only)
-    ├── PCA_global_RUV_corrected.png    ← (USE_RUV=TRUE only; visual only)
-    ├── RUV_W_factors.png               ← (USE_RUV=TRUE only)
-    ├── PCA_normalized[.group].png
-    ├── size_factors[.group].png
-    ├── dispersion[.group].png
-    ├── pvalue_hist[.group].png
-    ├── MA[.group].png
-    ├── volcano[.group].png
-    ├── usage/
+    ├── qc/
+    │   ├── library_sizes.png
+    │   ├── vst_global.csv                 ← full VST matrix, all samples (pre-DEXSeq)
+    │   ├── PCA_global.png                  ← (USE_RUV=FALSE only)
+    │   ├── PCA_global_uncorrected.png      ← (USE_RUV=TRUE only)
+    │   ├── PCA_global_RUV_corrected.png    ← (USE_RUV=TRUE only; visual only)
+    │   ├── RUV_W_factors.png               ← (USE_RUV=TRUE only)
+    │   ├── vst_normalized[.group].csv      ← full VST matrix, post-DEXSeq-normalization, per group
+    │   ├── PCA_normalized[.group].png
+    │   ├── size_factors[.group].png
+    │   ├── dispersion[.group].png
+    │   ├── pvalue_hist[.group].png
+    │   ├── MA[.group].png
+    │   └── volcano[.group].png
+    ├── gene_usage_bars/
     │   └── {GENE}[.group].png   ← PSI bar charts, one file per gene
     ├── apa_genome/
     │   └── {GENE}[.group].png   ← whole-gene genome map, all isoforms (needs ANNO_GTF + ggtranscript)
@@ -173,29 +173,7 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
         └── {GENE}[.group].png   ← terminal-exon zoom, same requirements
 ```
 
-`[.group]` is appended only when `GROUPING_VAR` is set (e.g., `.3d` for a "3day" timepoint level). With `GROUPING_VAR <- NULL`, files have no suffix: `pas_results.csv`, `gene_summary.csv`, etc.
-
----
-
-### `pas_results.csv` — per-PAS results
-
-The main results table. One row per PAS site that passed filtering and was tested.
-
-| Column | Meaning |
-|---|---|
-| `groupID` | Gene identifier (Gene Symbol if available, else Ensembl/RefSeq) |
-| `featureID` | PAS site ID (from PolyA_DB) |
-| `gene` | Same as groupID |
-| `PAS_type` | Annotation category (e.g., `3'UTR`, `intron`) |
-| `APA_direction` | `Lengthened`, `Shortened`, `Ambiguous`, or `NA` |
-| `exonBaseMean` | Mean normalized read count at this PAS across all samples |
-| `pvalue` | DEXSeq per-PAS p-value |
-| `padj` | FDR-adjusted p-value (Benjamini-Hochberg) |
-| `log2fold_Treatment_v_Control` | log2(Treatment fractional usage / Control fractional usage) |
-| `countData.Control_rep1`, ... | Raw read counts per sample |
-| `genomicData.seqnames/start/strand` | Genomic coordinates of the PAS |
-
-**How to identify significant APA events:** filter for `padj < 0.05` (or your threshold). Further filter by `APA_direction == "Lengthened"` or `"Shortened"` to focus on directional 3' UTR changes.
+`[.group]` is appended only when `GROUPING_VAR` is set (e.g., `.3d` for a "3day" timepoint level). With `GROUPING_VAR <- NULL`, files have no suffix: `pas_usage.csv`, `gene_summary.csv`, etc.
 
 ---
 
@@ -211,14 +189,14 @@ One row per gene. Summarizes across all tested PAS within that gene.
 | `n_big` | Number of significant PAS with `\|log2FC\| >= LFC_CUT` |
 | `min_padj` | Most significant adjusted p-value among this gene's PAS |
 | `max_absL2FC` | Largest absolute log2 fold change among significant PAS |
-| `dir_consensus` | `Lengthened_only`, `Shortened_only`, or `Mixed` |
+| `dir_consensus` | `Increased_only`, `Decreased_only`, or `Mixed` |
 | `perGeneQ` | Lancaster-combined gene-level q-value (primary ranking metric) |
 
 **How to read this table:** sort by `perGeneQ` ascending. Genes at the top have the strongest overall evidence for differential APA. `dir_consensus` tells you whether the change is directional (one dominant direction) or complex (multiple PAS moving in different directions, which can indicate alternative internal promoter usage or complex regulatory changes).
 
 ---
 
-### `gene_summary_apa.csv` — weighted UTR-length shift, dominant-site tracking, chi-squared cross-check
+### `gene_summary_wutr.csv` — weighted UTR-length shift, dominant-site tracking, chi-squared cross-check
 
 One row per gene (same gene universe as `gene_summary.csv`). Complements it with metrics that generalize cleanly to genes with 3+ PAS, computed by `build_gene_apa_summary()`.
 
@@ -230,12 +208,12 @@ One row per gene (same gene universe as `gene_summary.csv`). Complements it with
 | `dominant_meanUsage_Control` / `_Treatment` | That PAS's mean PSI per condition |
 | `dominant_delta_usage` | Treatment − Control PSI for the dominant PAS only |
 | `dominant_padj` | DEXSeq `padj` for the dominant PAS only |
-| `WAD_Control` / `WAD_Treatment` | Weighted average distance (bp) of usage from the gene's most-proximal surviving PAS, per condition: `sum(usage_i * distance_i)` |
-| `delta_WAD` | `WAD_Treatment − WAD_Control`. Positive = usage shifted toward more distal sites on average (net lengthening); negative = net shortening. Generalizes to any number of PAS, unlike the old distal-vs-everything-else `APA_direction` binary — there's no stop-codon coordinate in the PolyA_DB annotation, so the gene's own most-proximal PAS is used as the reference point instead. |
+| `wUTR_Control` / `wUTR_Treatment` | Weighted UTR length (bp): usage-weighted average distance of the gene's PAS from its most-proximal surviving PAS, per condition: `sum(usage_i * distance_i)` |
+| `delta_wUTR` | `wUTR_Treatment − wUTR_Control`. Positive = usage shifted toward more distal sites on average (net lengthening); negative = net shortening. Generalizes to any number of PAS, unlike the old distal-vs-everything-else `APA_direction` binary — there's no stop-codon coordinate in the PolyA_DB annotation, so the gene's own most-proximal PAS is used as the reference point instead. |
 | `chisq_stat` / `chisq_pvalue` / `chisq_padj` | An independent cross-check: chi-squared test of association between PAS identity and condition, on summed raw counts (a PAS × condition contingency table). Doesn't depend on DEXSeq's negative-binomial model or size-factor normalization, so it isn't affected by anything upstream in that model — but it also doesn't correct for overdispersion, so expect it to run hotter (more significant) than `padj` on noisy/low-count genes. Use as a corroborating signal, not a replacement. |
-| `flag_minor_only` | `TRUE` when the gene's significant DEXSeq hits are confined to non-dominant (low-abundance) PAS while the dominant/most-used PAS's own usage barely moved (`\|dominant_delta_usage\| < 0.05`) — e.g. a CAPN1-like case where one site dominates and only minor sites are shuffling. This is a **flag, not a filter** — rows are never dropped from this table; whether to exclude them from a given analysis is left to you. |
+| `single_dominant_site` | `TRUE` when this gene functionally has one PAS: the dominant PAS carries ≥90% of usage in **both** conditions, and that share doesn't shift between them. This is a **flag, not a filter** — rows are never dropped from this table; whether to exclude them from a given analysis is left to you. |
 
-#### How `dominant_featureID` and `flag_minor_only` are determined
+#### How `dominant_featureID` and `single_dominant_site` are determined
 
 All of this happens once per gene inside `build_gene_apa_summary()`, on the full set of that gene's tested PAS.
 
@@ -244,45 +222,62 @@ All of this happens once per gene inside `build_gene_apa_summary()`, on the full
 **Step 2 — check whether the dominant PAS itself moved.**
 ```
 dominant_delta_usage = meanUsage_Treatment[dominant] − meanUsage_Control[dominant]
-dom_stable            = is.na(dominant_delta_usage)  OR  abs(dominant_delta_usage) < dominant_stable_cut   (default 0.05)
+dom_stable            = is.na(dominant_delta_usage)  OR  abs(dominant_delta_usage) < DOMINANT_STABLE_CUT   (default 0.05)
 ```
 An `NA` delta (e.g. the dominant PAS had zero reads in one condition) counts as "stable" by convention — there's no evidence it moved, so it isn't allowed to itself trigger the flag.
 
-**Step 3 — check whether any *other* PAS is independently significant.** `minor_sig` is `TRUE` if at least one PAS in the gene *other than the dominant one* clears all of DEXSeq's own significance bar at once:
-- `padj <= PADJ_CUT` (default 0.05)
-- `abs(log2FoldChange) >= LFC_CUT` (default 0.5)
-- neither value is `NA`
+**Step 3 — check whether the dominant PAS is actually dominant, in both conditions.**
+```
+dom_dominant = dominant_meanUsage_Control >= DOMINANT_USAGE_CUT (default 0.90)
+               AND dominant_meanUsage_Treatment >= DOMINANT_USAGE_CUT
+```
+This is a usage-magnitude check, not a significance check — it asks nothing about `padj`/`log2FC` on any PAS, only whether one site carries the overwhelming majority of the gene's reads in *both* conditions.
 
 **Step 4 — combine.**
 ```
-flag_minor_only = minor_sig  AND  dom_stable
+single_dominant_site = dom_dominant  AND  dom_stable
 ```
-Both halves must hold simultaneously. If a minor PAS is significant but the dominant PAS *also* shifted by ≥5 usage points, the flag stays `FALSE` — in that case the dominant PAS is plausibly moving as part of the same real change, not sitting still while an unrelated minor site shuffles underneath it.
+Both halves must hold simultaneously. A gene where the top PAS holds 92% of usage in Control but only 70% in Treatment is *not* flagged — usage moved too much for "single dominant site" to still describe the Treatment condition, even though a single site was clearly dominant in Control alone.
 
-**Why it matters:** DEXSeq's per-PAS test has no notion of which site is biologically dominant — a low-abundance PAS can post a large relative fold-change (and clear `padj`/`log2FC` cutoffs) from a small absolute read-count wobble, without meaningfully changing the gene's overall 3′-end usage profile. `flag_minor_only` separates that scenario (statistically real, but arguably low functional impact — the gene's "default" isoform is unchanged) from genes where the dominant, most-used PAS is itself part of the shift. It is purely informational: no rows are dropped or reordered because of it.
+**Why it matters:** for a gene like this, whatever the minor PAS are individually doing (statistically significant or not) is unlikely to be biologically meaningful — one site is running the show, in both conditions, the whole time. It's a quick way to separate "this gene functionally has one PAS" from genes where usage is genuinely split across two or more real, biologically comparable options. It is purely informational: no rows are dropped or reordered because of it.
 
-**Worked example (CAPN1-like case):** a gene has 3 PAS. PAS_B has the highest pooled `meanUsage_All`, so `dominant_featureID = PAS_B`. Its usage barely changes: `dominant_delta_usage = 0.51 − 0.49 = 0.02` → `dom_stable = TRUE`. Meanwhile minor site PAS_C has `padj = 0.001` and `log2FC = 1.8`, clearing both cutoffs → `minor_sig = TRUE`. Result: `flag_minor_only = TRUE` — the gene shows up as a significant DEXSeq hit, but the effect is confined to a minor site; the gene's dominant isoform choice hasn't really changed.
+**Worked example:** a gene has 3 PAS. PAS_B has the highest pooled `meanUsage_All`, and holds 95% of usage in Control and 96% in Treatment (`dom_dominant = TRUE`). `dominant_delta_usage = 0.96 − 0.95 = 0.01` → `dom_stable = TRUE` (< 0.05). Result: `single_dominant_site = TRUE` — this gene functionally behaves as if it only has one PAS; PAS_A and PAS_C are minor enough, in both conditions, that whatever they're individually doing is unlikely to matter.
 
 ---
 
-### `pas_usage.csv` — PSI values
+### `pas_usage.csv` — per-PAS results, counts, and usage (PSI)
 
-Same rows as the per-PAS results file, plus four additional columns:
+The main results table. One row per PAS site that passed filtering and was tested — DEXSeq's own results, raw and normalized counts, and mean PSI + SEM per condition, all in one place.
 
 | Column | Meaning |
 |---|---|
+| `groupID` | Gene identifier (Gene Symbol if available, else Ensembl/RefSeq) |
+| `featureID` | PAS site ID (from PolyA_DB) |
+| `gene` | Same as groupID |
+| `PAS_type` | Annotation category (e.g., `3'UTR`, `intron`) |
+| `APA_direction` | `Increased`, `Decreased`, `Ambiguous`, or `NA` — the sign of *this PAS's own* usage change only (see "Usage direction" above) |
+| `exonBaseMean` | Mean normalized read count at this PAS across all samples |
+| `pvalue` | DEXSeq per-PAS p-value |
+| `padj` | FDR-adjusted p-value (Benjamini-Hochberg) |
+| `log2fold_Treatment_v_Control` | log2(Treatment fractional usage / Control fractional usage) |
+| `countData.Control_rep1`, ... | Raw read counts per sample |
+| `normCountData.Control_rep1`, ... | DEXSeq's size-factor-normalized counts, same sample, sitting right next to its raw counterpart |
+| `genomicData.seqnames/start/strand` | Genomic coordinates of the PAS |
 | `meanUsage_Control` | Mean PSI across control replicates (0 to 1; 0.5 = 50% of gene's reads) |
 | `meanUsage_Treatment` | Mean PSI across treatment replicates |
 | `seUsage_Control` | Standard error of PSI across control replicates |
 | `seUsage_Treatment` | Standard error of PSI across treatment replicates |
+| `thin_counts` | `TRUE` when this PAS's raw reads, summed across replicates, are under `THIN_COUNTS_CUT` (default 40) in **either** condition. A soft warning, not a filter: `MIN_TOTAL_READS` already excludes PAS below its (lower, gene-total) bar before DEXSeq ever tests them — this just flags PAS that cleared that hard cutoff but are still thin on their own. |
 
 PSI (fractional usage) = reads at this PAS / total reads at all PAS of this gene, per sample, then averaged. This is the most biologically interpretable metric: a PAS with `meanUsage_Control = 0.25` accounts for 25% of that gene's poly-A reads in controls.
+
+**How to identify significant APA events:** filter for `padj < 0.05` (or your threshold). Further filter by `APA_direction == "Increased"` or `"Decreased"` to focus on which PAS moved, or use `gene_summary_wutr.csv`'s `delta_wUTR` for the gene-wide lengthening/shortening call.
 
 ---
 
 ## Quality control plots
 
-All QC plots are saved to `plots/`.
+All QC plots (and the VST matrices behind the PCA plots) are saved to `plots/qc/`.
 
 ### `library_sizes.png`
 Bar chart of total PAS read counts per sample (before any filtering). Bars should be roughly similar height across samples. Large differences (>3×) may indicate a failed sample or a sample that needs closer attention during normalization. This is assessed before the analysis runs.
@@ -315,9 +310,9 @@ Histogram of raw (unadjusted) p-values. The dashed red line shows what a uniform
 
 ## Diagnostic plots
 
-Saved to `plots/`.
+Saved to `plots/qc/`.
 
-### `MA_plot[.group].png`
+### `MA[.group].png`
 Plots log2 fold change (Y) versus mean count (X) for every tested PAS. Significant hits (padj < threshold) are shown in red. A symmetric cloud centered at 0 with random scatter indicates no systematic bias. Up/down counts are annotated in the corners.
 
 ### `volcano[.group].png`
@@ -330,7 +325,7 @@ Plots log2 fold change (X) versus −log10(padj) (Y). Points in the upper corner
 
 ## PSI bar charts (relative usage plots)
 
-Saved to `plots/usage/`, one PNG per gene per group.
+Saved to `plots/gene_usage_bars/`, one PNG per gene per group.
 
 One plot per gene in `GENES_OF_INTEREST`, per analysis group. Each plot shows:
 
@@ -351,10 +346,13 @@ Look at whether the bars shift toward the right (distal) or left (proximal) in t
 Two PNGs per gene in `GENES_OF_INTEREST`, per analysis group — both require `ANNO_GTF` to be set to a real GTF and `rtracklayer`/`ggtranscript` installed (skipped with a warning otherwise; see Software requirements). Unlike the PSI bar chart, these use **real genomic coordinates and real exon/intron structure** parsed from that GTF (`gtf_exons`, built once near the top of the script) — PolyA_DB alone has no gene structure, only flat PAS positions, so nothing before this could show actual isoform geometry. The two figures answer different questions and are deliberately not the same design:
 
 - **`apa_genome/{GENE}[.group].png`** — structure only, no usage/expression. The whole gene at real scale on top, and a `ggforce::facet_zoom()` inset of just the terminal-exon/PAS region below, connected by an automatic shaded funnel — tightly clustered PAS (e.g. 5 within ~1kb) are illegible at whole-gene scale, so the inset exists purely to make that count legible. Every annotated RefSeq transcript is its own row. Only an isoform's **terminal exon** can be colored **Alternative** (orange — this isoform's terminal exon has a different start/end than every other isoform overlapping that region); everything else, including genuinely alternatively-spliced internal exons elsewhere in the gene body, is drawn plain **Constitutive** grey regardless of how much it varies between isoforms. This is deliberate: this project cares about AS+APA *interaction* (a different terminal exon is simultaneously a splicing choice and a polyadenylation-site choice), not alternative splicing on its own — highlighting internal cassette-exon variation unrelated to which PAS a transcript ends at would just be noise for this question. Isoforms at a completely different, unrelated locus (e.g. a retained-intron transcript far upstream) are still shown as a row in both panels — in the zoomed one it's simply empty, since that isoform has no data there, which is accurate rather than a filtering choice.
-- **`apa_zoom/{GENE}[.group].png`** — gene-level DGE and PAS usage, cropped tightly to just the terminal exon(s) near the detected PAS (unrelated distant isoforms excluded here — not because they're wrong, but because they're not part of this specific APA story and would blow up the crop window). Three panels stacked on a shared x-axis (via `patchwork`):
-  - **Gene DGE** (top) — a single bar showing this gene's log2 fold change from `build_gene_dge()` (real DESeq2 test, gene-summed counts, independent of the DEXSeq exon-usage test below), colored by direction and significance (red = up, blue = down, grey = not significant at `PADJ_CUT`), with the fold-change standard error as an error bar. This answers "is the gene as a whole up or down" — a question the per-PAS panels can't answer on their own, since if a gene's total expression differs between conditions, every one of its PAS shifts together in raw count terms even when relative usage hasn't changed at all. An earlier version of this figure plotted per-PAS normalized counts here instead; it was dropped because a consistent per-PAS offset was usually just this one gene-level fact restated at every site, not new information.
-  - **PAS usage** (middle, 0–100%) — Control and Experimental overlaid as two colored connected lines (direct visual comparison, no per-point labels to parse), with every replicate plotted as a small jittered point behind the mean and ±1 SEM error bars, so you can see whether an apparent crossing pattern between conditions is a robust shift or within replicate noise.
-  - **Gene model** (bottom) — same as before. **Where a PAS falls beyond a transcript's annotated terminal-exon boundary, the exon is drawn extended into the intron with a dashed outline** — RefSeq's model stops at the annotated end, but a real detected cleavage site downstream means the transcript actually extends further than annotated; the dashed region marks exactly that gap.
+- **`apa_zoom/{GENE}[.group].png`** — gene-level DGE and PAS usage, cropped tightly to just the terminal exon(s) near the detected PAS (unrelated distant isoforms excluded here — not because they're wrong, but because they're not part of this specific APA story and would blow up the crop window). A top row of two side-by-side panels, then two full-width panels stacked below on a shared x-axis (via `patchwork`):
+  - **Gene log2FC** (top left) — a single vertical bar showing this gene's log2 fold change from `build_gene_dge()` (real DESeq2 test, gene-summed counts, independent of the DEXSeq exon-usage test below): up for a positive log2FC, down for a negative one, colored by direction and significance (red = up, blue = down, grey = not significant at `PADJ_CUT`). The log2FC/padj label sits beside the bar at a fixed position (the zero line) so it never depends on the bar's sign or length.
+  - **Gene counts** (top right) — two bars, mean DESeq2 size-factor-normalized gene-level count per condition (the same normalized values as `normCount_Control`/`normCount_Treatment` in `gene_dge.csv`), colored by condition. Sits next to the log2FC bar it's derived from, so "how much did overall gene expression change" and "in what direction, how confidently" read together in one glance. Together these two panels answer "is the gene as a whole up or down, and by how much" — a question the per-PAS panels below can't answer on their own, since if a gene's total expression differs between conditions, every one of its PAS shifts together in raw count terms even when relative usage hasn't changed at all.
+  - **PAS usage** (middle, full width, 0–100%) — Control and Experimental overlaid as two colored connected lines (direct visual comparison, no per-point labels to parse), with every replicate plotted as a small jittered point behind the mean and ±1 SEM error bars, so you can see whether an apparent crossing pattern between conditions is a robust shift or within replicate noise.
+  - **Gene model** (bottom, full width) — same as before. **Where a PAS falls beyond a transcript's annotated terminal-exon boundary, the exon is drawn extended into the intron with a dashed outline** — RefSeq's model stops at the annotated end, but a real detected cleavage site downstream means the transcript actually extends further than annotated; the dashed region marks exactly that gap.
+
+Across both figures, the dotted vertical guide lines marking each detected PAS are drawn dark and reasonably thick (`grey30`, linewidth 0.5) so they stay legible against the gene model and usage lines rather than blending into the plot background.
 
 **Not implemented: full IsoformSwitchAnalyzeR integration.** IsoformSwitchAnalyzeR was considered for the ORF/NMD-consequence analysis needed to properly answer "does this APA event also change the coding sequence" (see the stop-codon section below) — it's the right tool for that question, but it expects transcript-level abundance quantification (e.g. from Salmon/kallisto), not just a GTF, which this PAS-count-based pipeline doesn't produce or consume. Integrating it would mean adding a parallel transcript-quantification workflow, which is out of scope for this script. If ORF/NMD consequences matter for a specific gene, run IsoformSwitchAnalyzeR as a separate analysis alongside this one rather than through `DEXseq.R`.
 
@@ -372,7 +370,7 @@ A longer 3' UTR exposes more regulatory sequences — microRNA binding sites, RN
 
 The gene-summary table (`gene_summary.csv`) ranked by `perGeneQ` is the best place to start. Genes with:
 - Low `perGeneQ` (close to 0) — strong statistical evidence for differential APA
-- `dir_consensus = "Lengthened_only"` or `"Shortened_only"` — clean, directional changes
+- `dir_consensus = "Increased_only"` or `"Decreased_only"` — clean, directional changes
 - High `n_sig` — multiple PAS in the gene are changing, not just one
 
 **What does a significant padj mean vs. a large ΔPSI?**
@@ -420,6 +418,9 @@ The `W_1:exon` term tests whether the batch factor changes relative PAS usage fr
 | `MIN_PER_CONDITION` | 1 | Minimum samples with >0 reads per condition. Ensures both conditions have detectable signal. |
 | `PADJ_CUT` | 0.05 | FDR threshold. Lower = fewer but more confident hits. |
 | `LFC_CUT` | 0.5 | log2 fold change threshold for "big" hits in the gene summary and volcano plot coloring. |
+| `THIN_COUNTS_CUT` | 40 | Per-PAS, per-condition warning threshold for `thin_counts` in `pas_usage.csv`. A flag, not a filter — `MIN_TOTAL_READS` above is what actually excludes PAS. |
+| `DOMINANT_USAGE_CUT` | 0.90 | Minimum usage share (in **both** conditions) a gene's top PAS needs to count as "the" dominant site for `single_dominant_site` in `gene_summary_wutr.csv`. |
+| `DOMINANT_STABLE_CUT` | 0.05 | Maximum allowed shift in the dominant PAS's own usage between conditions to still call it "stable" for `single_dominant_site`. |
 | `NTOP_PCA` | 2000 | Number of most-variable PAS to use for PCA. 500–5000 is typical. |
 
 ---
