@@ -85,7 +85,7 @@ NTOP_PCA      <- 2000        # top-N variable PAS for PCA (by row variance)
 PCA_LABEL_COL <- "replicate" # colData column to use as point labels (NULL = none)
 
 # Genes to plot PSI bar charts; set to character(0) to skip
-GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1", "MCAM", "RCOR3", "OTUD7B", "PCNX4", "LIFR", "ERLIN1")
+GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1", "MCAM", "RCOR3", "OTUD7B", "PCNX4", "LIFR", "ERLIN1", "SAMD14", "TRIM23", "MTRR", "DLAT", "LATS2", "SSR3", "CENPA")
 
 # RUVseq batch correction
 #   USE_RUV <- TRUE  when replicates cluster by batch in PCA rather than condition.
@@ -796,7 +796,15 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
       ann <- ann[!duplicated(ann$featureID), , drop = FALSE]
       ann$featureID    <- as.character(ann$featureID)
       res_tp$featureID <- as.character(res_tp$featureID)
-      res_tp <- merge(res_tp, ann, by = "featureID", all.x = TRUE, sort = FALSE)
+      # merge() always resets rownames to "1","2",... regardless of `sort` --
+      # carry the real per-PAS key through as an explicit column (same pattern
+      # as the fc_df merge above) so every later step keyed on rownames(res_tp)
+      # (the pos_meta join below, the normalized-counts merge further down)
+      # still lines up with rownames(dxd) instead of matching against nothing.
+      res_tp$key <- rownames(res_tp)
+      res_tp     <- merge(res_tp, ann, by = "featureID", all.x = TRUE, sort = FALSE)
+      rownames(res_tp) <- res_tp$key
+      res_tp$key       <- NULL
     }
   }
 
@@ -862,8 +870,13 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
                                 as.character(SummarizedExperiment::colData(dxd)$sample[norm_this_idx]))
   norm_df     <- as.data.frame(norm_mat)
   norm_df$key <- rownames(norm_mat)
-  res_tp$key  <- rownames(res_tp)
-  res_tp      <- merge(res_tp, norm_df, by = "key", all.x = TRUE, sort = FALSE)
+  # rownames(res_tp) is NOT trustworthy here -- the dplyr pipe above (like every
+  # merge()/dplyr call in this function) silently resets data.frame rownames to
+  # "1","2",... on its way through. Rebuild the true per-PAS key from `gene`/
+  # `feature`, which are ordinary columns and always survive those calls intact,
+  # using the same "groupID:featureID" format DEXSeq itself uses for rownames(dxd).
+  res_tp$key <- paste(res_tp$gene, res_tp$feature, sep = ":")
+  res_tp     <- merge(res_tp, norm_df, by = "key", all.x = TRUE, sort = FALSE)
   rownames(res_tp) <- res_tp$key
   res_tp$key       <- NULL
 
@@ -1025,10 +1038,17 @@ build_gene_dge <- function(dxd, ctrl_label = CTRL_LABEL, trt_label = TRTMT_LABEL
   norm_ctrl_mean <- if (length(ctrl_idx)) rowMeans(norm_counts[, ctrl_idx, drop = FALSE]) else rep(NA_real_, nrow(norm_counts))
   norm_trt_mean  <- if (length(trt_idx))  rowMeans(norm_counts[, trt_idx,  drop = FALSE]) else rep(NA_real_, nrow(norm_counts))
 
+  # Per-sample normalized counts too (not just the per-condition mean) --
+  # feeds the individual sample dots + error bars on the gene-count bar panel.
+  norm_counts_df <- as.data.frame(norm_counts)
+  names(norm_counts_df) <- paste0("normCount.", names(norm_counts_df))
+  norm_counts_df$groupID <- rownames(norm_counts_df)
+
   out <- as.data.frame(res)
   out$groupID <- rownames(out)
   out[[NORMCOUNT_CTRL_COL]]  <- norm_ctrl_mean[out$groupID]
   out[[NORMCOUNT_TRTMT_COL]] <- norm_trt_mean[out$groupID]
+  out <- merge(out, norm_counts_df, by = "groupID", all.x = TRUE, sort = FALSE)
   rownames(out) <- NULL
   out
 }
@@ -1238,7 +1258,7 @@ plot_gene_usage <- function(res_u, gene_symbol, title_suffix = NULL,
       expand = ggplot2::expansion(mult = c(0, 0.1))
     ) +
     ggplot2::labs(
-      x     = "PAS site (5' → 3')",
+      x     = "PAS site",
       y     = "Mean fractional usage (PSI)",
       title = ttl,
       fill  = "Condition",
@@ -1360,7 +1380,7 @@ plot_gene_apa_genome <- function(res_u, gene_symbol, gtf_exons, title_suffix = N
 
   g <- ggplot2::ggplot() +
     ggplot2::geom_vline(data = pas_df, ggplot2::aes(xintercept = pos),
-                         linetype = "dotted", color = "grey30", linewidth = 0.5) +
+                         linetype = "dotted", color = "grey30", linewidth = 0.75) +
     ggtranscript::geom_range(data = tx_exons, ggplot2::aes(xstart = start, xend = end, y = y, fill = exon_class),
                               height = 0.4) +
     ggtranscript::geom_intron(data = introns, ggplot2::aes(xstart = start, xend = end, y = y),
@@ -1414,6 +1434,12 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
   tx_exons <- gtf_exons[gtf_exons$gene_name == gene_symbol, ]
   if (nrow(tx_exons) == 0) stop(sprintf("Gene '%s' not found in GTF.", gene_symbol))
   strand_sym <- tx_exons$strand[1]
+  # Minus-strand genes are transcribed right-to-left in real genomic coordinates;
+  # reverse the x-axis so every gene reads 5'->3' left to right regardless of
+  # strand. This is a display-only flip (scale_x_reverse) -- none of the
+  # position/window/extension math above or below needs to change, since it all
+  # still operates on real ascending genomic coordinates.
+  flip_x <- strand_sym == "-"
 
   pas_df <- res_u %>%
     dplyr::filter(gene == gene_symbol) %>%
@@ -1457,7 +1483,7 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
     dplyr::filter(transcript_id %in% keep_tx)
 
   cond_colors <- c(setNames(CAT_CTRL, CTRL_LABEL), setNames(CAT_TRT, TRTMT_LABEL))
-  vlines <- ggplot2::geom_vline(xintercept = pas_df$pos, linetype = "dotted", color = "grey30", linewidth = 0.5)
+  vlines <- ggplot2::geom_vline(xintercept = pas_df$pos, linetype = "dotted", color = "grey30", linewidth = 0.75)
 
   # --- panel 1: gene-level DGE summary ---
   # No error bar here (the lfcSE addition was more confusing than informative for a
@@ -1486,21 +1512,40 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
     ggplot2::scale_y_continuous(limits = dge_ylim) +
     ggplot2::labs(x = NULL, y = "Gene log2FC") +
     ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank())
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major = ggplot2::element_blank())
 
   # --- panel 1b: gene-level normalized counts, next to the log2FC bar it's
   # derived from -- same DESeq2 fit as build_gene_dge(), no extra model run.
-  count_df <- data.frame(
-    condition = factor(c(CTRL_LABEL, TRTMT_LABEL), levels = c(CTRL_LABEL, TRTMT_LABEL)),
-    count     = c(
-      if (nrow(dge_row)) dge_row[[NORMCOUNT_CTRL_COL]][1]  else NA_real_,
-      if (nrow(dge_row)) dge_row[[NORMCOUNT_TRTMT_COL]][1] else NA_real_
+  # Built from the per-sample normCount.<sample> columns (not just the two
+  # per-condition means) so replicate spread is visible, the same way the
+  # PAS-usage panel below shows jittered per-replicate points.
+  se_fn2 <- function(x) { x <- x[!is.na(x)]; if (length(x) > 1) sd(x) / sqrt(length(x)) else NA_real_ }
+  norm_cols <- grep("^normCount\\.", names(dge_row), value = TRUE)
+  count_rep <- if (nrow(dge_row) && length(norm_cols) > 0) {
+    data.frame(sample    = sub("^normCount\\.", "", norm_cols),
+               count     = as.numeric(dge_row[1, norm_cols]),
+               stringsAsFactors = FALSE)
+  } else {
+    data.frame(sample = character(0), count = numeric(0))
+  }
+  count_rep$condition <- factor(sub_cd[count_rep$sample, "condition"], levels = c(CTRL_LABEL, TRTMT_LABEL))
+  count_summary <- data.frame(condition = factor(c(CTRL_LABEL, TRTMT_LABEL), levels = c(CTRL_LABEL, TRTMT_LABEL))) %>%
+    dplyr::left_join(
+      count_rep %>% dplyr::group_by(condition) %>%
+        dplyr::summarise(mean = mean(count, na.rm = TRUE), se = se_fn2(count), .groups = "drop"),
+      by = "condition"
     )
-  )
-  p_counts <- ggplot2::ggplot(count_df, ggplot2::aes(x = condition, y = count, fill = condition)) +
-    ggplot2::geom_col(width = 0.6, show.legend = FALSE) +
+
+  p_counts <- ggplot2::ggplot(count_summary, ggplot2::aes(x = condition, y = mean, fill = condition)) +
+    ggplot2::geom_col(width = 0.6, alpha = 0.5, show.legend = FALSE) +
+    ggplot2::geom_point(data = count_rep, ggplot2::aes(x = condition, y = count, color = condition),
+                         inherit.aes = FALSE, position = ggplot2::position_jitter(width = 0.08, height = 0),
+                         size = 1.4, alpha = 0.8, show.legend = FALSE) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = pmax(mean - se, 0), ymax = mean + se, color = condition),
+                            width = 0.2, linewidth = 0.6, na.rm = TRUE, show.legend = FALSE) +
     ggplot2::scale_fill_manual(values = cond_colors) +
-    ggplot2::labs(x = NULL, y = "Mean normalized\ngene counts") +
+    ggplot2::scale_color_manual(values = cond_colors) +
+    ggplot2::labs(x = NULL, y = "Expression") +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank())
 
@@ -1524,6 +1569,30 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
 
   jitter_w <- diff(xr) * 0.004
   dodge_w  <- diff(xr) * 0.01
+
+  # Per-PAS significance stars (1-3, DEXSeq padj, same thresholds used
+  # elsewhere in this script) -- stacked vertically right along each PAS's
+  # own dotted guide line rather than side-by-side "***", so they stay
+  # readable even when several PAS sit close together.
+  star_df <- pas_df %>%
+    dplyr::mutate(n_star = dplyr::case_when(
+      is.na(padj)  ~ 0L,
+      padj < 0.001 ~ 3L,
+      padj < 0.01  ~ 2L,
+      padj < 0.05  ~ 1L,
+      TRUE         ~ 0L
+    )) %>%
+    dplyr::filter(n_star > 0) %>%
+    dplyr::mutate(label = strrep("*", n_star))
+    #dplyr::mutate(label = vapply(n_star, function(n) paste(rep("*", n), collapse = "\n"), character(1)))
+  
+
+  x_scale_usage <- if (flip_x) {
+    ggplot2::scale_x_reverse(limits = xr, labels = scales::comma)
+  } else {
+    ggplot2::scale_x_continuous(limits = xr, labels = scales::comma)
+  }
+
   p_usage <- ggplot2::ggplot() +
     vlines +
     ggplot2::geom_point(data = rep_long, ggplot2::aes(x = pos, y = usage, color = condition),
@@ -1534,43 +1603,81 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
                             width = dodge_w, linewidth = 0.6, position = ggplot2::position_dodge(width = dodge_w * 2)) +
     ggplot2::geom_line(data = usage_long, ggplot2::aes(x = pos, y = val, color = condition), linewidth = 0.7) +
     ggplot2::geom_point(data = usage_long, ggplot2::aes(x = pos, y = val, color = condition), size = 1.8) +
+    ggplot2::geom_text(data = star_df, ggplot2::aes(x = pos, y = 0.02, label = label), inherit.aes = FALSE,
+                        vjust = 0, size = 5, lineheight = 0.7, fontface = "bold", color = "red") +
     ggplot2::scale_color_manual(values = cond_colors, name = "Condition") +
     ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
-    ggplot2::scale_x_continuous(limits = xr, labels = scales::comma) +
+    x_scale_usage +
     ggplot2::labs(y = "PAS usage", x = NULL) +
     ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-                   axis.text.x = ggplot2::element_blank(), axis.ticks.x = ggplot2::element_blank())
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank(),
+                   axis.text.x = ggplot2::element_blank(), axis.ticks.x = ggplot2::element_blank(),
+                   legend.position = "inside", legend.position.inside = c(0.92, 0.88),
+                   legend.background = ggplot2::element_rect(fill = scales::alpha("white", 0.75), color = NA),
+                   legend.title = ggplot2::element_text(size = 9), legend.text = ggplot2::element_text(size = 8),
+                   legend.key.size = grid::unit(0.8, "lines"))
 
   # --- panel 3: gene model ---
+  # ggtranscript's geom_range()/geom_intron() don't render correctly under
+  # scale_x_reverse() -- inspecting ggplot_build() output shows their internal
+  # xstart/xend -> xmin/xmax conversion only routes ONE of the two endpoints
+  # through the scale's transform, producing an inverted (xmin > xmax)
+  # rectangle that draws as one solid block spanning the whole panel instead
+  # of a proper exon shape. So minus-strand genes mirror the DATA itself here
+  # (negate + swap start/end) and plot it on a perfectly ordinary,
+  # untransformed continuous scale, with tick labels that un-negate back to
+  # the real coordinate -- visually identical to a reversed axis, but
+  # something ggtranscript's custom geoms can actually render. After this
+  # mirroring, transcription always proceeds in the increasing-x direction
+  # regardless of the gene's real strand, so geom_intron() is always told
+  # strand = "+" here.
+  mirror <- function(d) {
+    if (!flip_x || nrow(d) == 0) return(d)
+    tmp     <- d$start
+    d$start <- -d$end
+    d$end   <- -tmp
+    d
+  }
+  ctx_exons_disp <- mirror(ctx_exons)
+  ext_disp       <- mirror(ext)
+  introns_disp   <- ggtranscript::to_intron(ctx_exons_disp, "transcript_id")
+  xr_disp        <- if (flip_x) sort(-xr) else xr
+  pas_disp       <- if (flip_x) -pas_df$pos else pas_df$pos
+  vlines_gene    <- ggplot2::geom_vline(xintercept = pas_disp, linetype = "dotted", color = "grey30", linewidth = 0.75)
+
   y_pos <- setNames(seq_along(tx_order), tx_order)
-  ctx_exons$y <- y_pos[ctx_exons$transcript_id]
-  introns     <- ggtranscript::to_intron(ctx_exons, "transcript_id")
-  if (nrow(introns) > 0) introns$y <- y_pos[introns$transcript_id]
-  if (nrow(ext) > 0) ext$y <- y_pos[ext$transcript_id]
+  ctx_exons_disp$y <- y_pos[ctx_exons_disp$transcript_id]
+  if (nrow(introns_disp) > 0) introns_disp$y <- y_pos[introns_disp$transcript_id]
+  if (nrow(ext_disp) > 0) ext_disp$y <- y_pos[ext_disp$transcript_id]
 
   p_gene <- ggplot2::ggplot() +
-    vlines +
-    ggtranscript::geom_range(data = ctx_exons, ggplot2::aes(xstart = start, xend = end, y = y),
+    vlines_gene +
+    ggtranscript::geom_range(data = ctx_exons_disp, ggplot2::aes(xstart = start, xend = end, y = y),
                               fill = "grey35", height = 0.4)
-  if (nrow(introns) > 0)
-    p_gene <- p_gene + ggtranscript::geom_intron(data = introns, ggplot2::aes(xstart = start, xend = end, y = y),
-                                                  strand = strand_sym, arrow.min.intron.length = 200, color = "grey50")
-  if (nrow(ext) > 0)
-    p_gene <- p_gene + ggtranscript::geom_range(data = ext, ggplot2::aes(xstart = start, xend = end, y = y),
+  if (nrow(introns_disp) > 0)
+    p_gene <- p_gene + ggtranscript::geom_intron(data = introns_disp, ggplot2::aes(xstart = start, xend = end, y = y),
+                                                  strand = "+", arrow.min.intron.length = 200, color = "grey50")
+  if (nrow(ext_disp) > 0)
+    p_gene <- p_gene + ggtranscript::geom_range(data = ext_disp, ggplot2::aes(xstart = start, xend = end, y = y),
                                                  fill = NA, color = "grey35", linetype = "dashed", height = 0.4)
+
   p_gene <- p_gene +
     ggplot2::scale_y_continuous(breaks = y_pos, labels = names(y_pos), limits = c(0.5, max(y_pos) + 0.5)) +
-    ggplot2::scale_x_continuous(labels = scales::comma) +
-    ggplot2::coord_cartesian(xlim = xr) +
-    ggplot2::labs(x = paste0("Genomic position (", tx_exons$seqnames[1], ", ", strand_sym, " strand)"), y = NULL) +
+    ggplot2::scale_x_continuous(labels = function(x) scales::comma(if (flip_x) -x else x)) +
+    ggplot2::coord_cartesian(xlim = xr_disp) +
+    ggplot2::labs(x = paste0("Genomic position (", tx_exons$seqnames[1], strand_sym, ")"), y = NULL) +
     ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major = ggplot2::element_blank())
 
   ttl <- paste0(gene_symbol, if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
 
+  # Gene-model panel height is capped rather than growing without bound --
+  # for genes with many isoforms it was crowding out the DGE/counts/usage
+  # panels above, which carry the more decision-relevant information.
+  gene_panel_height <- min(0.18 + 0.12 * length(tx_order), 1.3)
+
   ((p_dge | p_counts) / p_usage / p_gene) +
-    patchwork::plot_layout(heights = c(0.5, 1, 0.3 + 0.25 * length(tx_order)), guides = "collect") +
+    patchwork::plot_layout(heights = c(0.45, 1.3, gene_panel_height)) +
     patchwork::plot_annotation(title = ttl)
 }
 
@@ -1789,7 +1896,7 @@ if (length(GENES_OF_INTEREST) > 0) {
             cd_sub <- colData[group_list[[grp]], , drop = FALSE]
             p <- plot_gene_apa_zoom(usage_results[[grp]], g, gtf_exons, cd_sub, gene_dge_results[[grp]],
                                     title_suffix = ttl_sfx)
-            ggplot2::ggsave(zoom_outfile, p, width = 9, height = 4 + 0.5 * n_tx, dpi = 300)
+            ggplot2::ggsave(zoom_outfile, p, width = 9, height = 4.5 + 0.3 * n_tx, dpi = 300)
           }, error = function(e) {
             warning(sprintf("Could not plot APA terminal-exon zoom for '%s' (%s): %s", g, grp, conditionMessage(e)))
           })
