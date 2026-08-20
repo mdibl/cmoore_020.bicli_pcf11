@@ -96,6 +96,14 @@ GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1", "MCAM", "RCOR3", "OTUD7B", "PCN
 USE_RUV <- TRUE
 RUV_K   <- 2
 
+# Cache the DEXSeq/DESeq2 model fits (the slow part of this script) to disk,
+# keyed on input-file mtimes + the modeling config above. Re-running the
+# script to change a plot color or GENES_OF_INTEREST reuses the cached fit
+# instead of refitting; changing the count/annotation/design files or any of
+# the modeling settings above automatically invalidates it. Set to FALSE to
+# always refit from scratch (e.g. while debugging the modeling code itself).
+USE_CACHE <- TRUE
+
 # ============================================================
 #  DERIVED PATHS — do not edit below this line
 # ============================================================
@@ -128,7 +136,8 @@ dir_plots       <- file.path(OUT_BASE, "plots")
 dir_qc          <- file.path(OUT_BASE, "plots/qc")
 dir_apa_genome  <- file.path(OUT_BASE, "plots/apa_genome")
 dir_apa_zoom    <- file.path(OUT_BASE, "plots/apa_zoom")
-for (d in c(dir_results, dir_plots, dir_qc, dir_apa_genome, dir_apa_zoom)) {
+dir_cache       <- file.path(OUT_BASE, "cache")
+for (d in c(dir_results, dir_plots, dir_qc, dir_apa_genome, dir_apa_zoom, dir_cache)) {
   dir.create(d, recursive = TRUE, showWarnings = FALSE)
 }
 
@@ -1462,11 +1471,21 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
   jitter_w <- diff(xr) * 0.004
   dodge_w  <- diff(xr) * 0.01
 
+  # Height to anchor each PAS's significance label at: just above whichever
+  # condition's point/error-bar reaches highest at that position (not a fixed
+  # spot), so the label always sits right next to what it's actually marking
+  # instead of floating somewhere it might collide with -- or be far from --
+  # the data.
+  star_height <- usage_long %>%
+    dplyr::mutate(top = ifelse(is.na(se), val, pmin(val + se, 1))) %>%
+    dplyr::group_by(pos) %>%
+    dplyr::summarise(top = max(top, na.rm = TRUE), .groups = "drop")
+
   # Per-PAS significance stars (1-3, DEXSeq padj, same thresholds used
-  # elsewhere in this script), anchored to a fixed spot at the bottom of the
-  # panel. Given as an opaque label (not plain text) so it stays legible
-  # against the dotted guide line and data points behind it regardless of
-  # color or position -- plain colored text kept blending into both.
+  # elsewhere in this script). Given as an opaque label (not plain text) so
+  # it stays legible against the dotted guide line and data points behind it
+  # regardless of color or position -- plain colored text kept blending into
+  # both.
   star_df <- pas_df %>%
     dplyr::mutate(n_star = dplyr::case_when(
       is.na(padj)  ~ 0L,
@@ -1476,7 +1495,9 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
       TRUE         ~ 0L
     )) %>%
     dplyr::filter(n_star > 0) %>%
-    dplyr::mutate(label = strrep("*", n_star))
+    dplyr::mutate(label = strrep("★", n_star)) %>%
+    dplyr::left_join(star_height, by = "pos") %>%
+    dplyr::mutate(y_star = pmin(top + 0.05, 0.97))
 
   x_scale_usage <- if (flip_x) {
     ggplot2::scale_x_reverse(limits = xr, labels = scales::comma)
@@ -1494,9 +1515,9 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
                             width = dodge_w, linewidth = 0.6, position = ggplot2::position_dodge(width = dodge_w * 2)) +
     ggplot2::geom_line(data = usage_long, ggplot2::aes(x = pos, y = val, color = condition), linewidth = 0.7) +
     ggplot2::geom_point(data = usage_long, ggplot2::aes(x = pos, y = val, color = condition), size = 1.8) +
-    ggplot2::geom_label(data = star_df, ggplot2::aes(x = pos, y = 0.02, label = label), inherit.aes = FALSE,
-                         vjust = 0, size = 5, fontface = "bold", color = "red", fill = "white",
-                         label.size = 0.3, label.padding = ggplot2::unit(0.12, "lines"),
+    ggplot2::geom_label(data = star_df, ggplot2::aes(x = pos, y = y_star, label = label), inherit.aes = FALSE,
+                         vjust = 0.1, size = 3, fontface = "bold", color = "red", fill = "white",
+                         linewidth = 0.3, label.padding = ggplot2::unit(0.12, "lines"),
                          label.r = ggplot2::unit(0.08, "lines")) +
     ggplot2::scale_color_manual(values = cond_colors, name = "Condition") +
     ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
@@ -1619,25 +1640,88 @@ if (USE_RUV) {
 }
 
 # ============================================================
+#  FUNCTION: cache wrapper for expensive per-group model fits
+# ============================================================
+#
+# run_dexseq_group()/build_gene_dge() are the dominant cost in this script --
+# full DEXSeq/DESeq2 model fits across every tested PAS. Most re-runs of this
+# script are iterating on a plot or GENES_OF_INTEREST, not changing the input
+# data or modeling config, so refitting from scratch every time is wasted
+# work. with_cache() saves a compute_fn()'s result plus a small manifest
+# (input-file mtimes + the modeling config that actually affects the fit) to
+# dir_cache; on the next run, if the manifest is unchanged, the cached result
+# is returned instead of recomputing. USE_CACHE <- FALSE always recomputes.
+
+file_mtime_safe <- function(path) {
+  if (is.null(path) || !file.exists(path)) return(NA_real_)
+  as.numeric(file.info(path)$mtime)
+}
+
+with_cache <- function(cache_key, manifest, compute_fn,
+                        cache_dir = dir_cache, use_cache = USE_CACHE) {
+  safe_key      <- gsub("[^A-Za-z0-9_.-]", "_", cache_key)
+  rds_file      <- file.path(cache_dir, paste0(safe_key, ".rds"))
+  manifest_file <- file.path(cache_dir, paste0(safe_key, "_manifest.rds"))
+
+  if (use_cache && file.exists(rds_file) && file.exists(manifest_file) &&
+      identical(readRDS(manifest_file), manifest)) {
+    message(sprintf("[cache] Reusing cached result for '%s' (inputs/config unchanged).", cache_key))
+    return(readRDS(rds_file))
+  }
+
+  if (use_cache) message(sprintf("[cache] No valid cache for '%s' -- computing.", cache_key))
+  result <- compute_fn()
+  saveRDS(result, rds_file)
+  saveRDS(manifest, manifest_file)
+  result
+}
+
+# Manifest shared by both cached steps below -- build_gene_dge() operates
+# entirely on the dxd that run_dexseq_group() produces, so anything that
+# would invalidate one fit invalidates the other identically.
+group_cache_manifest <- function(grp) {
+  list(
+    inputs = list(
+      counts  = file_mtime_safe(path_counts),
+      anno    = file_mtime_safe(path_anno),
+      design  = file_mtime_safe(path_design),
+      samples = file_mtime_safe(path_samples)
+    ),
+    samples_used = sort(group_list[[grp]]),
+    config = list(
+      CTRL_LABEL = CTRL_LABEL, TRTMT_LABEL = TRTMT_LABEL,
+      PAS_TYPE_REGEX = PAS_TYPE_REGEX, MIN_TOTAL_READS = MIN_TOTAL_READS,
+      MIN_PER_CONDITION = MIN_PER_CONDITION, USE_RUV = USE_RUV, RUV_K = RUV_K
+    )
+  )
+}
+
+# ============================================================
 #  MAIN LOOP
 # ============================================================
 
 message("--- Running DEXSeq analyses ---")
 
 runs <- lapply(names(group_list), function(grp) {
-  run_dexseq_group(
-    grp_label         = grp,
-    sub_samples       = group_list[[grp]],
-    count_mat         = count_mat,
-    colData           = colData,
-    featureID         = featureID,
-    groupID           = groupID,
-    gr                = gr,
-    pas_anno          = pas_anno,
-    min_total         = MIN_TOTAL_READS,
-    min_per_condition = MIN_PER_CONDITION,
-    use_ruv           = USE_RUV,
-    ruv_k             = RUV_K
+  with_cache(
+    cache_key = paste0("dexseq_", grp),
+    manifest  = group_cache_manifest(grp),
+    compute_fn = function() {
+      run_dexseq_group(
+        grp_label         = grp,
+        sub_samples       = group_list[[grp]],
+        count_mat         = count_mat,
+        colData           = colData,
+        featureID         = featureID,
+        groupID           = groupID,
+        gr                = gr,
+        pas_anno          = pas_anno,
+        min_total         = MIN_TOTAL_READS,
+        min_per_condition = MIN_PER_CONDITION,
+        use_ruv           = USE_RUV,
+        ruv_k             = RUV_K
+      )
+    }
   )
 })
 names(runs) <- names(group_list)
@@ -1649,7 +1733,13 @@ names(runs) <- names(group_list)
 
 message("--- Running gene-level DGE ---")
 
-gene_dge_results <- lapply(names(runs), function(grp) build_gene_dge(runs[[grp]]$dxd))
+gene_dge_results <- lapply(names(runs), function(grp) {
+  with_cache(
+    cache_key  = paste0("genedge_", grp),
+    manifest   = group_cache_manifest(grp),
+    compute_fn = function() build_gene_dge(runs[[grp]]$dxd)
+  )
+})
 names(gene_dge_results) <- names(runs)
 
 for (grp in names(gene_dge_results)) {

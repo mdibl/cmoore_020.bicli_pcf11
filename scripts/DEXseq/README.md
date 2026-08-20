@@ -59,6 +59,8 @@ GENES_OF_INTEREST <- c("GENE1", "GENE2")  # genes to plot APA genome-map figures
 
 USE_RUV <- FALSE   # set to TRUE to enable RUVseq batch correction (see below)
 RUV_K   <- 1       # number of unwanted variation factors to estimate (1 is usually enough)
+
+USE_CACHE <- TRUE  # reuse cached DEXSeq/DESeq2 fits when inputs/config are unchanged (see below)
 ```
 
 ### 2. Prepare input files
@@ -150,6 +152,7 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
 ├── gene_summary[.group].csv      ← per-gene summary (min padj, dir_consensus, ...)
 ├── gene_summary_wutr[.group].csv ← per-gene wUTR summary (wUTR, dominant site, chi-squared)
 ├── gene_dge[.group].csv          ← per-gene differential expression (DESeq2, independent of DEXSeq)
+├── cache/                        ← cached DEXSeq/DESeq2 fits (see "Caching" below); safe to delete
 └── plots/
     ├── qc/
     │   ├── library_sizes.png
@@ -388,6 +391,16 @@ When `USE_RUV=TRUE` the DEXSeq design becomes:
 The `W_1:exon` term tests whether the batch factor changes relative PAS usage fractions within genes — this is the dimension that `sample` alone cannot capture. The `condition:exon` term retains the same interpretation as before.
 
 **Important:** RUVseq corrects for unwanted variation that exists consistently across replicates. It cannot rescue experiments where replicates are fundamentally incomparable. Always compare the uncorrected and corrected PCA plots before trusting the RUV-corrected results.
+
+---
+
+## Caching (`USE_CACHE <- TRUE`)
+
+The DEXSeq and DESeq2 model fits (`run_dexseq_group()`, `build_gene_dge()`) are by far the slowest part of this script — full GLM fits across every tested PAS. Most re-runs are really about iterating on a plot or `GENES_OF_INTEREST`, not changing the underlying data or modeling settings, so refitting from scratch every time is wasted time.
+
+With `USE_CACHE <- TRUE` (the default), each group's fit is saved to `{OUT_BASE}/cache/` alongside a small manifest (mtimes of the count/annotation/design files, the exact sample list for that group, and the modeling settings that affect the fit: `CTRL_LABEL`, `TRTMT_LABEL`, `PAS_TYPE_REGEX`, `MIN_TOTAL_READS`, `MIN_PER_CONDITION`, `USE_RUV`, `RUV_K`). On the next run, if that manifest is unchanged, the cached fit is loaded instead of recomputed — the console prints `[cache] Reusing cached result for '...'` when this happens, or `[cache] No valid cache for '...' -- computing.` when it doesn't. Editing anything downstream of the fit (plot code, `GENES_OF_INTEREST`, color palettes, thresholds like `PADJ_CUT`/`LFC_CUT` that only affect summarization/plotting) leaves the cache valid. Changing the count matrix, annotation, design file, or any of the modeling settings above automatically invalidates it — no manual cleanup needed.
+
+Set `USE_CACHE <- FALSE` to always refit from scratch (e.g. while actively debugging `run_dexseq_group()`/`build_gene_dge()` themselves, where you don't want a stale-but-manifest-matching cache masking a code change). The `cache/` directory is otherwise safe to delete any time — it will simply be rebuilt on the next run.
 
 ---
 
