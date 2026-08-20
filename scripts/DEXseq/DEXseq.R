@@ -84,7 +84,7 @@ DOMINANT_STABLE_CUT <- 0.05
 NTOP_PCA      <- 2000        # top-N variable PAS for PCA (by row variance)
 PCA_LABEL_COL <- "replicate" # colData column to use as point labels (NULL = none)
 
-# Genes to plot PSI bar charts; set to character(0) to skip
+# Genes to plot APA genome-map figures for; set to character(0) to skip
 GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1", "MCAM", "RCOR3", "OTUD7B", "PCNX4", "LIFR", "ERLIN1", "SAMD14", "TRIM23", "MTRR", "DLAT", "LATS2", "SSR3", "CENPA")
 
 # RUVseq batch correction
@@ -123,13 +123,12 @@ DIV_UP   <- "#e34948"
 DIV_DOWN <- "#0d366b"
 DIV_NS   <- "grey60"
 
-dir_results         <- OUT_BASE
-dir_plots           <- file.path(OUT_BASE, "plots")
-dir_qc              <- file.path(OUT_BASE, "plots/qc")
-dir_gene_usage_bars <- file.path(OUT_BASE, "plots/gene_usage_bars")
-dir_apa_genome      <- file.path(OUT_BASE, "plots/apa_genome")
-dir_apa_zoom        <- file.path(OUT_BASE, "plots/apa_zoom")
-for (d in c(dir_results, dir_plots, dir_qc, dir_gene_usage_bars, dir_apa_genome, dir_apa_zoom)) {
+dir_results     <- OUT_BASE
+dir_plots       <- file.path(OUT_BASE, "plots")
+dir_qc          <- file.path(OUT_BASE, "plots/qc")
+dir_apa_genome  <- file.path(OUT_BASE, "plots/apa_genome")
+dir_apa_zoom    <- file.path(OUT_BASE, "plots/apa_zoom")
+for (d in c(dir_results, dir_plots, dir_qc, dir_apa_genome, dir_apa_zoom)) {
   dir.create(d, recursive = TRUE, showWarnings = FALSE)
 }
 
@@ -1165,113 +1164,6 @@ build_gene_apa_summary <- function(res_u,
 }
 
 # ============================================================
-#  FUNCTION: PSI bar chart with ΔPSI labels, SEM error bars,
-#            significance markers
-# ============================================================
-
-plot_gene_usage <- function(res_u, gene_symbol, title_suffix = NULL,
-                             ctrl_col  = USAGE_CTRL_COL,
-                             trt_col   = USAGE_TRTMT_COL,
-                             se_ctrl   = SE_CTRL_COL,
-                             se_trt    = SE_TRTMT_COL,
-                             fc_col    = FC_COL) {
-  stopifnot(all(c("gene", ctrl_col, trt_col) %in% names(res_u)))
-
-  df <- res_u %>%
-    dplyr::filter(gene == gene_symbol) %>%
-    dplyr::mutate(
-      PAS_raw = dplyr::coalesce(.data$feature, .data$featureID),
-      pos     = dplyr::coalesce(.data$genomicData.start, NA_integer_),
-      strand  = as.character(dplyr::coalesce(.data$genomicData.strand, NA))
-    ) %>%
-    dplyr::filter(!(is.na(.data[[ctrl_col]]) & is.na(.data[[trt_col]])))
-
-  if (nrow(df) == 0) stop(sprintf("No rows for gene '%s'.", gene_symbol))
-
-  if (!all(is.na(df$pos)) && !all(is.na(df$strand))) {
-    df <- df %>%
-      dplyr::group_by(gene) %>%
-      dplyr::mutate(is_distal = dplyr::case_when(
-        strand == "+" & pos == max(pos, na.rm = TRUE) ~ TRUE,
-        strand == "-" & pos == min(pos, na.rm = TRUE) ~ TRUE,
-        TRUE ~ FALSE
-      )) %>%
-      dplyr::ungroup()
-  } else {
-    df$is_distal <- NA
-  }
-
-  if (!all(is.na(df$pos))) {
-    df <- if (all(na.omit(df$strand) == "-")) dplyr::arrange(df, dplyr::desc(pos)) else dplyr::arrange(df, pos)
-  } else {
-    df <- dplyr::arrange(df, PAS_raw)
-  }
-
-  # Build per-PAS labels with ΔPSI and significance marker
-  sig_mark <- dplyr::case_when(
-    !is.na(df$padj) & df$padj < 0.001 ~ "***",
-    !is.na(df$padj) & df$padj < 0.01  ~ "**",
-    !is.na(df$padj) & df$padj < 0.05  ~ "*",
-    TRUE ~ ""
-  )
-  base_lab  <- ifelse(!is.na(df$is_distal) & df$is_distal,
-                      paste0(df$PAS_raw, " (distal)"), df$PAS_raw)
-  delta_psi <- df[[trt_col]] - df[[ctrl_col]]
-  PAS_label <- sprintf("%s\nΔPSI=%+.2f%s", base_lab, delta_psi, sig_mark)
-  if (any(duplicated(PAS_label))) PAS_label <- make.unique(PAS_label, sep = "_")
-
-  df$PAS_label <- PAS_label
-
-  # Reshape to long, carrying SE through pivot
-  long <- df %>%
-    dplyr::transmute(
-      PAS_label,
-      ctrl_u  = .data[[ctrl_col]],
-      trt_u   = .data[[trt_col]],
-      ctrl_se = if (se_ctrl  %in% names(df)) .data[[se_ctrl]]  else NA_real_,
-      trt_se  = if (se_trt   %in% names(df)) .data[[se_trt]]   else NA_real_
-    ) %>%
-    dplyr::rename(!!CTRL_LABEL := ctrl_u, !!TRTMT_LABEL := trt_u) %>%
-    tidyr::pivot_longer(
-      cols      = dplyr::all_of(c(CTRL_LABEL, TRTMT_LABEL)),
-      names_to  = "condition",
-      values_to = "mean_usage"
-    ) %>%
-    dplyr::mutate(
-      se_val    = ifelse(condition == CTRL_LABEL, ctrl_se, trt_se),
-      PAS_label = factor(PAS_label, levels = unique(PAS_label)),
-      mean_usage = pmax(pmin(mean_usage, 1), 0)
-    )
-
-  ttl <- paste0(gene_symbol, if (!is.null(title_suffix)) paste0(" — ", title_suffix) else "")
-
-  ggplot2::ggplot(long, ggplot2::aes(x = PAS_label, y = mean_usage, fill = condition)) +
-    ggplot2::geom_col(position = ggplot2::position_dodge(width = 0.8), width = 0.75) +
-    ggplot2::geom_errorbar(
-      ggplot2::aes(ymin = pmax(mean_usage - se_val, 0),
-                   ymax = pmin(mean_usage + se_val, 1)),
-      position = ggplot2::position_dodge(width = 0.8),
-      width = 0.25, na.rm = TRUE
-    ) +
-    ggplot2::scale_y_continuous(
-      labels = scales::percent_format(accuracy = 1),
-      expand = ggplot2::expansion(mult = c(0, 0.1))
-    ) +
-    ggplot2::labs(
-      x     = "PAS site",
-      y     = "Mean fractional usage (PSI)",
-      title = ttl,
-      fill  = "Condition",
-      caption = "ΔPSI=Trt−Ctrl; ±1 SEM; *p<.05 **p<.01 ***p<.001"
-    ) +
-    ggplot2::theme_minimal(base_size = 11) +
-    ggplot2::theme(
-      axis.text.x     = ggplot2::element_text(angle = 45, hjust = 1),
-      panel.grid.minor = ggplot2::element_blank()
-    )
-}
-
-# ============================================================
 #  FUNCTION: whole-gene structure map (real coordinates, all
 #            annotated isoforms, highlighting AS/APA differences)
 # ============================================================
@@ -1571,9 +1463,10 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
   dodge_w  <- diff(xr) * 0.01
 
   # Per-PAS significance stars (1-3, DEXSeq padj, same thresholds used
-  # elsewhere in this script) -- stacked vertically right along each PAS's
-  # own dotted guide line rather than side-by-side "***", so they stay
-  # readable even when several PAS sit close together.
+  # elsewhere in this script), anchored to a fixed spot at the bottom of the
+  # panel. Given as an opaque label (not plain text) so it stays legible
+  # against the dotted guide line and data points behind it regardless of
+  # color or position -- plain colored text kept blending into both.
   star_df <- pas_df %>%
     dplyr::mutate(n_star = dplyr::case_when(
       is.na(padj)  ~ 0L,
@@ -1584,8 +1477,6 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
     )) %>%
     dplyr::filter(n_star > 0) %>%
     dplyr::mutate(label = strrep("*", n_star))
-    #dplyr::mutate(label = vapply(n_star, function(n) paste(rep("*", n), collapse = "\n"), character(1)))
-  
 
   x_scale_usage <- if (flip_x) {
     ggplot2::scale_x_reverse(limits = xr, labels = scales::comma)
@@ -1603,8 +1494,10 @@ plot_gene_apa_zoom <- function(res_u, gene_symbol, gtf_exons, sub_cd, gene_dge, 
                             width = dodge_w, linewidth = 0.6, position = ggplot2::position_dodge(width = dodge_w * 2)) +
     ggplot2::geom_line(data = usage_long, ggplot2::aes(x = pos, y = val, color = condition), linewidth = 0.7) +
     ggplot2::geom_point(data = usage_long, ggplot2::aes(x = pos, y = val, color = condition), size = 1.8) +
-    ggplot2::geom_text(data = star_df, ggplot2::aes(x = pos, y = 0.02, label = label), inherit.aes = FALSE,
-                        vjust = 0, size = 5, lineheight = 0.7, fontface = "bold", color = "red") +
+    ggplot2::geom_label(data = star_df, ggplot2::aes(x = pos, y = 0.02, label = label), inherit.aes = FALSE,
+                         vjust = 0, size = 5, fontface = "bold", color = "red", fill = "white",
+                         label.size = 0.3, label.padding = ggplot2::unit(0.12, "lines"),
+                         label.r = ggplot2::unit(0.08, "lines")) +
     ggplot2::scale_color_manual(values = cond_colors, name = "Condition") +
     ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
     x_scale_usage +
@@ -1855,25 +1748,16 @@ for (grp in names(usage_results)) {
 }
 
 # ============================================================
-#  RELATIVE USAGE BAR CHARTS
+#  APA GENOME-MAP FIGURES (whole-gene + terminal-exon zoom)
 # ============================================================
 
 if (length(GENES_OF_INTEREST) > 0) {
-  message("--- Plotting PSI bar charts ---")
+  message("--- Plotting APA genome-map figures ---")
 
   for (g in GENES_OF_INTEREST) {
     for (grp in names(usage_results)) {
       sfx     <- group_suffix[grp]
       ttl_sfx <- if (nchar(sfx) > 0) sub("^\\.", "", sfx) else NULL
-      outfile <- file.path(dir_gene_usage_bars, sprintf("%s%s.png", g, sfx))
-      tryCatch({
-        png(outfile, width = 1000, height = 800, res = 100)
-        print(plot_gene_usage(usage_results[[grp]], g, title_suffix = ttl_sfx))
-        dev.off()
-      }, error = function(e) {
-        try(dev.off(), silent = TRUE)
-        warning(sprintf("Could not plot '%s' (%s): %s", g, grp, conditionMessage(e)))
-      })
 
       if (!is.null(gtf_exons) && requireNamespace("ggtranscript", quietly = TRUE)) {
         n_tx <- length(unique(gtf_exons$transcript_id[gtf_exons$gene_name == g]))

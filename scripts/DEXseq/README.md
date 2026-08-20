@@ -55,7 +55,7 @@ TRTMT_LABEL <- "Treatment"   # must match values in design file's 'condition' co
 GROUPING_VAR <- NULL   # NULL = run one analysis on all samples
                        # set to "timepoint" (or any colData column) to run per level
 
-GENES_OF_INTEREST <- c("GENE1", "GENE2")  # genes to plot PSI bar charts for
+GENES_OF_INTEREST <- c("GENE1", "GENE2")  # genes to plot APA genome-map figures for
 
 USE_RUV <- FALSE   # set to TRUE to enable RUVseq batch correction (see below)
 RUV_K   <- 1       # number of unwanted variation factors to estimate (1 is usually enough)
@@ -165,8 +165,6 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
     │   ├── pvalue_hist[.group].png
     │   ├── MA[.group].png
     │   └── volcano[.group].png
-    ├── gene_usage_bars/
-    │   └── {GENE}[.group].png   ← PSI bar charts, one file per gene
     ├── apa_genome/
     │   └── {GENE}[.group].png   ← whole-gene genome map, all isoforms (needs ANNO_GTF + ggtranscript)
     └── apa_zoom/
@@ -323,27 +321,9 @@ Plots log2 fold change (X) versus −log10(padj) (Y). Points in the upper corner
 
 ---
 
-## PSI bar charts (relative usage plots)
-
-Saved to `plots/gene_usage_bars/`, one PNG per gene per group.
-
-One plot per gene in `GENES_OF_INTEREST`, per analysis group. Each plot shows:
-
-- **X axis:** PAS sites ordered from 5' to 3' along the transcript (proximal on left, distal on right). The distal PAS is labeled `(distal)`.
-- **Y axis:** Mean fractional usage (PSI), expressed as a percentage. The values for all PAS in the gene add up to 100%.
-- **Bars:** Side-by-side bars for Control (left) and Treatment (right) at each PAS.
-- **Error bars:** ±1 standard error of the mean (SEM) across replicates within each condition. Larger error bars mean more variability between replicates.
-- **Labels:** Each PAS is labeled with **ΔPSI** (Treatment PSI − Control PSI, as a decimal fraction). A positive ΔPSI means more usage in treatment. Significance markers are appended: `*` (padj < 0.05), `**` (padj < 0.01), `***` (padj < 0.001).
-
-**How to read these plots for a collaborator:**
-
-Look at whether the bars shift toward the right (distal) or left (proximal) in the treatment vs. control. If the rightmost bar (distal PAS, labeled `(distal)`) gets taller in treatment, the gene's 3' UTR is getting *longer* in treatment. If a left bar (proximal PAS) gets taller while the distal bar shrinks, the 3' UTR is getting *shorter*. The ΔPSI value tells you the magnitude of that shift in percentage points.
-
----
-
 ## APA genome-map figures (`plots/apa_genome/`, `plots/apa_zoom/`)
 
-Two PNGs per gene in `GENES_OF_INTEREST`, per analysis group — both require `ANNO_GTF` to be set to a real GTF and `rtracklayer`/`ggtranscript` installed (skipped with a warning otherwise; see Software requirements). Unlike the PSI bar chart, these use **real genomic coordinates and real exon/intron structure** parsed from that GTF (`gtf_exons`, built once near the top of the script) — PolyA_DB alone has no gene structure, only flat PAS positions, so nothing before this could show actual isoform geometry. The two figures answer different questions and are deliberately not the same design:
+Two PNGs per gene in `GENES_OF_INTEREST`, per analysis group — both require `ANNO_GTF` to be set to a real GTF and `rtracklayer`/`ggtranscript` installed (skipped with a warning otherwise; see Software requirements). These use **real genomic coordinates and real exon/intron structure** parsed from that GTF (`gtf_exons`, built once near the top of the script) — PolyA_DB alone has no gene structure, only flat PAS positions, so nothing before this could show actual isoform geometry. The two figures answer different questions and are deliberately not the same design:
 
 - **`apa_genome/{GENE}[.group].png`** — structure only, no usage/expression. The whole gene at real scale on top, and a `ggforce::facet_zoom()` inset of just the terminal-exon/PAS region below, connected by an automatic shaded funnel — tightly clustered PAS (e.g. 5 within ~1kb) are illegible at whole-gene scale, so the inset exists purely to make that count legible. Every annotated RefSeq transcript is its own row. Only an isoform's **terminal exon** can be colored **Alternative** (orange — this isoform's terminal exon has a different start/end than every other isoform overlapping that region); everything else, including genuinely alternatively-spliced internal exons elsewhere in the gene body, is drawn plain **Constitutive** grey regardless of how much it varies between isoforms. This is deliberate: this project cares about AS+APA *interaction* (a different terminal exon is simultaneously a splicing choice and a polyadenylation-site choice), not alternative splicing on its own — highlighting internal cassette-exon variation unrelated to which PAS a transcript ends at would just be noise for this question. Isoforms at a completely different, unrelated locus (e.g. a retained-intron transcript far upstream) are still shown as a row in both panels — in the zoomed one it's simply empty, since that isoform has no data there, which is accurate rather than a filtering choice.
 - **`apa_zoom/{GENE}[.group].png`** — gene-level DGE and PAS usage, cropped tightly to just the terminal exon(s) near the detected PAS (unrelated distant isoforms excluded here — not because they're wrong, but because they're not part of this specific APA story and would blow up the crop window). A top row of two side-by-side panels, then two full-width panels stacked below on a shared x-axis (via `patchwork`):
