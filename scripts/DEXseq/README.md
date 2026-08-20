@@ -29,7 +29,7 @@ A significant result (adjusted p-value < threshold) means the relative usage of 
 
 For each PAS, `APA_direction` reports only the sign of *that PAS's own* usage change — `Increased` or `Decreased` — not an overall UTR-lengthening/shortening call. Earlier versions of this script tried to infer "Lengthened"/"Shortened" from a distal-vs-everything-else binary, but that breaks down once a gene has 3+ PAS: a usage gain at a middle site doesn't map cleanly onto "shorter" or "longer" 3' UTR, only onto "distal vs. not distal." `is_distal` (still in the output) tells you whether a given PAS is the gene's most 3' site, as positional context.
 
-The actual lengthening/shortening narrative is captured properly, across all of a gene's PAS at once, in `gene_summary_wutr.csv` via `delta_wUTR` (weighted UTR length) — see that section below. `dir_consensus` in `gene_summary.csv` (per-gene rollup of `APA_direction`) is now `Increased_only` / `Decreased_only` / `Mixed`.
+The actual lengthening/shortening narrative is captured properly, across all of a gene's PAS at once, in `gene_summary.csv` via `delta_wUTR` (weighted UTR length) — see that section below. `dir_consensus` in the same table (per-gene rollup of `APA_direction`) is now `Increased_only` / `Decreased_only` / `Mixed`.
 
 ---
 
@@ -148,11 +148,10 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
 
 ```
 {OUT_BASE}/
-├── pas_usage[.group].csv         ← per-PAS DEXSeq results + raw/normalized counts + usage (PSI) + SEM
-├── gene_summary[.group].csv      ← per-gene summary (min padj, dir_consensus, ...)
-├── gene_summary_wutr[.group].csv ← per-gene wUTR summary (wUTR, dominant site, chi-squared)
-├── gene_dge[.group].csv          ← per-gene differential expression (DESeq2, independent of DEXSeq)
-├── cache/                        ← cached DEXSeq/DESeq2 fits (see "Caching" below); safe to delete
+├── pas_usage[.group].csv    ← per-PAS DEXSeq results + raw/normalized counts + usage (PSI) + SEM + RED
+├── gene_summary[.group].csv ← per-gene summary (significance, wUTR, dominant site, RED rollup, chi-squared)
+├── gene_dge[.group].csv     ← per-gene differential expression (DESeq2, independent of DEXSeq)
+├── cache/                   ← cached DEXSeq/DESeq2 fits (see "Caching" below); safe to delete
 └── plots/
     ├── qc/
     │   ├── library_sizes.png
@@ -180,7 +179,7 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
 
 ### `gene_summary.csv` — per-gene summary
 
-One row per gene. Summarizes across all tested PAS within that gene.
+One row per gene. Joins two complementary views computed by `collapse_gene()` (a rollup of the per-PAS DEXSeq significance calls) and `build_gene_apa_summary()` (weighted UTR-length shift, dominant-site tracking, RED rollup, chi-squared cross-check — metrics that generalize cleanly to genes with 3+ PAS) into a single table, merged on `groupID`.
 
 | Column | Meaning |
 |---|---|
@@ -192,18 +191,6 @@ One row per gene. Summarizes across all tested PAS within that gene.
 | `max_absL2FC` | Largest absolute log2 fold change among significant PAS |
 | `dir_consensus` | `Increased_only`, `Decreased_only`, or `Mixed` |
 | `perGeneQ` | Lancaster-combined gene-level q-value (primary ranking metric) |
-
-**How to read this table:** sort by `perGeneQ` ascending. Genes at the top have the strongest overall evidence for differential APA. `dir_consensus` tells you whether the change is directional (one dominant direction) or complex (multiple PAS moving in different directions, which can indicate alternative internal promoter usage or complex regulatory changes).
-
----
-
-### `gene_summary_wutr.csv` — weighted UTR-length shift, dominant-site tracking, chi-squared cross-check
-
-One row per gene (same gene universe as `gene_summary.csv`). Complements it with metrics that generalize cleanly to genes with 3+ PAS, computed by `build_gene_apa_summary()`.
-
-| Column | Meaning |
-|---|---|
-| `n_PAS` | Number of PAS tested for this gene |
 | `dominant_featureID` | The PAS with the highest overall mean usage (`meanUsage_All`) — i.e., the gene's "default" isoform |
 | `dominant_abundance` | That PAS's `exonBaseMean` |
 | `dominant_meanUsage_Control` / `_Treatment` | That PAS's mean PSI per condition |
@@ -213,6 +200,9 @@ One row per gene (same gene universe as `gene_summary.csv`). Complements it with
 | `delta_wUTR` | `wUTR_Treatment − wUTR_Control`. Positive = usage shifted toward more distal sites on average (net lengthening); negative = net shortening. Generalizes to any number of PAS, unlike the old distal-vs-everything-else `APA_direction` binary — there's no stop-codon coordinate in the PolyA_DB annotation, so the gene's own most-proximal PAS is used as the reference point instead. |
 | `chisq_stat` / `chisq_pvalue` / `chisq_padj` | An independent cross-check: chi-squared test of association between PAS identity and condition, on summed raw counts (a PAS × condition contingency table). Doesn't depend on DEXSeq's negative-binomial model or size-factor normalization, so it isn't affected by anything upstream in that model — but it also doesn't correct for overdispersion, so expect it to run hotter (more significant) than `padj` on noisy/low-count genes. Use as a corroborating signal, not a replacement. |
 | `single_dominant_site` | `TRUE` when this gene functionally has one PAS: the dominant PAS carries ≥90% of usage in **both** conditions, and that share doesn't shift between them. This is a **flag, not a filter** — rows are never dropped from this table; whether to exclude them from a given analysis is left to you. |
+| `max_abs_delta_RED` / `max_delta_RED_featureID` | The single largest `\|delta_RED\|` among this gene's PAS (see `pas_usage.csv`'s "How RED is computed"), and which PAS it belongs to. Not necessarily `dominant_featureID` — the PAS driving the biggest relative-expression shift doesn't have to be the gene's most-abundant one. This is the direct replacement for ranking genes by RED the way the old MAAPER-based rubric did, generalized to any number of PAS. |
+
+**How to read this table:** sort by `perGeneQ` ascending for the strongest overall statistical evidence of differential APA. `dir_consensus` tells you whether the change is directional (one dominant direction) or complex (multiple PAS moving in different directions). `delta_wUTR` and `max_abs_delta_RED`/`max_delta_RED_featureID` give you two complementary, N-PAS-aware effect-size views (net UTR-length shift, and the single biggest per-site relative-expression shift) to weigh alongside the significance columns — none of `perGeneQ`, `delta_wUTR`, or RED alone tells the whole story.
 
 #### How `dominant_featureID` and `single_dominant_site` are determined
 
@@ -268,11 +258,29 @@ The main results table. One row per PAS site that passed filtering and was teste
 | `meanUsage_Treatment` | Mean PSI across treatment replicates |
 | `seUsage_Control` | Standard error of PSI across control replicates |
 | `seUsage_Treatment` | Standard error of PSI across treatment replicates |
+| `RED_Control` / `RED_Treatment` | Relative Expression Difference for this PAS, per condition — see "How RED is computed" below |
+| `delta_RED` | `RED_Treatment − RED_Control`. The actual treatment-effect comparison; large in magnitude (either sign) means this PAS's relative usage shifted a lot between conditions. |
 | `thin_counts` | `TRUE` when this PAS's raw reads, summed across replicates, are under `THIN_COUNTS_CUT` (default 40) in **either** condition. A soft warning, not a filter: `MIN_TOTAL_READS` already excludes PAS below its (lower, gene-total) bar before DEXSeq ever tests them — this just flags PAS that cleared that hard cutoff but are still thin on their own. |
 
 PSI (fractional usage) = reads at this PAS / total reads at all PAS of this gene, per sample, then averaged. This is the most biologically interpretable metric: a PAS with `meanUsage_Control = 0.25` accounts for 25% of that gene's poly-A reads in controls.
 
-**How to identify significant APA events:** filter for `padj < 0.05` (or your threshold). Further filter by `APA_direction == "Increased"` or `"Decreased"` to focus on which PAS moved, or use `gene_summary_wutr.csv`'s `delta_wUTR` for the gene-wide lengthening/shortening call.
+**How to identify significant APA events:** filter for `padj < 0.05` (or your threshold). Further filter by `APA_direction == "Increased"` or `"Decreased"` to focus on which PAS moved, or use `gene_summary.csv`'s `delta_wUTR` for the gene-wide lengthening/shortening call.
+
+#### How RED is computed
+
+RED ("Relative Expression Difference") is our own generalization of the RED metric from MAAPER — computed here because MAAPER's version only works for exactly two PAS per gene (a "proximal" and "distal" site); genes with 3+ PAS get silently collapsed down to two representative sites and lose information. This version works for any number of tested PAS.
+
+For PAS `i` in a gene with `N` tested PAS, per condition:
+```
+n(i)   = sum of that PAS's normalized counts (normCountData.*) across that condition's replicates
+m(i)   = sum of every OTHER PAS's normalized counts in that condition (gene total − n(i))
+RED(i) = log2( N * (n(i) + RED_PSEUDOCOUNT) / (m(i) + RED_PSEUDOCOUNT) )
+```
+`RED_PSEUDOCOUNT` (default 0.5, a Haldane-Anscombe-style correction) is added to both `n(i)` and `m(i)` before dividing. Without it, a PAS at exactly 0% or 100% usage in a condition would produce `log2(0)` or a division by zero — but those on/off shifts are exactly the dramatic cases a gene-ranking rubric cares most about, so rather than lose them to `NA`, the pseudocount keeps them as large, finite, rankable values. This is computed from summed *normalized* counts (`normCountData.*`), not the `meanUsage_*` fractions above — the pseudocount only makes sense added on an absolute count-like scale, not a 0–1 fraction.
+
+`RED(i)` on its own answers "how far is this PAS's usage from the null expectation of equal use of all `N` sites" (positive = used more than its 1/N share; negative = less). `delta_RED = RED_Treatment − RED_Control` is the actual between-condition comparison — the `1/N` term cancels exactly in that subtraction (same `N` for both conditions of the same gene), which is why only the single formula above is needed for both the per-condition value and the delta.
+
+See `gene_summary.csv`'s `max_abs_delta_RED` for the gene-level rollup (the PAS with the single biggest RED shift) — the direct replacement for ranking genes by RED under the old MAAPER-based approach.
 
 ---
 
@@ -414,8 +422,9 @@ Set `USE_CACHE <- FALSE` to always refit from scratch (e.g. while actively debug
 | `PADJ_CUT` | 0.05 | FDR threshold. Lower = fewer but more confident hits. |
 | `LFC_CUT` | 0.5 | log2 fold change threshold for "big" hits in the gene summary and volcano plot coloring. |
 | `THIN_COUNTS_CUT` | 40 | Per-PAS, per-condition warning threshold for `thin_counts` in `pas_usage.csv`. A flag, not a filter — `MIN_TOTAL_READS` above is what actually excludes PAS. |
-| `DOMINANT_USAGE_CUT` | 0.90 | Minimum usage share (in **both** conditions) a gene's top PAS needs to count as "the" dominant site for `single_dominant_site` in `gene_summary_wutr.csv`. |
+| `DOMINANT_USAGE_CUT` | 0.90 | Minimum usage share (in **both** conditions) a gene's top PAS needs to count as "the" dominant site for `single_dominant_site` in `gene_summary.csv`. |
 | `DOMINANT_STABLE_CUT` | 0.05 | Maximum allowed shift in the dominant PAS's own usage between conditions to still call it "stable" for `single_dominant_site`. |
+| `RED_PSEUDOCOUNT` | 0.5 | Haldane-Anscombe-style constant added to both `n(i)` and `m(i)` when computing `RED_Control`/`RED_Treatment`/`delta_RED`, so a PAS at 0%/100% usage still yields a large finite value instead of `NA`/`-Inf`. |
 | `NTOP_PCA` | 2000 | Number of most-variable PAS to use for PCA. 500–5000 is typical. |
 
 ---

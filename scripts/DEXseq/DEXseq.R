@@ -80,6 +80,13 @@ THIN_COUNTS_CUT <- 40
 DOMINANT_USAGE_CUT  <- 0.90
 DOMINANT_STABLE_CUT <- 0.05
 
+# RED (Relative Expression Difference) -- our N-site-generalized version of the RED
+# metric used from MAAPER (which is limited to exactly 2 sites/gene). A small
+# pseudocount added to both n(i) and m(i) (Haldane-Anscombe style) so a PAS at 0% or
+# 100% usage in a condition still yields a large, finite, rankable value instead of
+# +-Inf/NA -- exactly the dramatic on/off shifts a ranking rubric most cares about.
+RED_PSEUDOCOUNT <- 0.5
+
 # PCA settings
 NTOP_PCA      <- 2000        # top-N variable PAS for PCA (by row variance)
 PCA_LABEL_COL <- "replicate" # colData column to use as point labels (NULL = none)
@@ -148,6 +155,8 @@ USAGE_CTRL_COL   <- paste0("meanUsage_", CTRL_LABEL)
 USAGE_TRTMT_COL  <- paste0("meanUsage_", TRTMT_LABEL)
 SE_CTRL_COL      <- paste0("seUsage_", CTRL_LABEL)
 SE_TRTMT_COL     <- paste0("seUsage_", TRTMT_LABEL)
+RED_CTRL_COL     <- paste0("RED_", CTRL_LABEL)
+RED_TRTMT_COL    <- paste0("RED_", TRTMT_LABEL)
 WUTR_CTRL_COL       <- paste0("wUTR_", CTRL_LABEL)
 WUTR_TRTMT_COL      <- paste0("wUTR_", TRTMT_LABEL)
 DOM_USAGE_CTRL_COL  <- paste0("dominant_meanUsage_", CTRL_LABEL)
@@ -822,7 +831,7 @@ run_dexseq_group <- function(grp_label, sub_samples, count_mat, colData,
   # doesn't map cleanly onto "shorter" vs "longer" 3' UTR. `is_distal` below
   # is retained as positional context only; the actual lengthening/
   # shortening narrative is summarized properly across all PAS at once by
-  # delta_wUTR in gene_summary_wutr.csv (see build_gene_apa_summary()).
+  # delta_wUTR in gene_summary.csv (see build_gene_apa_summary()).
   message(sprintf("[%s] Assigning usage direction...", grp_label))
   res_tp$APA_direction <- NA_character_
 
@@ -956,7 +965,7 @@ collapse_gene <- function(res_df, gene_q = NULL,
 }
 
 # ============================================================
-#  FUNCTION: per-condition mean PSI + SEM
+#  FUNCTION: per-condition mean PSI + SEM + RED
 # ============================================================
 
 usage_by_condition <- function(res_df, sub_cd, thin_cut = THIN_COUNTS_CUT) {
@@ -988,6 +997,33 @@ usage_by_condition <- function(res_df, sub_cd, thin_cut = THIN_COUNTS_CUT) {
   out[[USAGE_TRTMT_COL]] <- if (length(trt_idx))  rowMeans(usage[, trt_idx,  drop = FALSE], na.rm = TRUE) else NA_real_
   out[[SE_CTRL_COL]]     <- if (length(ctrl_idx) > 1) apply(usage[, ctrl_idx, drop = FALSE], 1, se_fn) else rep(NA_real_, nrow(usage))
   out[[SE_TRTMT_COL]]    <- if (length(trt_idx)  > 1) apply(usage[, trt_idx,  drop = FALSE], 1, se_fn) else rep(NA_real_, nrow(usage))
+
+  # RED (Relative Expression Difference), our N-site-generalized version of the
+  # MAAPER RED metric -- see build_gene_apa_summary()'s max_abs_delta_RED for the
+  # gene-level rollup. Computed from summed *normalized* counts per condition, not
+  # the meanUsage_* fractions above, because the pseudocount correction below only
+  # makes sense added to an absolute count scale, not a 0-1 fraction.
+  norm_cnt_cols <- grep("^normCountData\\.", names(res_df), value = TRUE)
+  stopifnot(length(norm_cnt_cols) > 0)
+  norm_counts <- as.matrix(res_df[, norm_cnt_cols, drop = FALSE])
+  colnames(norm_counts) <- sub("^normCountData\\.", "", colnames(norm_counts))
+  norm_counts <- norm_counts[, colnames(counts), drop = FALSE]  # align to counts'/ctrl_idx's/trt_idx's sample order
+
+  n_ctrl <- if (length(ctrl_idx)) rowSums(norm_counts[, ctrl_idx, drop = FALSE], na.rm = TRUE) else rep(NA_real_, nrow(norm_counts))
+  n_trt  <- if (length(trt_idx))  rowSums(norm_counts[, trt_idx,  drop = FALSE], na.rm = TRUE) else rep(NA_real_, nrow(norm_counts))
+
+  gene_norm_totals <- rowsum(norm_counts, res_df$groupID)
+  gene_tot_ctrl    <- rowSums(gene_norm_totals[, ctrl_idx, drop = FALSE], na.rm = TRUE)[res_df$groupID]
+  gene_tot_trt     <- rowSums(gene_norm_totals[, trt_idx,  drop = FALSE], na.rm = TRUE)[res_df$groupID]
+
+  m_ctrl         <- gene_tot_ctrl - n_ctrl
+  m_trt          <- gene_tot_trt  - n_trt
+  n_pas_per_gene <- as.integer(table(res_df$groupID)[res_df$groupID])
+
+  red_fn <- function(n, m, N) log2(N * (n + RED_PSEUDOCOUNT) / (m + RED_PSEUDOCOUNT))
+  out[[RED_CTRL_COL]]  <- red_fn(n_ctrl, m_ctrl, n_pas_per_gene)
+  out[[RED_TRTMT_COL]] <- red_fn(n_trt,  m_trt,  n_pas_per_gene)
+  out[["delta_RED"]]   <- out[[RED_TRTMT_COL]] - out[[RED_CTRL_COL]]
 
   # thin_counts is a soft warning, not a filter: MIN_TOTAL_READS already excludes
   # PAS below its (gene-total) bar before DEXSeq ever sees them, so this flags
@@ -1063,7 +1099,7 @@ build_gene_dge <- function(dxd, ctrl_label = CTRL_LABEL, trt_label = TRTMT_LABEL
 
 # ============================================================
 #  FUNCTION: gene-level APA summary — weighted UTR-length shift,
-#            dominant-site tracking, chi-squared cross-check
+#            dominant-site tracking, RED rollup, chi-squared cross-check
 # ============================================================
 #
 # delta_wUTR ("weighted UTR length") replaces the old binary
@@ -1091,6 +1127,12 @@ build_gene_dge <- function(dxd, ctrl_label = CTRL_LABEL, trt_label = TRTMT_LABEL
 # not depend on estimateSizeFactors/DEXSeq's NB model, so it does not inherit
 # any bias from the usage-averaging step above. Expect it to run hotter
 # (more sensitive, no overdispersion correction) than the DEXSeq padj values.
+#
+# max_abs_delta_RED/max_delta_RED_featureID roll the per-PAS RED metric (see
+# usage_by_condition()) up to one number per gene -- the single biggest
+# relative-expression shift among that gene's PAS -- so genes can be ranked
+# by RED the way they used to be under MAAPER, but correctly accounting for
+# every tested PAS instead of just a proximal/distal pair.
 
 build_gene_apa_summary <- function(res_u,
                                     ctrl_col   = USAGE_CTRL_COL,
@@ -1143,6 +1185,15 @@ build_gene_apa_summary <- function(res_u,
                           dom_usage_ctrl >= dominant_usage_cut & dom_usage_trt >= dominant_usage_cut
       cs <- chisq_for_gene(sub)
 
+      # Gene-level RED rollup: the PAS with the single largest |delta_RED| --
+      # the direct replacement for "rank genes by their biggest RED shift"
+      # (see usage_by_condition() for the per-PAS RED_Control/RED_Treatment/
+      # delta_RED this is built from). Independent of dominant_featureID above:
+      # the PAS driving the biggest relative-expression shift need not be the
+      # gene's most-abundant PAS.
+      red_i   <- which.max(abs(sub$delta_RED))
+      has_red <- length(red_i) > 0
+
       data.frame(
         n_PAS                 = n_pas,
         dominant_featureID    = sub$featureID[dom_i],
@@ -1157,6 +1208,8 @@ build_gene_apa_summary <- function(res_u,
         chisq_stat            = cs["stat"],
         chisq_pvalue          = cs["pvalue"],
         single_dominant_site  = isTRUE(dom_dominant) & dom_stable,
+        max_abs_delta_RED       = if (has_red) abs(sub$delta_RED[red_i]) else NA_real_,
+        max_delta_RED_featureID = if (has_red) sub$featureID[red_i]      else NA_character_,
         stringsAsFactors      = FALSE
       )
     }) %>%
@@ -1787,20 +1840,7 @@ for (grp in names(runs)) {
   )
 }
 
-# ============================================================
-#  GENE-LEVEL SUMMARIES
-# ============================================================
-
 message("--- Exporting results ---")
-
-for (grp in names(runs)) {
-  sfx    <- group_suffix[grp]
-  gene_q <- perGeneQValue(runs[[grp]]$dxr)
-  sum_df <- collapse_gene(runs[[grp]]$results, gene_q)
-  write.csv(sum_df,
-            file.path(dir_results, sprintf("gene_summary%s.csv", sfx)),
-            row.names = FALSE, quote = FALSE)
-}
 
 # ============================================================
 #  PER-PAS RESULTS + USAGE (one table: DEXSeq results, annotation,
@@ -1823,17 +1863,25 @@ for (grp in names(usage_results)) {
 }
 
 # ============================================================
-#  GENE-LEVEL wUTR SUMMARY (weighted UTR-length shift, dominant-site
-#  tracking, chi-squared cross-check) — see build_gene_apa_summary()
+#  GENE-LEVEL SUMMARY (significance rollup from collapse_gene(), joined
+#  with weighted UTR-length shift, dominant-site tracking, RED rollup, and
+#  the chi-squared cross-check from build_gene_apa_summary()) -- one file,
+#  one row per gene.
 # ============================================================
 
-message("--- Building gene-level wUTR summary ---")
+message("--- Building gene-level summary ---")
 
-for (grp in names(usage_results)) {
-  sfx     <- group_suffix[grp]
-  apa_sum <- build_gene_apa_summary(usage_results[[grp]])
-  write.csv(apa_sum,
-            file.path(dir_results, sprintf("gene_summary_wutr%s.csv", sfx)),
+for (grp in names(runs)) {
+  sfx    <- group_suffix[grp]
+  gene_q <- perGeneQValue(runs[[grp]]$dxr)
+
+  sig_summary <- collapse_gene(runs[[grp]]$results, gene_q)
+  apa_summary <- build_gene_apa_summary(usage_results[[grp]])
+  apa_summary <- apa_summary[, setdiff(names(apa_summary), "n_PAS"), drop = FALSE]  # already in sig_summary
+
+  gene_summary <- merge(sig_summary, apa_summary, by = "groupID", all = TRUE, sort = FALSE)
+  write.csv(gene_summary,
+            file.path(dir_results, sprintf("gene_summary%s.csv", sfx)),
             row.names = FALSE, quote = FALSE)
 }
 
