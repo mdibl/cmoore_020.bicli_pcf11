@@ -87,6 +87,16 @@ DOMINANT_STABLE_CUT <- 0.05
 # +-Inf/NA -- exactly the dramatic on/off shifts a ranking rubric most cares about.
 RED_PSEUDOCOUNT <- 0.5
 
+# Candidate-gene rubric (see build_candidate_genes()) -- our replacement for the old
+# MAAPER/RED-based candidate-selection rubric. A gene's single biggest-moving PAS
+# must clear ALL of: usage change, DEXSeq significance (reuses PADJ_CUT below), read
+# depth (reuses thin_counts), 3' UTR length shift, and RED magnitude -- and the gene
+# must not be a single_dominant_site gene (a shift confined to a minor site there
+# isn't the kind of finding this rubric is meant to surface).
+USAGE_CHANGE_CUT <- 0.05  # min |meanUsage_Treatment - meanUsage_Control| for the top-moving PAS
+WUTR_CHANGE_CUT  <- 50    # min |delta_wUTR| (bp) for the gene overall
+RED_MAG_CUT      <- 1     # min |delta_RED| (log2 scale) for the top-moving PAS
+
 # PCA settings
 NTOP_PCA      <- 2000        # top-N variable PAS for PCA (by row variance)
 PCA_LABEL_COL <- "replicate" # colData column to use as point labels (NULL = none)
@@ -1226,6 +1236,62 @@ build_gene_apa_summary <- function(res_u,
 }
 
 # ============================================================
+#  FUNCTION: candidate-gene rubric
+# ============================================================
+#
+# Our replacement for the old MAAPER/RED-based candidate-selection rubric
+# (Kathleen's process): for each gene, take its single biggest-moving PAS (by
+# |usage change|, same "greatest change in percent usage of any PAS" idea the
+# old rubric used) and require that PAS/gene to clear every one of:
+#   - usage change      > USAGE_CHANGE_CUT   (meaningful absolute shift, not
+#                                              just a big relative one)
+#   - padj              < padj_cut           (DEXSeq's own significance call
+#                                              on that PAS, replacing the old
+#                                              separate MAAPER p-value)
+#   - not thin_counts                        (adequate read depth, replacing
+#                                              the old ">40 reads" bar)
+#   - |delta_wUTR|      > WUTR_CHANGE_CUT     (a real gene-wide 3' UTR length
+#                                              shift, not just one site moving)
+#   - not single_dominant_site                (excludes genes where a shift is
+#                                              confined to a site that carries
+#                                              minor content either way)
+#   - |delta_RED|       >= RED_MAG_CUT        (our generalized analog of the
+#                                              old |REDu1| >= 1 magnitude bar)
+# This is a filter, not a flag -- genes that don't clear all six simply don't
+# appear in the output, which is the point of this table (a curated
+# candidate list, not a full annotated universe like gene_summary.csv).
+
+build_candidate_genes <- function(res_u, gene_summary,
+                                   ctrl_col = USAGE_CTRL_COL, trt_col = USAGE_TRTMT_COL,
+                                   usage_change_cut = USAGE_CHANGE_CUT,
+                                   padj_cut          = PADJ_CUT,
+                                   wutr_change_cut   = WUTR_CHANGE_CUT,
+                                   red_mag_cut       = RED_MAG_CUT) {
+  top_per_gene <- res_u %>%
+    dplyr::mutate(meanUsage_change = abs(.data[[trt_col]] - .data[[ctrl_col]])) %>%
+    dplyr::filter(!is.na(meanUsage_change)) %>%
+    dplyr::group_by(groupID) %>%
+    dplyr::slice_max(meanUsage_change, n = 1, with_ties = FALSE) %>%
+    dplyr::ungroup()
+
+  top_per_gene %>%
+    dplyr::left_join(gene_summary, by = "groupID", suffix = c("", "_gene")) %>%
+    dplyr::filter(
+      meanUsage_change > usage_change_cut,
+      !is.na(padj), padj < padj_cut,
+      !thin_counts,
+      !is.na(delta_wUTR), abs(delta_wUTR) > wutr_change_cut,
+      !dplyr::coalesce(single_dominant_site, FALSE),
+      !is.na(delta_RED), abs(delta_RED) >= red_mag_cut
+    ) %>%
+    dplyr::arrange(padj) %>%
+    dplyr::select(groupID, gene, featureID, meanUsage_change, padj, delta_wUTR,
+                  delta_RED, max_abs_delta_RED, max_delta_RED_featureID,
+                  perGeneQ, dir_consensus, dominant_featureID) %>%
+    as.data.frame()
+}
+
+# ============================================================
 #  FUNCTION: whole-gene structure map (real coordinates, all
 #            annotated isoforms, highlighting AS/APA differences)
 # ============================================================
@@ -1866,10 +1932,10 @@ for (grp in names(usage_results)) {
 #  GENE-LEVEL SUMMARY (significance rollup from collapse_gene(), joined
 #  with weighted UTR-length shift, dominant-site tracking, RED rollup, and
 #  the chi-squared cross-check from build_gene_apa_summary()) -- one file,
-#  one row per gene.
+#  one row per gene -- plus the candidate-gene rubric applied on top of it.
 # ============================================================
 
-message("--- Building gene-level summary ---")
+message("--- Building gene-level summary and candidate-gene list ---")
 
 for (grp in names(runs)) {
   sfx    <- group_suffix[grp]
@@ -1882,6 +1948,11 @@ for (grp in names(runs)) {
   gene_summary <- merge(sig_summary, apa_summary, by = "groupID", all = TRUE, sort = FALSE)
   write.csv(gene_summary,
             file.path(dir_results, sprintf("gene_summary%s.csv", sfx)),
+            row.names = FALSE, quote = FALSE)
+
+  candidate_genes <- build_candidate_genes(usage_results[[grp]], gene_summary)
+  write.csv(candidate_genes,
+            file.path(dir_results, sprintf("candidate_genes%s.csv", sfx)),
             row.names = FALSE, quote = FALSE)
 }
 

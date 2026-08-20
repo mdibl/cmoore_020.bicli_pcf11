@@ -148,9 +148,10 @@ All outputs are written under `OUT_BASE` (set in configuration). Structure:
 
 ```
 {OUT_BASE}/
-├── pas_usage[.group].csv    ← per-PAS DEXSeq results + raw/normalized counts + usage (PSI) + SEM + RED
-├── gene_summary[.group].csv ← per-gene summary (significance, wUTR, dominant site, RED rollup, chi-squared)
-├── gene_dge[.group].csv     ← per-gene differential expression (DESeq2, independent of DEXSeq)
+├── pas_usage[.group].csv        ← per-PAS DEXSeq results + raw/normalized counts + usage (PSI) + SEM + RED
+├── gene_summary[.group].csv     ← per-gene summary (significance, wUTR, dominant site, RED rollup, chi-squared)
+├── candidate_genes[.group].csv  ← curated shortlist: genes clearing every rubric criterion at once
+├── gene_dge[.group].csv         ← per-gene differential expression (DESeq2, independent of DEXSeq)
 ├── cache/                   ← cached DEXSeq/DESeq2 fits (see "Caching" below); safe to delete
 └── plots/
     ├── qc/
@@ -281,6 +282,27 @@ RED(i) = log2( N * (n(i) + RED_PSEUDOCOUNT) / (m(i) + RED_PSEUDOCOUNT) )
 `RED(i)` on its own answers "how far is this PAS's usage from the null expectation of equal use of all `N` sites" (positive = used more than its 1/N share; negative = less). `delta_RED = RED_Treatment − RED_Control` is the actual between-condition comparison — the `1/N` term cancels exactly in that subtraction (same `N` for both conditions of the same gene), which is why only the single formula above is needed for both the per-condition value and the delta.
 
 See `gene_summary.csv`'s `max_abs_delta_RED` for the gene-level rollup (the PAS with the single biggest RED shift) — the direct replacement for ranking genes by RED under the old MAAPER-based approach.
+
+---
+
+### `candidate_genes.csv` — the curated shortlist
+
+Computed by `build_candidate_genes()`. This is a **filter, not a flag**: unlike every other table in this pipeline, genes that don't clear every criterion below simply don't appear here — this file is meant to be a small, curated shortlist, not a fully annotated universe.
+
+It's the direct successor to the old MAAPER/RED-based candidate-selection rubric (Kathleen's process): for each gene, take its single biggest-moving PAS (the same "greatest change in percent usage of any PAS" idea the old rubric used) and require that PAS/gene to clear **all** of:
+
+| Criterion | Threshold | Replaces (old rubric) |
+|---|---|---|
+| Usage change | `\|meanUsage_change\| > USAGE_CHANGE_CUT` (default 0.05) | Same idea, same default (0.05) |
+| Statistical significance | `padj < PADJ_CUT` (default 0.05) | MAAPER's separate `pval.fisher.adj < 0.001` — now DEXSeq's own per-PAS `padj`, on the same PAS the usage-change criterion already picked out |
+| Read depth | not `thin_counts` (≥40 reads) | MAAPER's "read count at pPAS/dPAS > 40" |
+| 3′ UTR length shift | `\|delta_wUTR\| > WUTR_CHANGE_CUT` (default 50 bp) | Joel's manually-computed "mean change in 3' UTR length" |
+| Not a single-dominant-site gene | `single_dominant_site == FALSE` | The old rubric had no equivalent — this is new, and catches the same "big relative change, tiny real impact" false positives that criterion was already trying to filter, generalized past 2 PAS |
+| RED magnitude | `\|delta_RED\| >= RED_MAG_CUT` (default 1) | MAAPER's `\|REDu1\| >= 1` |
+
+Every threshold is a top-level constant (see "Key thresholds" below) — none are hardcoded inside `build_candidate_genes()`. Columns in the output are a mix of the winning PAS's own values (`featureID`, `meanUsage_change`, `padj`, `delta_RED`) and gene-level context (`delta_wUTR`, `max_abs_delta_RED`/`max_delta_RED_featureID`, `perGeneQ`, `dir_consensus`, `dominant_featureID`), sorted by `padj` ascending.
+
+**A note on thresholds:** the significance bar here reuses `PADJ_CUT` (0.05) — noticeably looser than the old rubric's `pval.fisher.adj < 0.001`. At `PADJ_CUT` left at its default, expect a few dozen genes on a typical run; tightening `PADJ_CUT` to `0.001` to match the original rubric's actual stringency typically drops that to a small handful. Similarly, `RED_MAG_CUT` (our analog of `\|REDu1\| >= 1`) is the single most consequential of these six thresholds — check how the candidate count changes with and without it before treating a given run's list as final.
 
 ---
 
@@ -425,6 +447,9 @@ Set `USE_CACHE <- FALSE` to always refit from scratch (e.g. while actively debug
 | `DOMINANT_USAGE_CUT` | 0.90 | Minimum usage share (in **both** conditions) a gene's top PAS needs to count as "the" dominant site for `single_dominant_site` in `gene_summary.csv`. |
 | `DOMINANT_STABLE_CUT` | 0.05 | Maximum allowed shift in the dominant PAS's own usage between conditions to still call it "stable" for `single_dominant_site`. |
 | `RED_PSEUDOCOUNT` | 0.5 | Haldane-Anscombe-style constant added to both `n(i)` and `m(i)` when computing `RED_Control`/`RED_Treatment`/`delta_RED`, so a PAS at 0%/100% usage still yields a large finite value instead of `NA`/`-Inf`. |
+| `USAGE_CHANGE_CUT` | 0.05 | Minimum `\|meanUsage_change\|` for a gene's top-moving PAS to qualify for `candidate_genes.csv`. |
+| `WUTR_CHANGE_CUT` | 50 | Minimum `\|delta_wUTR\|` (bp) for `candidate_genes.csv`. |
+| `RED_MAG_CUT` | 1 | Minimum `\|delta_RED\|` (log2 scale) for `candidate_genes.csv` — our analog of the old MAAPER rubric's `\|REDu1\| >= 1`. |
 | `NTOP_PCA` | 2000 | Number of most-variable PAS to use for PCA. 500–5000 is typical. |
 
 ---
