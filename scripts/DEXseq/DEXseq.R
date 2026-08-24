@@ -102,9 +102,12 @@ NTOP_PCA      <- 2000        # top-N variable PAS for PCA (by row variance)
 PCA_LABEL_COL <- "replicate" # colData column to use as point labels (NULL = none)
 
 # Genes to plot APA genome-map figures for; set to character(0) to skip
+# Cherry picked genes (by me):
 #GENES_OF_INTEREST <- c("PCF11", "TAB2", "ICAM1", "MCAM", "RCOR3", "OTUD7B", "PCNX4", "LIFR", "ERLIN1", "SAMD14", "TRIM23", "MTRR", "DLAT", "LATS2", "SSR3", "CENPA")
-GENES_OF_INTEREST <- c("DMAC1", "LASP1", "HBEGF", "LIFR", "ACBD5", "PCNX4", "DKC1", "SLC35D2", "CAPN1", "SH3BP2", "FNBP1L", "NBEA", "CENPS-CORT", "TMEM254", "COX7B", "SH3BP1", "HMGXB4", "LAPTM4A", "GATB", "EMC4", "AKIRIN2", "TRMT10C", "EIF3E", "NUP37", "SLC39A6", "RPL4", "CHCHD4", "ZNF746", "DAP", "ST6GALNAC6")
-
+# top 30:
+#GENES_OF_INTEREST <- c("DMAC1", "LASP1", "HBEGF", "LIFR", "ACBD5", "PCNX4", "DKC1", "SLC35D2", "CAPN1", "SH3BP2", "FNBP1L", "NBEA", "CENPS-CORT", "TMEM254", "COX7B", "SH3BP1", "HMGXB4", "LAPTM4A", "GATB", "EMC4", "AKIRIN2", "TRMT10C", "EIF3E", "NUP37", "SLC39A6", "RPL4", "CHCHD4", "ZNF746", "DAP", "ST6GALNAC6")
+# next top 15: 
+GENES_OF_INTEREST <- c("ZNF324", "VDAC3", "ZNF557", "GNB5", "MSX1", "RTF2", "RPL7A", "SNX21", "HSPD1", "CHMP7", "TMUB2", "ZNF703", "CRYZL1", "FAM136A", "ANGPT1")
 
 # RUVseq batch correction
 #   USE_RUV <- TRUE  when replicates cluster by batch in PCA rather than condition.
@@ -153,7 +156,7 @@ DIV_NS   <- "grey60"
 dir_results     <- OUT_BASE
 dir_plots       <- file.path(OUT_BASE, "plots")
 dir_qc          <- file.path(OUT_BASE, "plots/qc")
-dir_apa_genome  <- file.path(OUT_BASE, "plots/apa_genome")
+dir_apa_genome  <- file.path(OUT_BASE, "plots/apa_genome/GOI")
 dir_apa_zoom    <- file.path(OUT_BASE, "plots/apa_zoom/GOI")
 dir_cache       <- file.path(OUT_BASE, "cache")
 for (d in c(dir_results, dir_plots, dir_qc, dir_apa_genome, dir_apa_zoom, dir_cache)) {
