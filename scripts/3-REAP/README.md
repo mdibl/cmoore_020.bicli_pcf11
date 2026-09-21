@@ -56,10 +56,20 @@ The pipeline uses:
 - `data/PolyA_DB_v4.1/hg38.PAS.main.tsv` — PolyA_DB v4.1 reference PAS database
 - `data/ref/hg38.chrom.sizes` — chromosome size file
 
-### 4. Run
+### 4. Activate conda env with appropriate dependancies
+
+Required tools: 
+- umi_tools 1.1.5
+- cutadapt 4.9
+- bbmap 39.28
+- STAR 2.7.11b
+- samtools 1.22
+- bedtools 2.31.1
+
+### 5. Run
 
 ```bash
-bash scripts/3-REAP_workflow.sh 2>&1 | tee scripts/pipeline_run_$(date +%Y%m%d_%H%M).log
+bash 3-REAP_workflow.sh 2>&1 | tee pipeline_run_$(date +%Y%m%d_%H%M).log
 ```
 
 The `tee` command saves a timestamped log alongside the script. The pipeline prints progress at each step and skips any sample/step where output already exists, so it is safe to re-run after a partial failure.
